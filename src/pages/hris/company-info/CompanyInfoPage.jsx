@@ -7,11 +7,11 @@ import { useHeader } from "@/context/HeaderContext";
 import useFetchCompanyDetailsAPI from "@/hooks/useCompanyAPI";
 import { useAuthStore } from "@/stores/useAuthStore";
 import React, { useContext, useEffect } from "react";
-import CompanyProfileTab from "./tabs-contents/company-profile/CompanyProfileTAB";
-import OfficesTab from "./tabs-contents/OfficesTAB";
-import DivisionsTab from "./tabs-contents/DivisionsTAB";
-import DepartmentsTab from "./tabs-contents/departmentsTAB";
-import TeamsTab from "./tabs-contents/TeamsTAB";
+import CompanyProfileTab from "./tabs-contents/company-profile/CompanyProfileTab";
+import OfficesTab from "./tabs-contents/OfficesTab";
+import DivisionsTab from "./tabs-contents/divisionsTab";
+import DepartmentsTab from "./tabs-contents/departmentsTab";
+import TeamsTab from "./tabs-contents/TeamsTab";
 import { CompanyDetailsContext } from "@/context/CompanyDetailsContext";
 
 const CompanyInfoPage = () => {
