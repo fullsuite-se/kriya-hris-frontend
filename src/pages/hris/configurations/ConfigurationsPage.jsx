@@ -1,10 +1,10 @@
 import { useHeader } from "@/context/HeaderContext";
 import React, { useEffect } from "react";
 import DynamicTabs from "@/components/tabs/DynamicTabs";
-import JobPositionsTab from "./tabs-contents/JobPositionsTAB";
-import JobSettingsTab from "./tabs-contents/jobSettingsTAB";
-import GovernmentRemittanceTab from "./tabs-contents/GovernmentRemittancesTAB";
-import ShiftTemplatesTab from "./tabs-contents/shiftTemplatesTAB";
+import JobPositionsTab from "./tabs-contents/JobPositionsTab";
+import JobSettingsTab from "./tabs-contents/JobSettingsTab";
+import GovernmentRemittanceTab from "./tabs-contents/GovernmentRemittancesTab";
+import ShiftTemplatesTab from "./tabs-contents/shiftTemplatesTab";
 const ConfigurationsPage = () => {
   const { setHeaderConfig } = useHeader();
 

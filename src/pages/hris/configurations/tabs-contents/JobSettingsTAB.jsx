@@ -2,18 +2,11 @@ import CustomDialog from "@/components/dialog/CustomDialog";
 import getEmployeeTypesColumns from "@/components/table/columns/EmployeeTypesColumns";
 import getEmploymentStatusColumns from "@/components/table/columns/EmploymentStatusColumns";
 import getJobLevelsColumns from "@/components/table/columns/JobLevelsColumns";
-import getJobPositionColumns from "@/components/table/columns/JobPositionsColumns";
 import getSalaryTypesColumns from "@/components/table/columns/SalaryTypesColumns";
 import DataTable from "@/components/table/table-components/DataTable";
 import { Button } from "@/components/ui/button";
 import { glassToast } from "@/components/ui/glass-toast";
 import { Input } from "@/components/ui/input";
-import {
-  useAddJobAPI,
-  useDeleteJobAPI,
-  useEditJobAPI,
-  useFetchAllJobsAPI,
-} from "@/hooks/useJobAPI";
 import {
   useAddEmployeeTypeAPI,
   useAddEmploymentStatusAPI,
@@ -24,14 +17,11 @@ import {
   useFetchJobLevelsAPI,
   useFetchSalaryTypesAPI,
 } from "@/hooks/useJobSettingsAPI";
-import { useAuthStore } from "@/stores/useAuthStore";
 import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
-  InformationCircleIcon,
 } from "@heroicons/react/24/solid";
-import { use, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 export const JobSettingsTab = () => {
   //   const { systemCompanyId } = useAuthStore();

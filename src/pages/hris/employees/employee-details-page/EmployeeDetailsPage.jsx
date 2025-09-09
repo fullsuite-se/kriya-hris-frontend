@@ -8,9 +8,9 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useFetchEmployeeDetailsAPI } from "@/hooks/useEmployeeAPI";
 import { EmployeeDetailsContext } from "@/context/EmployeeDetailsContext";
-import PersonalInfoTab from "./tabs-contents/personal-infos/PersonalInfoTAB";
-import EmploymentInfoTab from "./tabs-contents/employment-infos/employmentInfoTAB";
-import EmployeeDocumentsTab from "./tabs-contents/documents/documentsTAB";
+import PersonalInfoTab from "./tabs-contents/personal-infos/PersonalInfoTab";
+import EmploymentInfoTab from "./tabs-contents/employment-infos/employmentInfoTab";
+import EmployeeDocumentsTab from "./tabs-contents/documents/documentsTab";
 import EditEmploymentStatusDialog from "./tabs-contents/employment-infos/dialogs/EditEmploymentStatusDialog";
 import { PencilIcon } from "lucide-react";
 
