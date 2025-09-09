@@ -1,0 +1,517 @@
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { employeeFormSchema } from "./schemas/employeeSchema";
+import FormLayout from "./FormLayout";
+import TextField from "./fields/TextField";
+import DropdownField from "./fields/DropdownField";
+import DatepickerField from "./fields/DatePickerField";
+import AddressFields from "./fields/AddressFields";
+import FormActions from "./buttons/FormActions";
+import { useEffect, useMemo, useState } from "react";
+import GovernmentRemittancesSection from "./fields/dynamic-fields/GovernmentRemittancesSectionFields";
+import EmergencyContactsSection from "./fields/dynamic-fields/EmergencyContactsSectionFields";
+import EmployeeSearchCombobox from "./fields/dynamic-fields/EmployeeSearchCombobox";
+import OfficeSearchCombobox from "./fields/dynamic-fields/OfficeSearchCombobox";
+import DivisionSearchCombobox from "./fields/dynamic-fields/DivisionSearchCombobox";
+import DepartmentSearchCombobox from "./fields/dynamic-fields/DepartmentSearchCombobox";
+import TeamSearchCombobox from "./fields/dynamic-fields/TeamSearchCombobox";
+import JobPositionSearchCombobox from "./fields/dynamic-fields/JobPositionSearchCombobox";
+import EmploymentStatusSearchCombobox from "./fields/dynamic-fields/EmploymentStatusSearchCombobox";
+import JobLevelSearchCombobox from "./fields/dynamic-fields/JobLevelSearchCombobox";
+import EmployeeTypeSearchCombobox from "./fields/dynamic-fields/EmployeeTypeSearchCombobox copy";
+import SalaryTypeSearchCombobox from "./fields/dynamic-fields/SalaryTypeSearchCombobox";
+import ShiftTemplateSearchCombobox from "./fields/dynamic-fields/ShiftTemplateSearchCombobox";
+import PasswordField from "./fields/PasswordField";
+import { useFetchGovernmentRemittancesAPI } from "@/hooks/useGovernmentRemittancesAPI";
+import {
+  useCheckEmployeeIdAvailabilityAPI,
+  useFetchLatestEmployeeIdAPI,
+} from "@/hooks/useEmployeeAPI";
+import EmployeeIdTextField from "./fields/EmployeeIdTextField";
+
+const EmployeeForm = ({ onSubmit, onCancel }) => {
+  const { allGovernmentRemittances, loading } =
+    useFetchGovernmentRemittancesAPI();
+
+  const { latestEmployeeId, loading: latestIdLoading } =
+    useFetchLatestEmployeeIdAPI();
+
+  const form = useForm({
+    resolver: zodResolver(employeeFormSchema),
+    mode: "onChange",
+    reValidateMode: "onChange",
+    defaultValues: {
+      //user acc
+
+      password: "",
+      confirmPassword: "",
+      // Personal Info
+      firstName: "",
+      middleName: "",
+      lastName: "",
+      nickname: "",
+      extensionName: "",
+      sex: "",
+      gender: "",
+      birthdate: null,
+      birthplace: "",
+      nationality: "",
+      civilStatus: "",
+      heightCm: 0,
+      weightKg: 0,
+      bloodType: "",
+
+      // Contact Info
+      personalEmail: "",
+      phoneNumber: "",
+      companyIssuedPhoneNumber: "",
+      // Emergency Contacts
+      emergencyContacts: [
+        {
+          name: "",
+          contactNumber: "",
+          relationship: "",
+        },
+      ],
+
+      // Permanent Address
+      countryPermanent: "",
+      regionPermanent: { code: "", name: "" },
+      provincePermanent: { code: "", name: "" },
+      cityPermanent: { code: "", name: "" },
+      barangayPermanent: { code: "", name: "" },
+      postalCodePermanent: "",
+
+      buildingNumPermanent: "",
+      streetPermanent: "",
+
+      // Present Address
+      countryPresent: "",
+      regionPresent: { code: "", name: "" },
+      provincePresent: { code: "", name: "" },
+      cityPresent: { code: "", name: "" },
+      barangayPresent: { code: "", name: "" },
+      postalCodePresent: "",
+      buildingNumPresent: "",
+      streetPresent: "",
+
+      governmentRemittances: [],
+
+      // Employee Info
+      employeeId: "",
+      workEmail: "",
+      office: "",
+      division: "",
+      department: "",
+      team: "",
+      jobTitle: "",
+      employmentStatus: "",
+      jobLevel: "",
+      employeeType: "",
+      shift: "",
+      supervisor: "",
+      salaryBasePay: 0,
+      salaryType: "",
+      docuUrl: "",
+
+      // Employment Timeline
+      dateHired: undefined,
+      dateRegularized: undefined,
+      dateOffboarded: undefined,
+      dateSeparated: undefined,
+    },
+  });
+
+  const defaultGovRemittances = useMemo(() => {
+    return allGovernmentRemittances
+      .filter((item) => item.government_id_name.toLowerCase() !== "philcare")
+      .map((item) => ({
+        type: item.government_id_type_id,
+        acc_number: "",
+      }));
+  }, [allGovernmentRemittances]);
+
+  useEffect(() => {
+    if (!loading && allGovernmentRemittances.length) {
+      form.reset({
+        ...form.getValues(),
+        governmentRemittances: defaultGovRemittances,
+      });
+    }
+  }, [loading, allGovernmentRemittances, defaultGovRemittances]);
+  useEffect(() => {
+    if (latestEmployeeId) {
+      const parts = latestEmployeeId.split("-");
+      const prefix = parts[0]; // OCCI
+      const num = parseInt(parts[1], 10); // 452
+      const nextNum = num + 1;
+
+      const padded = String(nextNum).padStart(parts[1].length, "0");
+      const newId = `${prefix}-${padded}`;
+
+      form.reset({
+        ...form.getValues(),
+        employeeId: newId,
+      });
+    }
+  }, [latestEmployeeId]);
+
+  const [copy, setCopy] = useState(false);
+
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const doPasswordsMatch = password === confirmPassword;
+
+  const { isEmpIdAvailable, isEmpIdAvailableLoading, checkAvailability } =
+    useCheckEmployeeIdAvailabilityAPI();
+
+  const {
+    handleSubmit,
+    formState: { isSubmitting },
+  } = form;
+
+  return (
+    <FormLayout form={form} onSubmit={onSubmit}>
+      <div>
+        <h2 className="text-sm font-semibold mb-4">Personal Information</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <TextField
+            name="firstName"
+            label="First Name"
+            control={form.control}
+            required
+          />
+          <TextField
+            name="middleName"
+            label="Middle Name"
+            control={form.control}
+          />
+          <TextField
+            name="lastName"
+            label="Last Name"
+            control={form.control}
+            required
+          />
+          <TextField
+            name="extensionName"
+            label="Extension Name (e.g. 'Jr.','II', etc.)"
+            control={form.control}
+          />
+          <TextField name="nickname" label="Nickname" control={form.control} />
+          <DropdownField
+            name="sex"
+            label="Sex"
+            control={form.control}
+            options={["Male", "Female"]}
+            required
+          />{" "}
+          <DropdownField
+            name="gender"
+            label="Gender"
+            control={form.control}
+            options={[
+              "Cisgender",
+              "Transgender",
+              "Non-binary",
+              "Genderqueer",
+              "Agender",
+              "Genderfluid",
+              "Intersex",
+              "Bigender",
+              "Pangender",
+              "Gender non-conforming",
+            ]}
+          />
+          <DropdownField
+            name="civilStatus"
+            label="Civil Status"
+            control={form.control}
+            options={[
+              "Single",
+              "Married",
+              "Widowed",
+              "Divorced",
+              "Separated",
+              "Civil Union",
+            ]}
+            required
+          />
+          <TextField
+            name="heightCm"
+            label="Height(CM)"
+            type="number"
+            min={0}
+            control={form.control}
+          />{" "}
+          <TextField
+            name="weightKg"
+            label="Weight(KG)"
+            type="number"
+            min={0}
+            control={form.control}
+          />
+          <DatepickerField
+            name="birthdate"
+            label="Birthdate"
+            control={form.control}
+            required
+          />
+          <TextField
+            name="birthplace"
+            label="Birthplace"
+            control={form.control}
+          />
+          <TextField
+            name="nationality"
+            label="Nationality"
+            control={form.control}
+            required
+          />
+          <DropdownField
+            name="bloodType"
+            label="Blood Type"
+            control={form.control}
+            options={[
+              "A",
+              "A+",
+              "A-",
+              "B",
+              "B+",
+              "B-",
+              "AB",
+              "AB+",
+              "AB-",
+              "O",
+              "O+",
+              "O-",
+              "Unknown",
+            ]}
+          />
+        </div>
+      </div>
+
+      <div>
+        <h2 className="text-sm font-semibold mb-4">Contact Information</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+          <TextField
+            name="personalEmail"
+            label="Personal Email"
+            control={form.control}
+            type="email"
+            placeholder="you@gmail.com"
+            required
+          />
+          <TextField
+            name="phoneNumber"
+            label="Phone Number"
+            control={form.control}
+            type="tel"
+            placeholder="09XXXXXXXXX"
+            required
+          />
+        </div>
+      </div>
+
+      <div>
+        <EmergencyContactsSection />
+      </div>
+
+      <div>
+        <h2 className="text-sm font-semibold mb-4">Addresses</h2>
+
+        <AddressFields
+          control={form.control}
+          watch={form.watch}
+          setValue={form.setValue}
+          trigger={form.trigger}
+          prefix="permanent"
+          sectionLabel="Permanent Address"
+        />
+        <div className="py-3"></div>
+        <AddressFields
+          control={form.control}
+          watch={form.watch}
+          setValue={form.setValue}
+          trigger={form.trigger}
+          prefix="present"
+          sectionLabel="Current Address"
+          enableCopyFrom
+          copyFromPrefix="permanent"
+          isCopyEnabled={copy}
+          onCopyToggle={setCopy}
+        />
+      </div>
+      <div>
+        <GovernmentRemittancesSection />
+      </div>
+      <div>
+        <h2 className="text-sm font-semibold mb-4">Employee Information</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <Controller
+            name="employeeId"
+            control={form.control}
+            rules={{
+              required: "Employee ID is required",
+              pattern: {
+                value: /^OCCI-\d+$/,
+                message: "Must start with OCCI- followed by numbers",
+              },
+            }}
+            render={({ field, fieldState }) => {
+              useEffect(() => {
+                if (field.value) checkAvailability(field.value);
+              }, [field.value]);
+              return (
+                <EmployeeIdTextField
+                  {...field}
+                  label="Employee ID"
+                  control={form.control}
+                  placeholder="Enter employee ID"
+                  error={fieldState.error}
+                  onAvailabilityCheck={(value) => {
+                    if (/^OCCI-\d+$/.test(value)) {
+                      checkAvailability(value);
+                    }
+                  }}
+                  availabilityState={{
+                    loading: isEmpIdAvailableLoading,
+                    available: isEmpIdAvailable,
+                  }}
+                  required
+                />
+              );
+            }}
+          />
+          <TextField
+            name="workEmail"
+            label="Work Email"
+            control={form.control}
+            type="email"
+            placeholder="you@getfullsuite.com"
+            required
+          />
+          <TextField
+            name="companyIssuedPhoneNumber"
+            label="Company Issued Phone Number"
+            control={form.control}
+            type="tel"
+            placeholder="09XXXXXXXXX"
+          />
+          <OfficeSearchCombobox name="office" control={form.control} />
+          <DivisionSearchCombobox name="division" control={form.control} />
+          <DepartmentSearchCombobox name="department" control={form.control} />
+          <TeamSearchCombobox name="team" control={form.control} />
+          <JobPositionSearchCombobox
+            name="jobTitle"
+            control={form.control}
+            required
+          />
+          <EmploymentStatusSearchCombobox
+            name="employmentStatus"
+            control={form.control}
+            required
+          />
+          <JobLevelSearchCombobox
+            name="jobLevel"
+            control={form.control}
+            required
+          />
+          <EmployeeTypeSearchCombobox
+            name="employeeType"
+            control={form.control}
+            required
+          />
+          <ShiftTemplateSearchCombobox
+            name="shift"
+            control={form.control}
+            required
+          />
+          <EmployeeSearchCombobox
+            name="supervisor"
+            control={form.control}
+            required
+          />{" "}
+          <TextField
+            name="docuUrl"
+            placeholder={"https://drive.google.com/..."}
+            label="Document URL (Google Drive Folder Link)"
+            type="url"
+            control={form.control}
+          />
+          <TextField
+            name="salaryBasePay"
+            label="Salary Base Pay"
+            type="number"
+            min={0}
+            control={form.control}
+          />
+          <SalaryTypeSearchCombobox name="salaryType" control={form.control} />
+        </div>
+      </div>
+
+      <div>
+        <h2 className="text-sm font-semibold mb-4">Employment Timeline</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+          <DatepickerField
+            name="dateHired"
+            label="Date Hired"
+            control={form.control}
+            required
+          />
+          <DatepickerField
+            name="dateRegularized"
+            label="Date Regularized"
+            control={form.control}
+            allowAllDates
+          />
+          <DatepickerField
+            name="dateOffboarded"
+            label="Date Offboarded"
+            control={form.control}
+            allowAllDates
+          />
+          <DatepickerField
+            name="dateSeparated"
+            label="Date Separated"
+            control={form.control}
+            allowAllDates
+          />
+        </div>
+      </div>
+
+      <div>
+        <h2 className="text-sm font-semibold mb-4">User Account</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+          <PasswordField
+            name="password"
+            label="Password"
+            control={form.control}
+            value={password}
+            onValueChange={(val) => setPassword(val)}
+            required
+          />
+
+          <PasswordField
+            name="confirmPassword"
+            label="Confirm Password"
+            control={form.control}
+            value={confirmPassword}
+            onValueChange={(val) => setConfirmPassword(val)}
+            errorMessage={!doPasswordsMatch ? "Passwords do not match" : ""}
+            required
+          />
+        </div>
+      </div>
+      <FormActions
+        isLoading={isSubmitting}
+        onCancel={onCancel}
+        submitLabel="Submit"
+        cancelLabel="Cancel"
+        loadingLabel="Saving..."
+      />
+    </FormLayout>
+  );
+};
+
+export default EmployeeForm;

@@ -1,0 +1,358 @@
+import CustomDialog from "@/components/dialog/CustomDialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { EmployeeDetailsContext } from "@/context/EmployeeDetailsContext";
+
+import { useState, useContext, useEffect } from "react";
+import TextField from "@/components/forms/fields/TextField";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import DropdownField from "@/components/forms/fields/DropdownField";
+import DatepickerField from "@/components/forms/fields/DatePickerField";
+import { employeeDesignationFormSchema } from "@/components/forms/schemas/employeeSchema";
+import {
+  useEditEmployeeDesignationAPI,
+  useFetchEmployeeDetailsAPI,
+} from "@/hooks/useEmployeeAPI";
+import { glassToast } from "@/components/ui/glass-toast";
+import {
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+  InformationCircleIcon,
+} from "@heroicons/react/24/solid";
+import { sanitizeData } from "@/utils/parsers/sanitizeData";
+import OfficeSearchCombobox from "@/components/forms/fields/dynamic-fields/OfficeSearchCombobox";
+import DepartmentSearchCombobox from "@/components/forms/fields/dynamic-fields/DepartmentSearchCombobox";
+import DivisionSearchCombobox from "@/components/forms/fields/dynamic-fields/DivisionSearchCombobox";
+import TeamSearchCombobox from "@/components/forms/fields/dynamic-fields/TeamSearchCombobox";
+import JobPositionSearchCombobox from "@/components/forms/fields/dynamic-fields/JobPositionSearchCombobox";
+import EmploymentStatusSearchCombobox from "@/components/forms/fields/dynamic-fields/EmploymentStatusSearchCombobox";
+import JobLevelSearchCombobox from "@/components/forms/fields/dynamic-fields/JobLevelSearchCombobox";
+import EmployeeTypeSearchCombobox from "@/components/forms/fields/dynamic-fields/EmployeeTypeSearchCombobox copy";
+import ShiftTemplateSearchCombobox from "@/components/forms/fields/dynamic-fields/ShiftTemplateSearchCombobox";
+import EmployeeSearchCombobox from "@/components/forms/fields/dynamic-fields/EmployeeSearchCombobox";
+
+const EditDesignationDialog = ({ trigger }) => {
+  const [open, setOpen] = useState(false);
+  const { designations, user, personalInfo, employmentInfo } = useContext(
+    EmployeeDetailsContext
+  );
+
+  const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
+  const [confirmSubmitOpen, setConfirmSubmitOpen] = useState(false);
+  const { editEmployeeDesignation, loading, error } =
+    useEditEmployeeDesignationAPI();
+  const form = useForm({
+    resolver: zodResolver(employeeDesignationFormSchema),
+    mode: "onChange",
+    reValidateMode: "onChange",
+    defaultValues: {
+      office: "",
+      division: "",
+      department: "",
+      team: "",
+      jobTitle: "",
+      employmentStatus: "",
+      jobLevel: "",
+      employeeType: "",
+      shift: "",
+      supervisor: "",
+    },
+  });
+
+  useEffect(() => {
+    if (
+      designations &&
+      Object.keys(designations).length > 0 &&
+      employmentInfo &&
+      Object.keys(employmentInfo).length > 0 &&
+      user
+    ) {
+      console.log("Resetting form with initial values", {
+        designations,
+        employmentInfo,
+      });
+      form.reset(
+        {
+          office: designations?.office_id || "",
+          division: designations?.division_id || "",
+          department: designations?.department_id || "",
+          team: designations?.team_id || "",
+          jobTitle: designations?.job_title_id || "",
+          employmentStatus: employmentInfo?.employment_status_id || "",
+          jobLevel: employmentInfo?.job_level_id || "",
+          employeeType: employmentInfo?.employment_type_id || "",
+          shift: employmentInfo?.shift_template_id || "",
+          supervisor: designations?.upline_id || "",
+        },
+        { keepDirty: false }
+      );
+    }
+  }, [designations, employmentInfo, user, form]);
+
+  const onSaveChanges = async (data) => {
+    console.log("Starting onSaveChanges", { data });
+    const user_id = user?.user_id;
+    console.log("Retrieved user_id", { user_id });
+
+    if (!user_id) {
+      console.log("User ID not found");
+      return ;
+    }
+
+    try {
+      const normalize = (value) => {
+        if (value === undefined || value === null) return null;
+        if (typeof value === "string") return value.trim().toLowerCase();
+        return value;
+      };
+      const cleanValue = (value) => {
+        if (value === undefined || value === null) return null;
+        if (typeof value === "string" && value.trim() === "") return null;
+        return value;
+      };
+
+      const fieldMap = {
+        office_id: data.office,
+        division_id: data.division,
+        department_id: data.department,
+        team_id: data.team,
+        job_title_id: data.jobTitle,
+        upline_id: data.supervisor,
+        employment_status_id: data.employmentStatus,
+        job_level_id: data.jobLevel,
+        employment_type_id: data.employeeType,
+        shift_template_id: data.shift,
+      };
+
+      const designationFields = {};
+      const employmentFields = {};
+      Object.entries(fieldMap).forEach(([key, value]) => {
+        const cleaned = cleanValue(value);
+        let current = null;
+
+        if (designations && designations[key] !== undefined) {
+          current = designations[key];
+        } else if (employmentInfo && employmentInfo[key] !== undefined) {
+          current = employmentInfo[key];
+        }
+
+        if (normalize(cleaned) !== normalize(current)) {
+          if (
+            [
+              "office_id",
+              "division_id",
+              "department_id",
+              "team_id",
+              "job_title_id",
+              "upline_id",
+            ].includes(key)
+          ) {
+            designationFields[key] = cleaned;
+          } else {
+            employmentFields[key] = cleaned;
+          }
+        }
+      });
+      console.log("Changed fields calculated", {
+        designationFields,
+        employmentFields,
+      });
+
+      if (
+        Object.keys(designationFields).length === 0 &&
+        Object.keys(employmentFields).length === 0
+      ) {
+        glassToast({
+          message: `No changes in Designation.`,
+          icon: <InformationCircleIcon className="text-gray-500 w-5 h-5" />,
+          textColor: "black",
+          bgColor: "rgba(255, 255, 255, 0.2)",
+          blur: 12,
+          duration: 3000,
+        });
+        setOpen(false);
+        setConfirmSubmitOpen(false);
+        return;
+      }
+
+      console.log("Calling editEmployeeDesignation with", {
+        user_id,
+        designation: { designationFields, employmentFields },
+      });
+      const updatedInfo = await editEmployeeDesignation(user_id, {
+        designationFields,
+        employmentFields,
+      });
+      console.log("Received updated info", { updatedInfo });
+
+      console.log("Current designations state after update", { designations });
+
+      form.reset(
+        {
+          office: updatedInfo.designation?.office_id || "",
+          division: updatedInfo.designation?.division_id || "",
+          department: updatedInfo.designation?.department_id || "",
+          team: updatedInfo.designation?.team_id || "",
+          jobTitle: updatedInfo.designation?.job_title_id || "",
+          employmentStatus: updatedInfo.employment?.employment_status_id || "",
+          jobLevel: updatedInfo.employment?.job_level_id || "",
+          employeeType: updatedInfo.employment?.employment_type_id || "",
+          shift: updatedInfo.employment?.shift_template_id || "",
+          supervisor: updatedInfo.designation?.upline_id || "",
+        },
+        { keepDirty: false }
+      );
+
+      setOpen(false);
+      setConfirmSubmitOpen(false);
+
+      glassToast({
+        message: (
+          <>
+            <span style={{ color: "#008080" }}>Designation</span> updated
+            successfully!
+          </>
+        ),
+        icon: <CheckCircleIcon className="text-[#008080] w-5 h-5" />,
+        textColor: "black",
+        bgColor: "rgba(255, 255, 255, 0.2)",
+        blur: 12,
+        duration: 4000,
+      });
+    } catch (err) {
+      console.error("Failed to update:", err);
+      console.log("Error details", { error: err.message, stack: err.stack });
+      console.log("Showing error toast");
+      glassToast({
+        message: `Failed to update Designation. Please try again.`,
+        icon: <ExclamationTriangleIcon className="text-[#CC5500] w-5 h-5" />,
+        textColor: "black",
+        bgColor: "rgba(255, 255, 255, 0.2)",
+        blur: 12,
+        duration: 4000,
+      });
+    }
+  };
+
+
+  const confirmCancel = () => {
+    setConfirmCancelOpen(false);
+    setOpen(false);
+    form.reset();
+  };
+  return (
+    <div>
+      <CustomDialog
+        open={open}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) {
+            if (form.formState.isDirty) {
+              setConfirmCancelOpen(true);
+            } else {
+              setOpen(false);
+              form.reset();
+            }
+          } else {
+            setOpen(true);
+          }
+        }}
+        trigger={trigger}
+        title="Update Designation"
+        width="xl"
+        height="full"
+        confirmLabel="Save Changes"
+        onConfirm={() => setConfirmSubmitOpen(true)}
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <OfficeSearchCombobox
+            name="office"
+            control={form.control}
+            initialValue={designations?.CompanyOffice?.office_id}
+          />
+          <DivisionSearchCombobox
+            name="division"
+            control={form.control}
+            initialValue={designations?.CompanyDivision?.division_id}
+          />
+          <DepartmentSearchCombobox
+            name="department"
+            control={form.control}
+            // initialValue={designations?.CompanyDepartment?.department_id}
+          />
+          <TeamSearchCombobox
+            name="team"
+            control={form.control}
+            initialValue={designations?.CompanyTeam?.team_id}
+          />
+          <JobPositionSearchCombobox
+            name="jobTitle"
+            control={form.control}
+            // initialValue={(
+            //   designations?.job_title_id ??
+            //   designations?.CompanyJobTitle?.job_title_id ??
+            //   ""
+            // )?.toString()}
+            required
+          />
+          <EmploymentStatusSearchCombobox
+            name="employmentStatus"
+            control={form.control}
+            initialValue={employmentInfo?.employment_status_id}
+            required
+          />
+          <JobLevelSearchCombobox
+            name="jobLevel"
+            control={form.control}
+            initialValue={employmentInfo?.job_level_id}
+            required
+          />
+          <EmployeeTypeSearchCombobox
+            name="employeeType"
+            control={form.control}
+            initialValue={employmentInfo?.employment_type_id}
+            required
+          />
+          <ShiftTemplateSearchCombobox
+            name="shift"
+            control={form.control}
+            initialValue={employmentInfo?.shift_template_id}
+            required
+          />
+          <EmployeeSearchCombobox
+            name="supervisor"
+            control={form.control}
+            initialValue={designations?.upline_id}
+            required
+          />{" "}
+        </div>
+      </CustomDialog>
+      <CustomDialog
+        open={confirmCancelOpen}
+        onOpenChange={setConfirmCancelOpen}
+        title="Discard Changes?"
+        description="Are you sure you want to cancel? Any unsaved changes will be lost."
+        confirmLabel="Yes, Discard"
+        cancelLabel="Go Back"
+        onConfirm={confirmCancel}
+        isShownCloseButton={false}
+        allowOutsideInteraction={true}
+      />
+      <CustomDialog
+        open={confirmSubmitOpen}
+        onOpenChange={setConfirmSubmitOpen}
+        title="Save Changes?"
+        description="Are you sure you want to save the changes you made?"
+        confirmLabel="Yes, Save changes"
+        cancelLabel="Go Back"
+        loading={loading}
+        onConfirm={form.handleSubmit(onSaveChanges)}
+        onCancel={() => setConfirmSubmitOpen(false)}
+        isShownCloseButton={false}
+        allowOutsideInteraction={true}
+      />
+    </div>
+  );
+};
+
+export default EditDesignationDialog;
