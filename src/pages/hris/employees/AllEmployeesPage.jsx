@@ -1,4 +1,3 @@
-//2
 import { useEffect, useState, useMemo } from "react";
 import { useHeader } from "@/context/HeaderContext";
 import { Button } from "@/components/ui/button";
