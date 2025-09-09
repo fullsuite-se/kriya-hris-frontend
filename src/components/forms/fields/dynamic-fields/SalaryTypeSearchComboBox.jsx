@@ -3,7 +3,7 @@ import { useController } from "react-hook-form";
 import ControlledDynamicComboBox from "./ControlledDynamicComboBox";
 import { useFetchSalaryTypesAPI } from "@/hooks/useJobSettingsAPI";
 
-export default function SalaryTypeSearchCombobox({
+export default function SalaryTypeSearchComboBox({
   name,
   control,
   label = "Salary Type",
