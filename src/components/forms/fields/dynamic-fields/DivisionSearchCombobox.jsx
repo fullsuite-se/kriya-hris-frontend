@@ -1,9 +1,9 @@
 import { useMemo, useEffect, useState } from "react";
 import { useController } from "react-hook-form";
-import ControlledDynamicCombobox from "./ControlledDynamicCombobox";
+import ControlledDynamicComboBox from "./ControlledDynamicComboBox";
 import { useFetchDivisionsAPI } from "@/hooks/useCompanyAPI";
 
-export default function DivisionSearchCombobox({
+export default function DivisionSearchComboBox({
   name,
   control,
   label = "Division",
@@ -40,12 +40,12 @@ export default function DivisionSearchCombobox({
 
   return (
     <div className="space-y-1">
-      <ControlledDynamicCombobox
+      <ControlledDynamicComboBox
         options={divisionOptions}
         valueKey="id"
         label={label}
         required={required}
-        value={selectedObject} 
+        value={selectedObject}
         onChange={(selected) => {
           setSelectedObject(selected);
           field.onChange(selected?.id ?? null);

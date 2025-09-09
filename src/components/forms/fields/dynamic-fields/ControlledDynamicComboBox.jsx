@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/popover";
 import { Label } from "@radix-ui/react-label";
 
-export default function ControlledDynamicCombobox({
+export default function ControlledDynamicComboBox({
   options = [],
   getSearchable = (item) => (typeof item === "object" ? item.email : item),
   getOptionLabel = (item) => {

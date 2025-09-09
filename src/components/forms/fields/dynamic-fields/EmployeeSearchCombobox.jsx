@@ -1,17 +1,17 @@
 import { useMemo, useEffect, useState } from "react";
 import { useController } from "react-hook-form";
-import ControlledDynamicCombobox from "./ControlledDynamicCombobox";
+import ControlledDynamicComboBox from "./ControlledDynamicComboBox";
 import { useFetchAllEmployeesAPI } from "@/hooks/useEmployeeAPI";
 import transformUsers from "@/utils/parsers/transformData";
 
-export default function EmployeeSearchCombobox({
+export default function EmployeeSearchComboBox({
   name,
   control,
   label = "Immediate Supervisor",
   required = false,
-  initialValue = null, 
-  value: controlledValue, 
-  onChange: controlledOnChange, 
+  initialValue = null,
+  value: controlledValue,
+  onChange: controlledOnChange,
 }) {
   const { allEmployees, loading } = useFetchAllEmployeesAPI();
   const [selectedObject, setSelectedObject] = useState(null);
@@ -66,13 +66,14 @@ export default function EmployeeSearchCombobox({
       setSelectedObject(null);
       return;
     }
-    const found = employeeOptions.find((e) => e.id === String(field.value)) || null;
+    const found =
+      employeeOptions.find((e) => e.id === String(field.value)) || null;
     setSelectedObject(found);
   }, [field.value, employeeOptions]);
 
   return (
     <div className="space-y-1">
-      <ControlledDynamicCombobox
+      <ControlledDynamicComboBox
         options={employeeOptions}
         valueKey="id"
         label={label}

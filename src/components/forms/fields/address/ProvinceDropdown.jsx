@@ -1,4 +1,4 @@
-import ControlledDynamicCombobox from "../dynamic-fields/ControlledDynamicComboBox";
+import ControlledDynamicComboBox from "../dynamic-fields/ControlledDynamicComboBox";
 import { useAddress } from "@/hooks/useAddress";
 
 export default function ProvinceDropdown({
@@ -11,7 +11,7 @@ export default function ProvinceDropdown({
   const { provinces, loading } = useAddress({ regionCode });
 
   return (
-    <ControlledDynamicCombobox
+    <ControlledDynamicComboBox
       options={provinces}
       value={value}
       onChange={onChange}

@@ -1,9 +1,9 @@
 import { useMemo, useEffect, useState } from "react";
 import { useController } from "react-hook-form";
-import ControlledDynamicCombobox from "./ControlledDynamicCombobox";
+import ControlledDynamicComboBox from "./ControlledDynamicComboBox";
 import { useFetchEmploymentStatusAPI } from "@/hooks/useJobSettingsAPI";
 
-export default function EmploymentStatusSearchCombobox({
+export default function EmploymentStatusSearchComboBox({
   name,
   control,
   label = "Employment Status",
@@ -35,13 +35,13 @@ export default function EmploymentStatusSearchCombobox({
       const found =
         employmentStatusOptions.find((s) => s.id === initialValue) || null;
       setSelectedObject(found);
-      field.onChange(found?.id ?? null); 
+      field.onChange(found?.id ?? null);
     }
   }, [initialValue, employmentStatusOptions]);
 
   return (
     <div className="space-y-1">
-      <ControlledDynamicCombobox
+      <ControlledDynamicComboBox
         options={employmentStatusOptions}
         valueKey="id"
         label={label}

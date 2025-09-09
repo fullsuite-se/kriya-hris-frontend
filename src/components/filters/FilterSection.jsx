@@ -11,21 +11,29 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarIcon, ChevronDown, ChevronUp } from "lucide-react";
-import DepartmentSearchCombobox from "../forms/fields/dynamic-fields/DepartmentSearchCombobox";
-import EmployeeSearchCombobox from "../forms/fields/dynamic-fields/EmployeeSearchCombobox";
-import JobPositionSearchCombobox from "../forms/fields/dynamic-fields/JobPositionSearchCombobox";
+import DepartmentSearchComboBox from "../forms/fields/dynamic-fields/DepartmentSearchComboBox";
+import EmployeeSearchComboBox from "../forms/fields/dynamic-fields/EmployeeSearchComboBox";
+import JobPositionSearchComboBox from "../forms/fields/dynamic-fields/JobPositionSearchComboBox";
 
 export function FilterSection({ filter, values, onChange }) {
   const [isOpen, setIsOpen] = useState(true);
   const toggleOpen = () => setIsOpen((prev) => !prev);
 
   return (
-    <div className={`space-y-2 ${!isOpen ? "border-b border-gray-200" : ""}  pb-2 select-none`}>
+    <div
+      className={`space-y-2 ${
+        !isOpen ? "border-b border-gray-200" : ""
+      }  pb-2 select-none`}
+    >
       <div
         className="flex items-center justify-between cursor-pointer"
         onClick={toggleOpen}
       >
-        <h4 className={`text-sm font-semibold ${isOpen ? "text-[#008080]": ""}`}>{filter.label}</h4>
+        <h4
+          className={`text-sm font-semibold ${isOpen ? "text-[#008080]" : ""}`}
+        >
+          {filter.label}
+        </h4>
         {isOpen ? (
           <ChevronUp className="w-4 h-4" />
         ) : (
@@ -49,7 +57,10 @@ export function FilterSection({ filter, values, onChange }) {
                     }
                   }}
                 />
-                <Label htmlFor={option.value} className="text-sm !font-normal !cursor-pointer">
+                <Label
+                  htmlFor={option.value}
+                  className="text-sm !font-normal !cursor-pointer"
+                >
                   {option.label}
                 </Label>
               </div>
@@ -145,17 +156,7 @@ export function FilterSection({ filter, values, onChange }) {
 
           {filter.type === FILTER_TYPES.DROPDOWN &&
             filter.key === "department" && (
-              <DepartmentSearchCombobox
-                value={values || null}
-                onChange={onChange}
-                label={""}
-                required={false}
-              />
-            )}
- 
-            {filter.type === FILTER_TYPES.DROPDOWN &&
-            filter.key === "supervisor" && (
-              <EmployeeSearchCombobox
+              <DepartmentSearchComboBox
                 value={values || null}
                 onChange={onChange}
                 label={""}
@@ -163,9 +164,19 @@ export function FilterSection({ filter, values, onChange }) {
               />
             )}
 
-             {filter.type === FILTER_TYPES.DROPDOWN &&
+          {filter.type === FILTER_TYPES.DROPDOWN &&
+            filter.key === "supervisor" && (
+              <EmployeeSearchComboBox
+                value={values || null}
+                onChange={onChange}
+                label={""}
+                required={false}
+              />
+            )}
+
+          {filter.type === FILTER_TYPES.DROPDOWN &&
             filter.key === "job_position" && (
-              <JobPositionSearchCombobox
+              <JobPositionSearchComboBox
                 value={values || null}
                 onChange={onChange}
                 label={""}

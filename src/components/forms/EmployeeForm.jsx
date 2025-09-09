@@ -10,17 +10,17 @@ import FormActions from "./buttons/FormActions";
 import { useEffect, useMemo, useState } from "react";
 import GovernmentRemittancesSection from "./fields/dynamic-fields/GovernmentRemittancesSectionFields";
 import EmergencyContactsSection from "./fields/dynamic-fields/EmergencyContactsSectionFields";
-import EmployeeSearchCombobox from "./fields/dynamic-fields/EmployeeSearchCombobox";
-import OfficeSearchCombobox from "./fields/dynamic-fields/OfficeSearchCombobox";
-import DivisionSearchCombobox from "./fields/dynamic-fields/DivisionSearchCombobox";
-import DepartmentSearchCombobox from "./fields/dynamic-fields/DepartmentSearchCombobox";
-import TeamSearchCombobox from "./fields/dynamic-fields/TeamSearchCombobox";
-import JobPositionSearchCombobox from "./fields/dynamic-fields/JobPositionSearchCombobox";
-import EmploymentStatusSearchCombobox from "./fields/dynamic-fields/EmploymentStatusSearchCombobox";
-import JobLevelSearchCombobox from "./fields/dynamic-fields/JobLevelSearchCombobox";
-import EmployeeTypeSearchCombobox from "./fields/dynamic-fields/EmployeeTypeSearchCombobox copy";
+import EmployeeSearchComboBox from "./fields/dynamic-fields/EmployeeSearchComboBox";
+import OfficeSearchComboBox from "./fields/dynamic-fields/OfficeSearchComboBox";
+import DivisionSearchComboBox from "./fields/dynamic-fields/DivisionSearchComboBox";
+import DepartmentSearchComboBox from "./fields/dynamic-fields/DepartmentSearchComboBox";
+import TeamSearchComboBox from "./fields/dynamic-fields/TeamSearchComboBox";
+import JobPositionSearchComboBox from "./fields/dynamic-fields/JobPositionSearchComboBox";
+import EmploymentStatusSearchComboBox from "./fields/dynamic-fields/EmploymentStatusSearchComboBox";
+import JobLevelSearchComboBox from "./fields/dynamic-fields/JobLevelSearchComboBox";
+import EmployeeTypeSearchComboBox from "./fields/dynamic-fields/EmployeeTypeSearchComboBox";
 import SalaryTypeSearchCombobox from "./fields/dynamic-fields/SalaryTypeSearchCombobox";
-import ShiftTemplateSearchCombobox from "./fields/dynamic-fields/ShiftTemplateSearchCombobox";
+import ShiftTemplateSearchComboBox from "./fields/dynamic-fields/ShiftTemplateSearchComboBox";
 import PasswordField from "./fields/PasswordField";
 import { useFetchGovernmentRemittancesAPI } from "@/hooks/useGovernmentRemittancesAPI";
 import {
@@ -398,36 +398,36 @@ const EmployeeForm = ({ onSubmit, onCancel }) => {
             type="tel"
             placeholder="09XXXXXXXXX"
           />
-          <OfficeSearchCombobox name="office" control={form.control} />
-          <DivisionSearchCombobox name="division" control={form.control} />
-          <DepartmentSearchCombobox name="department" control={form.control} />
-          <TeamSearchCombobox name="team" control={form.control} />
-          <JobPositionSearchCombobox
+          <OfficeSearchComboBox name="office" control={form.control} />
+          <DivisionSearchComboBox name="division" control={form.control} />
+          <DepartmentSearchComboBox name="department" control={form.control} />
+          <TeamSearchComboBox name="team" control={form.control} />
+          <JobPositionSearchComboBox
             name="jobTitle"
             control={form.control}
             required
           />
-          <EmploymentStatusSearchCombobox
+          <EmploymentStatusSearchComboBox
             name="employmentStatus"
             control={form.control}
             required
           />
-          <JobLevelSearchCombobox
+          <JobLevelSearchComboBox
             name="jobLevel"
             control={form.control}
             required
           />
-          <EmployeeTypeSearchCombobox
+          <EmployeeTypeSearchComboBox
             name="employeeType"
             control={form.control}
             required
           />
-          <ShiftTemplateSearchCombobox
+          <ShiftTemplateSearchComboBox
             name="shift"
             control={form.control}
             required
           />
-          <EmployeeSearchCombobox
+          <EmployeeSearchComboBox
             name="supervisor"
             control={form.control}
             required
