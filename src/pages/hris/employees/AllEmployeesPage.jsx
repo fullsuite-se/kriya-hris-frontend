@@ -2,7 +2,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useHeader } from "@/context/HeaderContext";
 import { Button } from "@/components/ui/button";
-import { employeeColumns } from "@/components/table/columns/EmployeesColumns";
+import { employeeCols } from "@/components/table/columns/AllEmployeesColumns";
 import DataTable from "@/components/table/table-components/DataTable";
 import { FILTER_TYPES } from "@/components/filters/types";
 import { useNavigate } from "react-router-dom";
@@ -166,7 +166,6 @@ const AllEmployeesPage = () => {
       formattedFilters.supervisor = appliedFilters.supervisor;
     }
 
-
     if (appliedFilters.job_position && appliedFilters.job_position.length > 0) {
       formattedFilters.job_position = appliedFilters.job_position;
     }
@@ -191,11 +190,10 @@ const AllEmployeesPage = () => {
   const toggleFilters = () => setShowFilters((prev) => !prev);
 
   useEffect(() => {
-    document.title =  "All Employees";
+    document.title = "All Employees";
   }, []);
 
-
- if (loading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-primary-color"></div>
@@ -250,7 +248,7 @@ const AllEmployeesPage = () => {
           </div>
 
           <DataTable
-            columns={employeeColumns}
+            columns={employeeCols}
             data={transformedUsers}
             searchKeys={[
               "employee_id",
