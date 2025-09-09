@@ -1,9 +1,9 @@
 import { useMemo, useEffect, useState } from "react";
 import { useController } from "react-hook-form";
-import ControlledDynamicCombobox from "./ControlledDynamicCombobox";
+import ControlledDynamicComboBox from "./ControlledDynamicComboBox";
 import { useFetchDepartmentsAPI } from "@/hooks/useCompanyAPI";
 
-export default function DepartmentSearchCombobox({
+export default function DepartmentSearchComboBox({
   name,
   control,
   label = "Department",
@@ -56,7 +56,7 @@ export default function DepartmentSearchCombobox({
 
   return (
     <div className="space-y-1">
-      <ControlledDynamicCombobox
+      <ControlledDynamicComboBox
         options={departmentOptions}
         valueKey="id"
         label={label}

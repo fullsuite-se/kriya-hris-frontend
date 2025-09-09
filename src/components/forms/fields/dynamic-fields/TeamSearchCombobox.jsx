@@ -1,9 +1,9 @@
 import { useMemo, useEffect, useState } from "react";
 import { useController } from "react-hook-form";
-import ControlledDynamicCombobox from "./ControlledDynamicCombobox";
+import ControlledDynamicComboBox from "./ControlledDynamicComboBox";
 import { useFetchTeamsAPI } from "@/hooks/useCompanyAPI";
 
-export default function TeamSearchCombobox({
+export default function TeamSearchComboBox({
   name,
   control,
   label = "Team",
@@ -21,9 +21,7 @@ export default function TeamSearchCombobox({
   const teamOptions = useMemo(() => {
     if (!allTeams) return [];
     return [...allTeams]
-      .sort((a, b) =>
-        (a.team_name || "").localeCompare(b.team_name || "")
-      )
+      .sort((a, b) => (a.team_name || "").localeCompare(b.team_name || ""))
       .map((team) => ({
         id: team.team_id,
         name: team.team_name,
@@ -34,21 +32,21 @@ export default function TeamSearchCombobox({
     if (initialValue && teamOptions.length) {
       const found = teamOptions.find((t) => t.id === initialValue) || null;
       setSelectedObject(found);
-      field.onChange(found?.id ?? null); 
+      field.onChange(found?.id ?? null);
     }
   }, [initialValue, teamOptions]);
 
   return (
     <div className="space-y-1">
-      <ControlledDynamicCombobox
+      <ControlledDynamicComboBox
         options={teamOptions}
         valueKey="id"
         label={label}
         required={required}
-        value={selectedObject} 
+        value={selectedObject}
         onChange={(selected) => {
           setSelectedObject(selected);
-          field.onChange(selected?.id ?? null); 
+          field.onChange(selected?.id ?? null);
         }}
         getSearchable={(t) => t.name.toLowerCase()}
         getOptionLabel={(t) => t.name}
@@ -61,4 +59,3 @@ export default function TeamSearchCombobox({
     </div>
   );
 }
-

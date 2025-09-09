@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { useController } from "react-hook-form";
-import ControlledDynamicCombobox from "./ControlledDynamicCombobox";
+import ControlledDynamicComboBox from "./ControlledDynamicComboBox";
 import { useFetchSalaryTypesAPI } from "@/hooks/useJobSettingsAPI";
 
 export default function SalaryTypeSearchCombobox({
@@ -43,16 +43,16 @@ export default function SalaryTypeSearchCombobox({
 
   return (
     <div className="space-y-1">
-      <ControlledDynamicCombobox
+      <ControlledDynamicComboBox
         name={name}
         options={salaryTypeOptions}
         valueKey="id"
         label={label}
         required={required}
-        value={selectedObject} 
+        value={selectedObject}
         onChange={(selected) => {
           setSelectedObject(selected);
-          field.onChange(selected?.id ?? null); 
+          field.onChange(selected?.id ?? null);
         }}
         getSearchable={(t) => t.name.toLowerCase()}
         getOptionLabel={(t) => t.name}

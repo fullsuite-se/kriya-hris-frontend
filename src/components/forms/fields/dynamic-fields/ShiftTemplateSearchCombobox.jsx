@@ -1,15 +1,15 @@
 import { useMemo, useEffect, useState } from "react";
 import { useController } from "react-hook-form";
-import ControlledDynamicCombobox from "./ControlledDynamicCombobox";
+import ControlledDynamicComboBox from "./ControlledDynamicComboBox";
 import useFetchAllShiftTemplatesAPI from "@/hooks/useShiftTemplatesAPI";
 import formatDate from "@/utils/formatters/dateFormatter";
 
-export default function ShiftTemplateSearchCombobox({
+export default function ShiftTemplateSearchComboBox({
   name,
   control,
   label = "Shift",
   required = false,
-  initialValue = null, 
+  initialValue = null,
 }) {
   const {
     field,
@@ -36,13 +36,13 @@ export default function ShiftTemplateSearchCombobox({
       const found =
         shiftTemplateOptions.find((st) => st.id === initialValue) || null;
       setSelectedObject(found);
-      field.onChange(found?.id ?? null); 
+      field.onChange(found?.id ?? null);
     }
   }, [initialValue, shiftTemplateOptions]);
 
   return (
     <div className="space-y-1">
-      <ControlledDynamicCombobox
+      <ControlledDynamicComboBox
         name={name}
         options={shiftTemplateOptions}
         valueKey="id"

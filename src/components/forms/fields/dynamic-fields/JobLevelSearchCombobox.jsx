@@ -1,14 +1,14 @@
 import { useMemo, useEffect, useState } from "react";
 import { useController } from "react-hook-form";
-import ControlledDynamicCombobox from "./ControlledDynamicCombobox";
+import ControlledDynamicComboBox from "./ControlledDynamicComboBox";
 import { useFetchJobLevelsAPI } from "@/hooks/useJobSettingsAPI";
 
-export default function JobLevelSearchCombobox({
+export default function JobLevelSearchComboBox({
   name,
   control,
   label = "Job Level",
   required = false,
-  initialValue = null, 
+  initialValue = null,
 }) {
   const {
     field,
@@ -32,8 +32,7 @@ export default function JobLevelSearchCombobox({
 
   useEffect(() => {
     if (initialValue && jobLevelOptions.length) {
-      const found =
-        jobLevelOptions.find((l) => l.id === initialValue) || null;
+      const found = jobLevelOptions.find((l) => l.id === initialValue) || null;
       setSelectedObject(found);
       field.onChange(found?.id ?? null);
     }
@@ -41,7 +40,7 @@ export default function JobLevelSearchCombobox({
 
   return (
     <div className="space-y-1">
-      <ControlledDynamicCombobox
+      <ControlledDynamicComboBox
         options={jobLevelOptions}
         valueKey="id"
         label={label}

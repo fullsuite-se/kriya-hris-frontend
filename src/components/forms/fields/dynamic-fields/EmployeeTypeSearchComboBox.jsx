@@ -1,14 +1,14 @@
 import { useMemo, useEffect, useState } from "react";
 import { useController } from "react-hook-form";
-import ControlledDynamicCombobox from "./ControlledDynamicCombobox";
+import ControlledDynamicComboBox from "./ControlledDynamicComboBox";
 import { useFetchEmployeeTypesAPI } from "@/hooks/useJobSettingsAPI";
 
-export default function EmployeeTypeSearchCombobox({
+export default function EmployeeTypeSearchComboBox({
   name,
   control,
   label = "Employee Type",
   required = false,
-  initialValue = null, 
+  initialValue = null,
 }) {
   const {
     field,
@@ -41,12 +41,12 @@ export default function EmployeeTypeSearchCombobox({
 
   return (
     <div className="space-y-1">
-      <ControlledDynamicCombobox
+      <ControlledDynamicComboBox
         options={employeeTypeOptions}
         valueKey="id"
         label={label}
         required={required}
-        value={selectedObject} 
+        value={selectedObject}
         onChange={(selected) => {
           setSelectedObject(selected);
           field.onChange(selected?.id ?? null);

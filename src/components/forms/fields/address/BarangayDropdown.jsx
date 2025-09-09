@@ -1,11 +1,17 @@
-import ControlledDynamicCombobox from "../dynamic-fields/ControlledDynamicComboBox";
+import ControlledDynamicComboBox from "../dynamic-fields/ControlledDynamicComboBox";
 import { useAddress } from "@/hooks/useAddress";
 
-export default function BarangayDropdown({ cityCode, value, onChange, disabled, error }) {
+export default function BarangayDropdown({
+  cityCode,
+  value,
+  onChange,
+  disabled,
+  error,
+}) {
   const { barangays, loading } = useAddress({ cityCode });
 
   return (
-    <ControlledDynamicCombobox
+    <ControlledDynamicComboBox
       options={barangays}
       value={value}
       onChange={onChange}
@@ -13,7 +19,9 @@ export default function BarangayDropdown({ cityCode, value, onChange, disabled, 
       getOptionLabel={(b) => b.name}
       getOptionSubLabel={() => null}
       valueKey="code"
-      placeholder={loading.barangays ? "Loading barangays..." : "Select Barangay"}
+      placeholder={
+        loading.barangays ? "Loading barangays..." : "Select Barangay"
+      }
       disabled={!cityCode || disabled || loading.barangays}
       error={error?.message}
     />

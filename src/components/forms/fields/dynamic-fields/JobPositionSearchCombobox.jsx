@@ -1,10 +1,10 @@
 import { useMemo, useEffect, useState } from "react";
 import { useController } from "react-hook-form";
-import ControlledDynamicCombobox from "./ControlledDynamicCombobox";
+import ControlledDynamicComboBox from "./ControlledDynamicComboBox";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useFetchAllJobsAPI } from "@/hooks/useJobAPI";
 
-export default function JobPositionSearchCombobox({
+export default function JobPositionSearchComboBox({
   name,
   control,
   label = "Job Position",
@@ -55,7 +55,7 @@ export default function JobPositionSearchCombobox({
 
   return (
     <div className="space-y-1">
-      <ControlledDynamicCombobox
+      <ControlledDynamicComboBox
         options={jobOptions}
         valueKey="id"
         label={label}

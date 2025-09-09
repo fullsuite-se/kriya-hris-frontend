@@ -21,16 +21,16 @@ import {
   InformationCircleIcon,
 } from "@heroicons/react/24/solid";
 import { sanitizeData } from "@/utils/parsers/sanitizeData";
-import OfficeSearchCombobox from "@/components/forms/fields/dynamic-fields/OfficeSearchCombobox";
-import DepartmentSearchCombobox from "@/components/forms/fields/dynamic-fields/DepartmentSearchCombobox";
-import DivisionSearchCombobox from "@/components/forms/fields/dynamic-fields/DivisionSearchCombobox";
-import TeamSearchCombobox from "@/components/forms/fields/dynamic-fields/TeamSearchCombobox";
-import JobPositionSearchCombobox from "@/components/forms/fields/dynamic-fields/JobPositionSearchCombobox";
-import EmploymentStatusSearchCombobox from "@/components/forms/fields/dynamic-fields/EmploymentStatusSearchCombobox";
-import JobLevelSearchCombobox from "@/components/forms/fields/dynamic-fields/JobLevelSearchCombobox";
-import EmployeeTypeSearchCombobox from "@/components/forms/fields/dynamic-fields/EmployeeTypeSearchCombobox copy";
-import ShiftTemplateSearchCombobox from "@/components/forms/fields/dynamic-fields/ShiftTemplateSearchCombobox";
-import EmployeeSearchCombobox from "@/components/forms/fields/dynamic-fields/EmployeeSearchCombobox";
+import OfficeSearchComboBox from "@/components/forms/fields/dynamic-fields/OfficeSearchComboBox";
+import DepartmentSearchComboBox from "@/components/forms/fields/dynamic-fields/DepartmentSearchComboBox";
+import DivisionSearchComboBox from "@/components/forms/fields/dynamic-fields/DivisionSearchComboBox";
+import TeamSearchComboBox from "@/components/forms/fields/dynamic-fields/TeamSearchComboBox";
+import JobPositionSearchComboBox from "@/components/forms/fields/dynamic-fields/JobPositionSearchComboBox";
+import EmploymentStatusSearchComboBox from "@/components/forms/fields/dynamic-fields/EmploymentStatusSearchComboBox";
+import JobLevelSearchComboBox from "@/components/forms/fields/dynamic-fields/JobLevelSearchComboBox";
+import EmployeeTypeSearchComboBox from "@/components/forms/fields/dynamic-fields/EmployeeTypeSearchComboBox";
+import ShiftTemplateSearchComboBox from "@/components/forms/fields/dynamic-fields/ShiftTemplateSearchComboBox";
+import EmployeeSearchComboBox from "@/components/forms/fields/dynamic-fields/EmployeeSearchComboBox";
 import SalaryTypeSearchCombobox from "@/components/forms/fields/dynamic-fields/SalaryTypeSearchCombobox";
 
 const EditSalaryDialog = ({ trigger }) => {
