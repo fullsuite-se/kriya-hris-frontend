@@ -31,7 +31,7 @@ import JobLevelSearchComboBox from "@/components/forms/fields/dynamic-fields/Job
 import EmployeeTypeSearchComboBox from "@/components/forms/fields/dynamic-fields/EmployeeTypeSearchComboBox";
 import ShiftTemplateSearchComboBox from "@/components/forms/fields/dynamic-fields/ShiftTemplateSearchComboBox";
 import EmployeeSearchComboBox from "@/components/forms/fields/dynamic-fields/EmployeeSearchComboBox";
-import SalaryTypeSearchCombobox from "@/components/forms/fields/dynamic-fields/SalaryTypeSearchCombobox";
+import SalaryTypeSearchComboBox from "@/components/forms/fields/dynamic-fields/SalaryTypeSearchComboBox";
 
 const EditSalaryDialog = ({ trigger }) => {
   const [open, setOpen] = useState(false);
@@ -211,7 +211,7 @@ const EditSalaryDialog = ({ trigger }) => {
             min={0}
             control={form.control}
           />
-          <SalaryTypeSearchCombobox
+          <SalaryTypeSearchComboBox
             name="salary_adjustment_type_id"
             control={form.control}
             initialValue={salaryInfo?.salary_adjustment_type_id}

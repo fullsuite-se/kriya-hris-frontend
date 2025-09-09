@@ -19,7 +19,7 @@ import JobPositionSearchComboBox from "./fields/dynamic-fields/JobPositionSearch
 import EmploymentStatusSearchComboBox from "./fields/dynamic-fields/EmploymentStatusSearchComboBox";
 import JobLevelSearchComboBox from "./fields/dynamic-fields/JobLevelSearchComboBox";
 import EmployeeTypeSearchComboBox from "./fields/dynamic-fields/EmployeeTypeSearchComboBox";
-import SalaryTypeSearchCombobox from "./fields/dynamic-fields/SalaryTypeSearchCombobox";
+import SalaryTypeSearchComboBox from "./fields/dynamic-fields/SalaryTypeSearchComboBox";
 import ShiftTemplateSearchComboBox from "./fields/dynamic-fields/ShiftTemplateSearchComboBox";
 import PasswordField from "./fields/PasswordField";
 import { useFetchGovernmentRemittancesAPI } from "@/hooks/useGovernmentRemittancesAPI";
@@ -446,7 +446,7 @@ const EmployeeForm = ({ onSubmit, onCancel }) => {
             min={0}
             control={form.control}
           />
-          <SalaryTypeSearchCombobox name="salaryType" control={form.control} />
+          <SalaryTypeSearchComboBox name="salaryType" control={form.control} />
         </div>
       </div>
 
