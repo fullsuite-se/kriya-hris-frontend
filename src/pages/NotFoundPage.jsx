@@ -24,7 +24,7 @@ export default function NotFoundPage() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 px-4 text-center">
       <img src={NotFoundImage} alt="404 Not Found" className="w-80 mb-8" />
       <p className="text-lg text-gray-600 mb-6">
-        Sorry! The page you're looking for doesn't exist or has been moved.
+        Sorry! The page you're looking for doesn't exist or has been moved.!!!!!
       </p>
       <button
         onClick={() => navigate(-1)}
