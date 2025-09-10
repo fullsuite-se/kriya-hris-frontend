@@ -10,12 +10,17 @@ import { jwtDecode } from "jwt-decode";
 import { useAuthStore } from "@/stores/useAuthStore";
 
 import { useNavigate } from "react-router-dom";
+import { useLoginUserAPI } from "@/hooks/useAuthAPI";
+
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const setAuth = useAuthStore((state) => state.setAuth);
+
+  const { loginUser, loading } = useLoginUserAPI();
+
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -24,7 +29,6 @@ const LoginPage = () => {
         message: "Please enter both email and password.",
         icon: <ExclamationTriangleIcon className="text-[#CC5500] w-5 h-5" />,
         textColor: "black",
-
         bgColor: "rgba(255, 255, 255, 0.2)",
         blur: 12,
         duration: 4000,
@@ -33,7 +37,7 @@ const LoginPage = () => {
     }
 
     try {
-      const { token } = await loginUserAPI({ email, password });
+      const { token } = await loginUser({ email, password });
 
       localStorage.setItem("token", token);
       console.log("TOKEN: ", token);
@@ -45,9 +49,7 @@ const LoginPage = () => {
       const accessPermissionNames = decoded.accessPermissions.map(
         (p) => p.feature_name
       );
-      console.log("decoded: ", decoded);
-      // console.log("servicePermissions: ", servicePermissionNames);
-      // console.log("accessPermissions: ", accessPermissionNames);
+
       setAuth({
         systemUserId: decoded.system_user_id,
         systemCompanyId: decoded.system_company_id,
@@ -71,6 +73,7 @@ const LoginPage = () => {
       });
     }
   };
+
   return (
     <div className="flex p-10 items-center justify-center h-screen bg-gradient-to-tl from-[#008080] to-[#CC5500]">
       <div className="w-full max-w-md space-y-6 p-8 rounded-2xl shadow-xl border border-white/20 bg-white/10 backdrop-blur-md">
@@ -82,9 +85,9 @@ const LoginPage = () => {
           />
         </div>
 
-        <div className="text-center ">
-          <p className="text-2xl font-semibold  text-white">kriyaHRIS</p>
-          <p className=" text-white/40 text-sm">Log in to your account</p>
+        <div className="text-center">
+          <p className="text-2xl font-semibold text-white">kriyaHRIS</p>
+          <p className="text-white/40 text-sm">Log in to your account</p>
         </div>
 
         <form className="space-y-4" onSubmit={handleLogin}>
@@ -102,11 +105,12 @@ const LoginPage = () => {
               autoComplete="login-email"
             />
           </div>
+
           <div className="space-y-1">
             <Label htmlFor="password" className="text-white/50">
               Password
             </Label>
-            <div className=" relative">
+            <div className="relative">
               <Input
                 id="password"
                 name="password"
@@ -139,9 +143,10 @@ const LoginPage = () => {
 
           <Button
             type="submit"
+            disabled={loading}
             className="w-full text-primary-color bg-white border-none hover:bg-gray-100"
           >
-            Log in
+            {loading ? "Logging in..." : "Log in"}
           </Button>
         </form>
       </div>
