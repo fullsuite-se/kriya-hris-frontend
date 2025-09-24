@@ -136,19 +136,26 @@ export const employeeFormSchema = z.object({
     .nullable(),
 
   // Employee Info
-  employeeId: z
-    .string()
-    .trim()
-    .min(1, "required")
-    .regex(/^OCCI-\d+$/, {
-      message: "Must start with OCCI- followed by numbers",
-    }),
+ employeeId: z
+  .string()
+  .trim()
+  .min(1, "required")
+  .regex(/^[A-Za-z]+-\d+$/, {
+    message: "Must be in format: PREFIX-NUMBERS (e.g., OCCI-0321, TEE-0123)",
+  }),
 
-  workEmail: z
-    .email("invalid work email")
-    .refine((val) => val.endsWith("@getfullsuite.com"), {
-      message: "email must be a @getfullsuite.com",
-    }),
+workEmail: z
+  .email("invalid work email")
+  .refine(
+    (val) =>
+      ["@getfullsuite.com", "@viascari.com"].some((domain) =>
+        val.endsWith(domain)
+      ),
+    {
+      message: "email must be a @getfullsuite.com or @viascari.com",
+    }
+  ),
+
   office: z.string().trim().optional().nullable(),
   division: z.string().trim().optional().nullable(),
   department: z.string().trim().optional().nullable(),

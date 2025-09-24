@@ -13,6 +13,7 @@ import EmploymentInfoTab from "./tabs-contents/employment-infos/employmentInfoTa
 import EmployeeDocumentsTab from "./tabs-contents/documents/documentsTab";
 import EditEmploymentStatusDialog from "./tabs-contents/employment-infos/dialogs/EditEmploymentStatusDialog";
 import { PencilIcon } from "lucide-react";
+import LoadingAnimation from "@/components/Loading";
 
 const EmployeeDetailsPage = () => {
   const { setHeaderConfig } = useHeader();
@@ -21,8 +22,14 @@ const EmployeeDetailsPage = () => {
 
   useFetchEmployeeDetailsAPI(employee_id);
 
-  const { personalInfo, user, designations, employmentInfo, notFound } =
-    useContext(EmployeeDetailsContext);
+  const {
+    personalInfo,
+    user,
+    designations,
+    employmentInfo,
+    notFound,
+    loading,
+  } = useContext(EmployeeDetailsContext);
 
   const topRef = useRef(null);
 
@@ -71,6 +78,15 @@ const EmployeeDetailsPage = () => {
     return;
   }
 
+  if (loading) {
+    return (
+      // <div className="flex items-center justify-center h-screen">
+      //   <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-primary-color"></div>
+      // </div>
+      <LoadingAnimation />
+    );
+  }
+
   return (
     <div ref={topRef} className="relative bg-white shadow-xs rounded-lg p-5">
       <div className="flex flex-wrap justify-between gap-4 mb-10">
@@ -83,11 +99,18 @@ const EmployeeDetailsPage = () => {
           </div> */}
 
           <div className="relative h-30 w-30 sm:h-40 sm:w-40 rounded-full border-2 border-gray-300  bg-primary-color flex-shrink-0">
-            <span className="absolute inset-0 flex items-center justify-center text-4xl sm:text-5xl font-bold text-white">
-              {personalInfo?.first_name?.[0]}
-              {personalInfo?.last_name?.[0]}
-            </span>
-
+            {personalInfo?.user_pic ? (
+              <img
+                src={personalInfo.user_pic}
+                alt="User Profile"
+                className="h-full w-full object-cover rounded-full"
+              />
+            ) : (
+              <span className="absolute inset-0 flex items-center justify-center text-4xl sm:text-5xl font-bold text-white">
+                {personalInfo?.first_name?.[0]?.toUpperCase()}
+                {personalInfo?.last_name?.[0]?.toUpperCase()}
+              </span>
+            )}
             <div className="absolute bottom-1 right-1 sm:bottom-3 sm:right-3 bg-white p-1 rounded-full shadow-md">
               <PencilIcon className="w-4 h-4 text-[#008080]" />
             </div>
@@ -100,7 +123,7 @@ const EmployeeDetailsPage = () => {
                 <p>{user?.user_id}</p>
               </div>
               <h2 className="font-extrabold text-lg sm:text-2xl">
-                {personalInfo?.first_name} {personalInfo?.last_name}
+                {personalInfo?.first_name} {personalInfo?.last_name} {personalInfo?.extension_name}
               </h2>
             </div>
             <div className="flex flex-col gap-1 text-xs sm:text-sm text-muted-foreground">

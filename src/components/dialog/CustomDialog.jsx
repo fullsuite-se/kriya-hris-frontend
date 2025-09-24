@@ -26,11 +26,20 @@ const heightClasses = {
   full: "max-h-[90vh]",
 };
 
+const titleSizes={
+  xs: "text-xs",
+  sm: "text-sm",
+  md: "text-md",
+  lg: "text-lg",
+  xl: "text-xl",
+}
+
 const CustomDialog = ({
   open,
   onOpenChange,
   trigger,
   title = "Dialog Title",
+  titleSize="lg",
   description = "",
   className = "",
   children,
@@ -78,7 +87,7 @@ const CustomDialog = ({
         
       >
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+          <DialogTitle className={`${titleSizes[titleSize]}`}>{title}</DialogTitle>
           {description && (
             <DialogDescription className="text-xs">
               {description}

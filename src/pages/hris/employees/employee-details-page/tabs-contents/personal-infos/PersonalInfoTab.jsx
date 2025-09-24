@@ -32,16 +32,13 @@ export const PersonalInfoTab = () => {
 
   const {
     personalInfo,
-    jobDetails,
     user,
-    designations,
-    employmentInfo,
     addresses,
     governmentIds,
     emergencyContacts,
+    loading
   } = useContext(EmployeeDetailsContext);
 
-  const navigate = useNavigate();
 
   const getGovIdNumber = (type) => {
     return (
@@ -53,9 +50,9 @@ export const PersonalInfoTab = () => {
     );
   };
 
-  // if (loading) {
-  //   return null;
-  // }
+  if (loading) {
+    return null;
+  }
 
   return (
     <div className="px-5 pb-10">

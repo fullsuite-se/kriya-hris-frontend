@@ -53,7 +53,7 @@ export const employeeCols = [
 
   {
     accessorKey: "job_title",
-    header: "Job Title",
+    header: "Job Position",
     cell: ({ row }) => {
       const jobTitle = row.original.job_title;
       return <span className="text-xs">{jobTitle || "---"}</span>;

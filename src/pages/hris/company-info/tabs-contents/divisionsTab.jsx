@@ -1,4 +1,5 @@
 import CustomDialog from "@/components/dialog/CustomDialog";
+import LoadingAnimation from "@/components/Loading";
 import getDivisionsColumns from "@/components/table/columns/DivisionsColumns";
 import DataTable from "@/components/table/table-components/DataTable";
 import { Button } from "@/components/ui/button";
@@ -29,10 +30,10 @@ export const DivisionsTab = () => {
     error,
   } = useFetchDivisionsAPI();
   const [divisionsDialogOpen, setDivisionsDialogOpen] = useState(false);
-  const { addDivision, loading: addDivisionLoading } = useAddDivisionAPI();
-  const { deleteDivision, loading: deleteDivisionLoading } =
+  const { addDivision} = useAddDivisionAPI();
+  const { deleteDivision } =
     useDeleteDivisionAPI();
-  const { editDivision, loading: editDivisionLoading } = useEditDivisionAPI();
+  const { editDivision } = useEditDivisionAPI();
 
   const removeLocalDivision = (division_id) => {
     const divisionToRemove = allDivisions.find(
@@ -220,6 +221,15 @@ export const DivisionsTab = () => {
     onDelete: handleDeleteDivision,
   });
 
+
+   if (loading) {
+    return (
+      // <div className="flex items-center justify-center h-screen">
+      //   <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-primary-color"></div>
+      // </div>
+        <LoadingAnimation/>
+    );
+  }
   return (
     <div className=" p-5">
       <div className="justify-between items-center flex mb-8">

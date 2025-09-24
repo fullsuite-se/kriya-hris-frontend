@@ -94,10 +94,16 @@ export default function ControlledDynamicComboBox({
             className={cn(
               "bg-transparent justify-between text-xs font-normal",
               width,
-              error && "border-red-500 ring-1 ring-red-500"
+              error && "border-red-500 ring-1 ring-red-500",
+              "min-h-9" // Ensure consistent height
             )}
           >
-            {selectedItem ? getOptionLabel(selectedItem) : placeholder}
+            <span 
+              className="truncate flex-1 text-left overflow-hidden"
+              title={selectedItem ? getOptionLabel(selectedItem) : placeholder}
+            >
+              {selectedItem ? getOptionLabel(selectedItem) : placeholder}
+            </span>
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -121,18 +127,27 @@ export default function ControlledDynamicComboBox({
                       key={key}
                       value={getSearchable(item)}
                       onSelect={handleSelect}
+                      className="flex items-center justify-between"
                     >
-                      <div className="flex flex-col">
-                        <span className="text-sm font-medium">{label}</span>
+                      <div className="flex flex-col min-w-0 flex-1">
+                        <span 
+                          className="text-sm font-medium truncate"
+                          title={label}
+                        >
+                          {label}
+                        </span>
                         {subLabel && (
-                          <span className="text-xs text-muted-foreground">
+                          <span 
+                            className="text-xs text-muted-foreground truncate"
+                            title={subLabel}
+                          >
                             {subLabel}
                           </span>
                         )}
                       </div>
                       <Check
                         className={cn(
-                          "ml-auto h-4 w-4",
+                          "ml-2 h-4 w-4 shrink-0",
                           isSelected ? "opacity-100" : "opacity-0"
                         )}
                       />

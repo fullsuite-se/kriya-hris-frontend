@@ -1,4 +1,5 @@
 import CustomDialog from "@/components/dialog/CustomDialog";
+import LoadingAnimation from "@/components/Loading";
 import getDepartmentsColumns from "@/components/table/columns/DepartmentsColumns";
 import DataTable from "@/components/table/table-components/DataTable";
 import { Button } from "@/components/ui/button";
@@ -226,6 +227,15 @@ export const DepartmentsTab = () => {
     onEdit: handleEditDepartment,
     onDelete: handleDeleteDepartment,
   });
+
+   if (loading) {
+    return (
+      // <div className="flex items-center justify-center h-screen">
+      //   <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-primary-color"></div>
+      // </div>
+        <LoadingAnimation/>
+    );
+  }
 
   return (
     <div className=" p-5">

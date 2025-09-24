@@ -2,19 +2,39 @@ import React from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
 
+// const SERVICE_COLORS = {
+//   Suitelifer: "data-[state=checked]:bg-blue-900 data-[state=checked]:border-blue-900",
+//   HRIS: "data-[state=checked]:bg-green-900 data-[state=checked]:border-green-900",
+//   Payroll:
+//     "data-[state=checked]:bg-orange-900 data-[state=checked]:border-orange-900",
+//   ATS: "data-[state=checked]:bg-purple-900 data-[state=checked]:border-purple-900",
+//   Default:
+//     "data-[state=checked]:bg-gray-900 data-[state=checked]:border-gray-900",
+// };
+// const SERVICE_BORDER_COLORS = {
+//   Suitelifer: "border-blue-900",
+//   HRIS: "border-green-900",
+//   Payroll: "border-orange-900",
+//   ATS: "border-purple-900",
+//   Default: "border-gray-900",
+// };
 const SERVICE_COLORS = {
-  HRIS: "data-[state=checked]:bg-blue-900 data-[state=checked]:border-blue-900",
+  Suitelifer:
+    "data-[state=checked]:bg-[#004D4D] data-[state=checked]:border-[#004D4D]",
+  HRIS: "data-[state=checked]:bg-[#006666] data-[state=checked]:border-[#006666]",
   Payroll:
-    "data-[state=checked]:bg-orange-900 data-[state=checked]:border-orange-900",
-  ATS: "data-[state=checked]:bg-purple-900 data-[state=checked]:border-purple-900",
+    "data-[state=checked]:bg-[#007373] data-[state=checked]:border-[#007373]",
+  ATS: "data-[state=checked]:bg-[#008080] data-[state=checked]:border-[#008080]",
   Default:
-    "data-[state=checked]:bg-gray-900 data-[state=checked]:border-gray-900",
+    "data-[state=checked]:bg-[#339999] data-[state=checked]:border-[#339999]",
 };
+
 const SERVICE_BORDER_COLORS = {
-  HRIS: "border-blue-900",
-  Payroll: "border-orange-900",
-  ATS: "border-purple-900",
-  Default: "border-gray-900",
+  Suitelifer: "border-[#004D4D]",
+  HRIS: "border-[#006666]",
+  Payroll: "border-[#007373]",
+  ATS: "border-[#008080]",
+  Default: "border-[#339999]",
 };
 
 const PermissionCheckbox = ({
@@ -24,6 +44,7 @@ const PermissionCheckbox = ({
   serviceName,
   expanded,
   onToggleExpand,
+  selectionType = "multiple",
 }) => {
   const colorClass = SERVICE_COLORS[serviceName] || SERVICE_COLORS.Default;
   const colorBorderClass =
@@ -33,22 +54,39 @@ const PermissionCheckbox = ({
     <div
       className={`
         group relative flex flex-col p-4 rounded-2xl transition-all border
-        ${checked ? colorBorderClass : "bg-white  border-gray-200"}
+        ${checked ? colorBorderClass : "bg-white border-gray-200"}
         hover:shadow-md/5 select-none
       `}
     >
       <div className="flex items-start w-full">
-        <Checkbox
-          id={`feature-${feature.service_feature_id}`}
-          checked={checked}
-          onCheckedChange={onChange}
-          className={`mr-3 mt-1 h-4 w-4 border rounded ${colorClass}`}
-        />
+        {selectionType === "multiple" ? (
+          <Checkbox
+            id={`feature-${feature.service_feature_id}`}
+            checked={checked}
+            onCheckedChange={onChange}
+            className={`mr-3 mt-1 h-4 w-4 border rounded ${colorClass}`}
+          />
+        ) : (
+          <input
+            type="radio"
+            name={`single-${serviceName}`}
+            id={`feature-${feature.service_feature_id}`}
+            checked={checked}
+            onChange={onChange}
+            className="
+    mr-3 mt-1 h-4 w-4 rounded-full border border-gray-400 cursor-pointer 
+    appearance-none 
+    checked:bg-[#008080] 
+    checked:border-[#008080] 
+    relative
+  "
+          />
+        )}
 
         <div className="flex-1 text-sm">
           <label
             htmlFor={`feature-${feature.service_feature_id}`}
-            className="text-xs  text-black cursor-pointer"
+            className="text-xs text-black cursor-pointer"
           >
             {feature.feature_name}
           </label>

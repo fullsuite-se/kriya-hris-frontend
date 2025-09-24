@@ -1,4 +1,5 @@
 import CustomDialog from "@/components/dialog/CustomDialog";
+import LoadingAnimation from "@/components/Loading";
 import getEmployeeTypesColumns from "@/components/table/columns/EmployeeTypesColumns";
 import getEmploymentStatusColumns from "@/components/table/columns/EmploymentStatusColumns";
 import getJobLevelsColumns from "@/components/table/columns/JobLevelsColumns";
@@ -307,11 +308,12 @@ export const JobSettingsTab = () => {
   });
 
 
- if (loading || fetchJobLevelsLoading) {
+ if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-primary-color"></div>
-      </div>
+      // <div className="flex items-center justify-center h-screen">
+      //   <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-primary-color"></div>
+      // </div>
+        <LoadingAnimation/>
     );
   }
 

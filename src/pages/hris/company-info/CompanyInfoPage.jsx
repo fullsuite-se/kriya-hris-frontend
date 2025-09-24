@@ -13,6 +13,7 @@ import DivisionsTab from "./tabs-contents/divisionsTab";
 import DepartmentsTab from "./tabs-contents/departmentsTab";
 import TeamsTab from "./tabs-contents/TeamsTab";
 import { CompanyDetailsContext } from "@/context/CompanyDetailsContext";
+import LoadingAnimation from "@/components/Loading";
 
 const CompanyInfoPage = () => {
   const { setHeaderConfig } = useHeader();
@@ -68,9 +69,10 @@ const CompanyInfoPage = () => {
 
  if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-primary-color"></div>
-      </div>
+      // <div className="flex items-center justify-center h-screen">
+      //   <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-primary-color"></div>
+      // </div>
+        <LoadingAnimation/>
     );
   }
 
