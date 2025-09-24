@@ -8,19 +8,21 @@ export default function EmployeeIdTextField({
   name = "employeeId",
   control,
   label = "Employee ID",
-  placeholder = "Enter employee ID",
+  placeholder = "Enter employee ID (e.g., TEE-0239)",
   required = false,
   availabilityState,
   onAvailabilityCheck,
+  pattern = /^[A-Za-z]+-\d+$/, // Updated pattern to accept any letters followed by dash and numbers
+  patternMessage = "Must be in format: PREFIX-NUMBERS (e.g., TEE-0239)",
 }) {
   const [isFocused, setIsFocused] = useState(false);
 
   const handleBlur = (value) => {
     setIsFocused(false);
 
-    // Only trigger availability check if it matches "OCCI-" followed by numbers
+    // Trigger availability check for any valid prefix followed by numbers
     const trimmed = value.trim();
-    if (/^OCCI-\d+$/.test(trimmed) && onAvailabilityCheck) {
+    if (pattern.test(trimmed) && onAvailabilityCheck) {
       onAvailabilityCheck(trimmed);
     }
   };
@@ -31,18 +33,17 @@ export default function EmployeeIdTextField({
       control={control}
       defaultValue=""
       rules={{
-        required: "Employee ID is required",
+        required: required ? "Employee ID is required" : false,
         pattern: {
-          value: /^OCCI-\d+$/,
-          message: "Must start with OCCI- followed by numbers",
+          value: pattern,
+          message: patternMessage,
         },
       }}
       render={({ field, fieldState }) => (
         <div className="space-y-1">
           {label && (
-            <Label htmlFor={name} className="text-xs font-medium">
-              {label}
-              {required && <span className="text-primary-color">*</span>}
+            <Label htmlFor={name} className="text-xs font-medium gap-0">
+              {label}{required && <span className="text-primary-color">*</span>}
             </Label>
           )}
 

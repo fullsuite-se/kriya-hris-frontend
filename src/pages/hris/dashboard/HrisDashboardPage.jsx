@@ -1,7 +1,4 @@
-import { Button } from "@/components/ui/button";
 import { useHeader } from "@/context/HeaderContext";
-import { useFetchAllEmployeesAPI } from "@/hooks/useEmployeeAPI";
-import { useAuthStore } from "@/stores/useAuthStore";
 import {
   CheckBadgeIcon,
   FolderPlusIcon,
@@ -11,7 +8,7 @@ import {
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import DashboardDateTime from "./components/DashboardDateTime";
-import { ExclamationCircleIcon } from "@heroicons/react/24/solid";
+import { ExclamationCircleIcon, HeartIcon } from "@heroicons/react/24/solid";
 import Skeleton from "react-loading-skeleton";
 import {
   Chart as ChartJS,
@@ -25,6 +22,8 @@ import {
   Filler,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
+import LoadingAnimation from "@/components/Loading";
+import { useFetchEmployeeCountsAPI } from "@/hooks/useEmployeeAPI";
 
 ChartJS.register(
   CategoryScale,
@@ -37,102 +36,30 @@ ChartJS.register(
   Filler
 );
 
+const statusIcons = {
+  Regular: <CheckBadgeIcon width={20} className="text-[#008080]" />,
+  Probationary: <FolderPlusIcon width={20} className="text-[#008080]" />,
+  Separated: <XCircleIcon width={20} className="text-[#008080]" />,
+};
+
 const HrisDashboardPage = () => {
   const { setHeaderConfig } = useHeader();
 
   useEffect(() => {
     setHeaderConfig({
       title: "HRIS Dashboard",
-      description: "Summary or analytcis heree",
+      description: "Summary or analytics heree",
       rightContent: <DashboardDateTime />,
     });
   }, []);
 
-  const {
-    allEmployees,
-    loading: allLoading,
-    error: allError,
-  } = useFetchAllEmployeesAPI();
-
-  const startOfMonth = new Date(
-    new Date().getFullYear(),
-    new Date().getMonth(),
-    1
-  );
-  const {
-    allEmployees: employeesThisMonth,
-    loading: hiredLoading,
-    error: hiredError,
-  } = useFetchAllEmployeesAPI({
-    startdate: startOfMonth.toISOString().split("T")[0],
-  });
-
-  const { allEmployees: newRegularEmployeesThisMonth } =
-    useFetchAllEmployeesAPI({
-      startdate: startOfMonth.toISOString().split("T")[0],
-      status: "es2",
-    });
-
-  const { allEmployees: probationaryEmployees } = useFetchAllEmployeesAPI({
-    status: "es1",
-  });
-  const { allEmployees: newProbationaryEmployeesThisMonth } =
-    useFetchAllEmployeesAPI({
-      startdate: startOfMonth.toISOString().split("T")[0],
-      status: "es1",
-    });
-
-  const {
-    allEmployees: regularEmployees,
-    loading: regularEmployeesLoading,
-    error: regularEmployeesError,
-  } = useFetchAllEmployeesAPI({
-    status: "es2",
-  });
-
-  const { allEmployees: terminatedEmployees } = useFetchAllEmployeesAPI({
-    status: "c3e471b4-fcdf-4361-a65f-7b14b2e7915f",
-  });
-  const { allEmployees: terminatedEmployeesThisMonth } =
-    useFetchAllEmployeesAPI({
-      startdate: startOfMonth.toISOString().split("T")[0],
-      status: "c3e471b4-fcdf-4361-a65f-7b14b2e7915f",
-    });
-  const employeeCount = allEmployees ? allEmployees.length : 0;
-  const hiredCount = employeesThisMonth ? employeesThisMonth.length : 0;
-  const regularEmployeeCount = regularEmployees ? regularEmployees.length : 0;
-  const newRegularEmployeesCountThisMonth = newRegularEmployeesThisMonth
-    ? newRegularEmployeesThisMonth.length
-    : 0;
-  const probationaryEmployeesCount = probationaryEmployees
-    ? probationaryEmployees.length
-    : 0;
-  const newProbationaryEmployeesCountThisMonth =
-    newProbationaryEmployeesThisMonth
-      ? newProbationaryEmployeesThisMonth.length
-      : 0;
-  const terminatedEmployeesCount = terminatedEmployees
-    ? terminatedEmployees.length
-    : 0;
-  const terminatedEmployeesThisMonthCount = terminatedEmployeesThisMonth
-    ? terminatedEmployeesThisMonth.length
-    : 0;
-
-  const loading = allLoading || hiredLoading || regularEmployeesLoading;
-  const error = allError || hiredError || regularEmployeesError;
+  const { employeeCounts, loading, error } = useFetchEmployeeCountsAPI();
 
   useEffect(() => {
     document.title = "Dashboard";
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-primary-color"></div>
-      </div>
-    );
-  }
-
+  if (loading) return <LoadingAnimation />;
   if (error) {
     return (
       <div className="flex items-center justify-center h-screen italic text-muted-foreground">
@@ -140,6 +67,15 @@ const HrisDashboardPage = () => {
       </div>
     );
   }
+
+ const {
+    activeCount,
+    countsByStatus = [],
+  } = employeeCounts || {};
+
+  const statusWithNew = countsByStatus.sort((a, b) =>
+    a.employment_status.localeCompare(b.employment_status)
+  );
   const monthlyTrendsChartData = {
     labels: [
       "Jan",
@@ -181,74 +117,48 @@ const HrisDashboardPage = () => {
 
   return (
     <div className="flex flex-col min-h-screen gap-5">
+
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 auto-rows-[minmax(100px,auto)]">
-        <Link to="/hris/employees" className="col-span-1">
-          <div className="bg-white rounded-2xl shadow-sm p-5 hover:shadow-md transition-shadow">
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="text-lg font-semibold text-gray-800">
-                Total Employees
-              </h3>
-              <UserGroupIcon width={20} className="text-[#008080]" />
+        <div className="col-span-1">
+          {/* <Link to="/hris/employees" className="col-span-1"> */}
+            <div className="bg-[#008080] rounded-2xl shadow-sm p-5 hover:shadow-md transition-shadow">
+              <div className="flex justify-between items-start mb-2">
+                <h3 className="text-lg font-semibold text-white">
+                  Active Employees
+                </h3>
+                <UserGroupIcon width={20} className="text-white" />
+              </div>
+              <p className="text-6xl font-bold text-white">{activeCount}</p>
             </div>
-            <p className="text-3xl font-bold text-[#008080]">{employeeCount}</p>
-            <span className="text-sm text-gray-500 mt-2">
-              +{hiredCount} this month
-            </span>
-          </div>
-        </Link>
+          {/* </Link> */}
+        </div>
 
-        <Link to="/hris/employees" className="col-span-1">
-          <div className="bg-white rounded-2xl shadow-sm p-5 hover:shadow-md transition-shadow">
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="text-lg font-semibold text-gray-800">Regular</h3>
-              <CheckBadgeIcon width={20} className="text-[#008080]" />
-            </div>
-            <p className="text-3xl font-bold text-[#008080]">
-              {regularEmployeeCount}
-            </p>
-            <span className="text-sm text-gray-500 mt-2">
-              +{newRegularEmployeesCountThisMonth} this month
-            </span>
+      {statusWithNew.map((status) => (
+          <div key={status.employment_status_id} className="col-span-1">
+            {/* <Link to="/hris/employees" key={status.employment_status_id} className="col-span-1"> */}
+              <div className="bg-white rounded-2xl shadow-sm p-5 hover:shadow-md transition-shadow">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="text-lg font-semibold text-gray-800">
+                    {status.employment_status}
+                  </h3>
+                  {statusIcons[status.employment_status] || (
+                    <UserGroupIcon width={20} className="text-[#008080]" />
+                  )}
+                </div>
+                <p className="text-3xl font-bold text-[#008080]">
+                  {status.count}
+                </p>
+                <span className="text-sm text-gray-500 mt-2">
+                  +{status.newThisMonth} this month
+                </span>
+              </div>
+            {/* </Link> */}
           </div>
-        </Link>
-
-        <Link to="/hris/employees" className="col-span-1">
-          <div className="bg-white rounded-2xl shadow-sm p-5 hover:shadow-md transition-shadow">
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="text-lg font-semibold text-gray-800">
-                Probationary
-              </h3>
-              <FolderPlusIcon width={20} className="text-[#008080]" />
-            </div>
-            <p className="text-3xl font-bold text-[#008080]">
-              {probationaryEmployeesCount}
-            </p>
-            <span className="text-sm text-gray-500 mt-2">
-              +{newProbationaryEmployeesCountThisMonth} this month
-            </span>
-          </div>
-        </Link>
-
-        <Link to="/hris/employees" className="col-span-1">
-          <div className="bg-white rounded-2xl shadow-sm p-5 hover:shadow-md transition-shadow">
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="text-lg font-semibold text-gray-800">
-                Terminated
-              </h3>
-              <XCircleIcon width={20} className="text-[#008080]" />
-            </div>
-            <p className="text-3xl font-bold text-[#008080]">
-              {terminatedEmployeesCount}
-            </p>
-            <span className="text-sm text-gray-500 mt-2">
-              +{terminatedEmployeesThisMonthCount} this month
-            </span>
-          </div>
-        </Link>
+        ))}
 
         <div className="bg-white rounded-2xl shadow-sm p-5 col-span-1 lg:col-span-2 lg:row-span-2">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">Summary</h3>
-          <div className="text-gray-500">Contennts heree</div>
+          <div className="text-gray-500">Contents heree</div>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm p-5 col-span-1 lg:col-span-2 lg:row-span-4">
@@ -258,45 +168,9 @@ const HrisDashboardPage = () => {
               <ExclamationCircleIcon className="w-4 text-[#008080] mr-2" /> An
               update here
             </li>
-            <li className="border-b pb-2 flex">
-              <ExclamationCircleIcon className="w-4 text-[#008080] mr-2" /> An
-              update here
-            </li>
-            <li className="border-b pb-2 flex">
-              <ExclamationCircleIcon className="w-4 text-[#008080] mr-2" /> An
-              update here
-            </li>
-            <li className="border-b pb-2 flex">
-              <ExclamationCircleIcon className="w-4 text-[#008080] mr-2" /> An
-              update here
-            </li>
-            <li className="border-b pb-2 flex">
-              <ExclamationCircleIcon className="w-4 text-[#008080] mr-2" /> An
-              update here
-            </li>
-            <li className="border-b pb-2 flex">
-              <ExclamationCircleIcon className="w-4 text-[#008080] mr-2" /> An
-              update here
-            </li>
-            <li className="border-b pb-2 flex">
-              <ExclamationCircleIcon className="w-4 text-[#008080] mr-2" /> An
-              update here
-            </li>
-            <li className="border-b pb-2 flex">
-              <ExclamationCircleIcon className="w-4 text-[#008080] mr-2" /> An
-              update here
-            </li>
-            <li className="border-b pb-2 flex">
-              <ExclamationCircleIcon className="w-4 text-[#008080] mr-2" /> An
-              update here
-            </li>
           </ul>
-          {/* <div className="flex justify-end">
-            <Button variant="outline" className="mt-4">
-              View All
-            </Button>
-          </div> */}
         </div>
+
         <div className="bg-white rounded-2xl shadow-sm p-5 col-span-1 lg:col-span-2 lg:row-span-2">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">
             Analytics
@@ -362,7 +236,6 @@ const HrisDashboardPage = () => {
             )}
           </div>
         </div>
-        
       </div>
     </div>
   );

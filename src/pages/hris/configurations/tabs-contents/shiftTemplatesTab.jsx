@@ -1,4 +1,5 @@
 import CustomDialog from "@/components/dialog/CustomDialog";
+import LoadingAnimation from "@/components/Loading";
 import getJobPositionColumns from "@/components/table/columns/JobPositionsColumns";
 import getShiftTemplatesColumns from "@/components/table/columns/ShiftTemplatesColumns";
 import DataTable from "@/components/table/table-components/DataTable";
@@ -220,9 +221,10 @@ export const ShiftTemplatesTab = () => {
 
  if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-primary-color"></div>
-      </div>
+      // <div className="flex items-center justify-center h-screen">
+      //   <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-primary-color"></div>
+      // </div>
+        <LoadingAnimation/>
     );
   }
 

@@ -49,10 +49,13 @@ export function sanitizeData(data, currentKey = "") {
       );
   }
 
-
   if (typeof data === "string") {
     const trimmed = data.trim();
     if (trimmed === "") return undefined;
+
+    if (currentKey === "extensionName") {
+      return trimmed.toUpperCase();
+    }
 
     return nameLikeFields.includes(currentKey)
       ? capitalizeWords(trimmed)
@@ -61,3 +64,4 @@ export function sanitizeData(data, currentKey = "") {
 
   return data;
 }
+

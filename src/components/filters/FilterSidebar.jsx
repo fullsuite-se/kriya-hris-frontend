@@ -21,7 +21,7 @@ export default function FilterSidebar({
  
         {hasActiveFilters && (
           <p
-            className="text-xs cursor-pointer text-primary-color"
+            className="text-xs cursor-pointer text-secondary-color"
             onClick={handleReset}
           >
             Reset
@@ -47,8 +47,7 @@ export default function FilterSidebar({
 
       <div className="mt-6 space-y-2">
         <Button
-          variant="outline"
-          className="w-full text-sm text-primary-color border-[#008080] hover:text-white bg-transparent hover:bg-[#008080] px-3 py-2 disabled:opacity-50"
+           className="w-full text-sm disabled:opacity-40"
           onClick={() => onApply(localFilters)}
           disabled={!hasFiltersApplied && !hasActiveFilters}
         >

@@ -15,6 +15,7 @@ import { use, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import EditCompanyProfileDialog from "./dialogs/EditCompanyProfileDialog";
 import { CompanyDetailsContext } from "@/context/CompanyDetailsContext";
+import LoadingAnimation from "@/components/Loading";
 
 export const CompanyProfileTab = () => {
   const  {loading, error} = useFetchCompanyDetailsAPI();
@@ -36,8 +37,13 @@ export const CompanyProfileTab = () => {
   const navigate = useNavigate();
 
   if (loading) {
-    return null;
-  }
+     return (
+       // <div className="flex items-center justify-center h-screen">
+       //   <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-primary-color"></div>
+       // </div>
+         <LoadingAnimation/>
+     );
+   }
 
   return (
     <div className="px-5 pb-10">

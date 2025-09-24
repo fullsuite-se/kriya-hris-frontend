@@ -353,10 +353,10 @@ const EmployeeForm = ({ onSubmit, onCancel }) => {
             control={form.control}
             rules={{
               required: "Employee ID is required",
-              pattern: {
-                value: /^OCCI-\d+$/,
-                message: "Must start with OCCI- followed by numbers",
-              },
+              // pattern: {
+              //   value: /^OCCI-\d+$/,
+              //   message: "Must start with OCCI- followed by numbers",
+              // },
             }}
             render={({ field, fieldState }) => {
               useEffect(() => {

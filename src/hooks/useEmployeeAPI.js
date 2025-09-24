@@ -11,12 +11,16 @@ import fetchEmployeeDetailsAPI, {
   editEmployeeSalaryAPI,
   editEmployeeTimelineAPI,
   fetchAllEmployeesAPI,
+  fetchEmployeeCountsAPI,
   fetchLatestEmployeeIdAPI,
 } from "@/services/employeeAPI";
-import { use, useContext, useEffect, useState } from "react";
+import { use, useCallback, useContext, useEffect, useState } from "react";
 import { UserContext } from "../context/UserContext";
 import { EmployeeDetailsContext } from "@/context/EmployeeDetailsContext";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useAddAccessPermissionAPI, useAddServicePermissionAPI } from "./useAdminAPI";
+
+
 
 //check availability emp id
 
@@ -71,31 +75,242 @@ export const useFetchLatestEmployeeIdAPI = () => {
 };
 
 //all
+//prod
+// export const useFetchAllEmployeesAPI = (filters = {}) => {
+//   const [allEmployees, setAllEmployees] = useState([]);
+//   const [error, setError] = useState(null);
+//   const [loading, setLoading] = useState(false);
 
-export const useFetchAllEmployeesAPI = (filters = {}) => {
+//   useEffect(() => {
+//     const fetchAllEmployees = async () => {
+//       setLoading(true);
+//       try {
+//         const response = await fetchAllEmployeesAPI(filters);
+//         setAllEmployees(response || []);
+//       } catch (err) {
+//         console.error("Failed to fetch all employees:", err);
+//         setError(err);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchAllEmployees();
+//   }, [JSON.stringify(filters)]);
+
+//   return { allEmployees, error, loading };
+// };
+
+//pagination
+// export const useFetchAllEmployeesAPI = (filters = {}) => {
+//   const [allEmployees, setAllEmployees] = useState([]);
+//   const [total, setTotal] = useState(0);
+//   const [page, setPage] = useState(1);       // keep current page in state
+//   const [totalPages, setTotalPages] = useState(1);
+//   const [pageSize, setPageSize] = useState(10); // rows per page
+//   const [error, setError] = useState(null);
+//   const [loading, setLoading] = useState(false);
+
+//   const fetchData = async () => {
+//     setLoading(true);
+//     try {
+//       const {
+//         users,
+//         total: totalCount,
+//         page: currentPage,
+//         totalPages: totalPageCount,
+//       } = await fetchAllEmployeesAPI({
+//         ...filters,
+//         page,
+//         limit: pageSize,
+//       });
+
+//       setAllEmployees(users);
+//       setTotal(totalCount);
+//       setTotalPages(totalPageCount);
+//       // if your backend echoes the current page, you can sync it:
+//       setPage(currentPage);
+//     } catch (err) {
+//       console.error("Failed to fetch all employees:", err);
+//       setError(err);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+
+//   useEffect(() => {
+//     fetchData();
+//   }, [JSON.stringify(filters), page, pageSize]);
+
+//   return {
+//     allEmployees,
+//     total,
+//     page,
+//     totalPages,
+//     pageSize,
+//     setPage,
+//     setPageSize,
+//     error,
+//     loading,
+//   };
+// };
+
+//page w search
+export const useFetchAllEmployeesAPI = (initialFilters = {}) => {
   const [allEmployees, setAllEmployees] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState(initialFilters);
+  const [searchInput, setSearchInput] = useState(''); // Local search input state
+
+  const fetchData = async (currentFilters = filters) => {
+    setLoading(true);
+    try {
+
+      const backendFilters = {};
+
+      if (currentFilters.status) {
+        backendFilters.status = currentFilters.status;
+      }
+      if (currentFilters.department) {
+        backendFilters.department = currentFilters.department;
+      }
+      if (currentFilters.job_position) {
+        backendFilters.job_position = currentFilters.job_position;
+      }
+      if (currentFilters.supervisor) {
+        backendFilters.supervisor = currentFilters.supervisor;
+      }
+      if (currentFilters.startdate) {
+        backendFilters.startdate = currentFilters.startdate;
+      }
+      if (currentFilters.enddate) {
+        backendFilters.enddate = currentFilters.enddate;
+      }
+      if (currentFilters.search) {
+        backendFilters.search = currentFilters.search;
+      }
+      const {
+        users,
+        total: totalCount,
+        page: currentPage,
+        totalPages: totalPageCount,
+      } = await fetchAllEmployeesAPI({
+        ...backendFilters,
+        page,
+        limit: pageSize,
+      });
+
+      setAllEmployees(users);
+      setTotal(totalCount);
+      setTotalPages(totalPageCount);
+      setPage(currentPage);
+    } catch (err) {
+      console.error("Failed to fetch all employees:", err);
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Function to update filters and reset to page 1
+  const updateFilters = (newFilters) => {
+    setFilters(newFilters);
+    setPage(1); // Reset to first page when filters change
+  };
+
+  // Function to handle search input change
+  const handleSearchInputChange = (value) => {
+    setSearchInput(value);
+  };
+
+  // Function to perform search (called when button is clicked)
+  const performSearch = () => {
+    if (searchInput.trim() === '') {
+      // If search is empty, remove the search filter
+      const { search: _, ...restFilters } = filters;
+      updateFilters(restFilters);
+    } else {
+      updateFilters({ ...filters, search: searchInput.trim() });
+    }
+  };
+
+  // Function to handle specific field searches (immediate)
+  const handleFieldSearch = (fieldName, value) => {
+    if (value.trim() === '') {
+      // Remove the field filter if value is empty
+      const { [fieldName]: _, ...restFilters } = filters;
+      updateFilters(restFilters);
+    } else {
+      updateFilters({ ...filters, [fieldName]: value.trim() });
+    }
+  };
+
+  // Function to clear search
+  const clearSearch = () => {
+    setSearchInput('');
+    const { search: _, ...restFilters } = filters;
+    updateFilters(restFilters);
+  };
 
   useEffect(() => {
-    const fetchAllEmployees = async () => {
-      setLoading(true);
-      try {
-        const response = await fetchAllEmployeesAPI(filters);
-        setAllEmployees(response || []);
-      } catch (err) {
-        console.error("Failed to fetch all employees:", err);
-        setError(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+    fetchData();
+  }, [page, pageSize, JSON.stringify(filters)]); // Include filters in dependency array
 
-    fetchAllEmployees();
-  }, [JSON.stringify(filters)]);
-
-  return { allEmployees, error, loading };
+  return {
+    allEmployees,
+    total,
+    page,
+    totalPages,
+    pageSize,
+    setPage,
+    setPageSize,
+    error,
+    loading,
+    filters,
+    searchInput,
+    setFilters: updateFilters,
+    handleSearchInputChange,
+    performSearch,
+    clearSearch,
+    handleFieldSearch,
+    refetch: () => fetchData(),
+  };
 };
+
+
+//get employee counts
+export const useFetchEmployeeCountsAPI = () => {
+  const [employeeCounts, setEmployeeCounts] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchEmployeeCounts = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await fetchEmployeeCountsAPI();
+      console.log("employee counts: ", response);
+      setEmployeeCounts(response);
+    } catch (err) {
+      console.error("Failed to fetch employee counts:", err);
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchEmployeeCounts();
+  }, [fetchEmployeeCounts]);
+
+  return { employeeCounts, error, loading, refetch: fetchEmployeeCounts, setEmployeeCounts };
+};
+
 
 //details of loggedin user
 export const useFetchLoggedInUserDetailsAPI = (userId) => {
@@ -229,12 +444,26 @@ export const useAddEmployeeAPI = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const { addServicePermission, loading: addServiceLoading } = useAddServicePermissionAPI();
+  const { addAccessPermission, loading: addAccessLoading } = useAddAccessPermissionAPI();
   const addEmployee = async (employeeData) => {
     setLoading(true);
     setError(null);
 
     try {
       const result = await addEmployeeAPI(employeeData, token);
+      const user_id = result?.data?.hrisUserAccount?.user_id;
+      if (!user_id) throw new Error("User ID missing in response");
+
+      const suiteliferId = import.meta.env.VITE_SUITELIFER_ID;
+      const suiteliferRoleId = import.meta.env.VITE_SUITELIFER_EMPLOYEE_ROLE_ID;
+
+      if (!suiteliferId || !suiteliferRoleId) {
+        throw new Error("Required env variables are missing");
+      }
+
+      await addServicePermission(user_id, [suiteliferId]);
+      await addAccessPermission(user_id, [suiteliferRoleId]);
       return result;
     } catch (err) {
       console.error("Failed to add employee:", err);
@@ -606,81 +835,81 @@ export const useEditEmployeeDesignationAPI = () => {
             ...updated.designation,
             CompanyOffice: updated.designation.office_id
               ? {
-                  ...(prev?.CompanyOffice || {}),
-                  office_id: updated.designation.office_id,
-                  office_name:
-                    updated.designation.CompanyOffice?.office_name ||
-                    prev?.CompanyOffice?.office_name ||
-                    null,
-                }
+                ...(prev?.CompanyOffice || {}),
+                office_id: updated.designation.office_id,
+                office_name:
+                  updated.designation.CompanyOffice?.office_name ||
+                  prev?.CompanyOffice?.office_name ||
+                  null,
+              }
               : null,
             CompanyDivision: updated.designation.division_id
               ? {
-                  ...(prev?.CompanyDivision || {}),
-                  division_id: updated.designation.division_id,
-                  division_name:
-                    updated.designation.CompanyDivision?.division_name ||
-                    prev?.CompanyDivision?.division_name ||
-                    null,
-                }
+                ...(prev?.CompanyDivision || {}),
+                division_id: updated.designation.division_id,
+                division_name:
+                  updated.designation.CompanyDivision?.division_name ||
+                  prev?.CompanyDivision?.division_name ||
+                  null,
+              }
               : null,
             CompanyDepartment: updated.designation.department_id
               ? {
-                  ...(prev?.CompanyDepartment || {}),
-                  department_id: updated.designation.department_id,
-                  department_name:
-                    updated.designation.CompanyDepartment?.department_name ||
-                    prev?.CompanyDepartment?.department_name ||
-                    null,
-                }
+                ...(prev?.CompanyDepartment || {}),
+                department_id: updated.designation.department_id,
+                department_name:
+                  updated.designation.CompanyDepartment?.department_name ||
+                  prev?.CompanyDepartment?.department_name ||
+                  null,
+              }
               : null,
             CompanyTeam: updated.designation.team_id
               ? {
-                  ...(prev?.CompanyTeam || {}),
-                  team_id: updated.designation.team_id,
-                  team_name:
-                    updated.designation.CompanyTeam?.team_name ||
-                    prev?.CompanyTeam?.team_name ||
-                    null,
-                }
+                ...(prev?.CompanyTeam || {}),
+                team_id: updated.designation.team_id,
+                team_name:
+                  updated.designation.CompanyTeam?.team_name ||
+                  prev?.CompanyTeam?.team_name ||
+                  null,
+              }
               : null,
             CompanyJobTitle: updated.designation.job_title_id
               ? {
-                  ...(prev?.CompanyJobTitle || {}),
-                  job_title_id: updated.designation.job_title_id,
-                  job_title:
-                    updated.designation.CompanyJobTitle?.job_title ||
-                    prev?.CompanyJobTitle?.job_title ||
-                    null,
-                }
+                ...(prev?.CompanyJobTitle || {}),
+                job_title_id: updated.designation.job_title_id,
+                job_title:
+                  updated.designation.CompanyJobTitle?.job_title ||
+                  prev?.CompanyJobTitle?.job_title ||
+                  null,
+              }
               : null,
             upline: updated.designation.upline_id
               ? {
-                  ...(prev?.upline || {}),
-                  user_id: updated.designation.upline_id,
-                  HrisUserInfo:
-                    updated.designation.upline?.HrisUserInfo ||
-                    prev?.upline?.HrisUserInfo ||
-                    null,
-                }
+                ...(prev?.upline || {}),
+                user_id: updated.designation.upline_id,
+                HrisUserInfo:
+                  updated.designation.upline?.HrisUserInfo ||
+                  prev?.upline?.HrisUserInfo ||
+                  null,
+              }
               : null,
             Company: updated.designation.company_id
               ? {
-                  ...(prev?.Company || {}),
-                  company_id: updated.designation.company_id,
-                  company_email:
-                    updated.designation.Company?.company_email ||
-                    prev?.Company?.company_email ||
-                    null,
-                  CompanyAddress:
-                    updated.designation.Company?.CompanyAddress ||
-                    prev?.Company?.CompanyAddress ||
-                    null,
-                  CompanyInfo:
-                    updated.designation.Company?.CompanyInfo ||
-                    prev?.Company?.CompanyInfo ||
-                    null,
-                }
+                ...(prev?.Company || {}),
+                company_id: updated.designation.company_id,
+                company_email:
+                  updated.designation.Company?.company_email ||
+                  prev?.Company?.company_email ||
+                  null,
+                CompanyAddress:
+                  updated.designation.Company?.CompanyAddress ||
+                  prev?.Company?.CompanyAddress ||
+                  null,
+                CompanyInfo:
+                  updated.designation.Company?.CompanyInfo ||
+                  prev?.Company?.CompanyInfo ||
+                  null,
+              }
               : null,
           };
           console.log("New designations state", newDesignations);
@@ -695,45 +924,45 @@ export const useEditEmployeeDesignationAPI = () => {
             ...updated.employment,
             HrisUserEmploymentStatus: updated.employment.employment_status_id
               ? {
-                  ...(prev?.HrisUserEmploymentStatus || {}),
-                  employment_status_id: updated.employment.employment_status_id,
-                  employment_status:
-                    updated.employment.HrisUserEmploymentStatus
-                      ?.employment_status ||
-                    prev?.HrisUserEmploymentStatus?.employment_status ||
-                    null,
-                }
+                ...(prev?.HrisUserEmploymentStatus || {}),
+                employment_status_id: updated.employment.employment_status_id,
+                employment_status:
+                  updated.employment.HrisUserEmploymentStatus
+                    ?.employment_status ||
+                  prev?.HrisUserEmploymentStatus?.employment_status ||
+                  null,
+              }
               : null,
             HrisUserEmploymentType: updated.employment.employment_type_id
               ? {
-                  ...(prev?.HrisUserEmploymentType || {}),
-                  employment_type_id: updated.employment.employment_type_id,
-                  employment_type:
-                    updated.employment.HrisUserEmploymentType
-                      ?.employment_type ||
-                    prev?.HrisUserEmploymentType?.employment_type ||
-                    null,
-                }
+                ...(prev?.HrisUserEmploymentType || {}),
+                employment_type_id: updated.employment.employment_type_id,
+                employment_type:
+                  updated.employment.HrisUserEmploymentType
+                    ?.employment_type ||
+                  prev?.HrisUserEmploymentType?.employment_type ||
+                  null,
+              }
               : null,
             HrisUserJobLevel: updated.employment.job_level_id
               ? {
-                  ...(prev?.HrisUserJobLevel || {}),
-                  job_level_id: updated.employment.job_level_id,
-                  job_level_name:
-                    updated.employment.HrisUserJobLevel?.job_level_name ||
-                    prev?.HrisUserJobLevel?.job_level_name ||
-                    null,
-                }
+                ...(prev?.HrisUserJobLevel || {}),
+                job_level_id: updated.employment.job_level_id,
+                job_level_name:
+                  updated.employment.HrisUserJobLevel?.job_level_name ||
+                  prev?.HrisUserJobLevel?.job_level_name ||
+                  null,
+              }
               : null,
             HrisUserShiftsTemplate: updated.employment.shift_template_id
               ? {
-                  ...(prev?.HrisUserShiftsTemplate || {}),
-                  shift_template_id: updated.employment.shift_template_id,
-                  shift_name:
-                    updated.employment.HrisUserShiftsTemplate?.shift_name ||
-                    prev?.HrisUserShiftsTemplate?.shift_name ||
-                    null,
-                }
+                ...(prev?.HrisUserShiftsTemplate || {}),
+                shift_template_id: updated.employment.shift_template_id,
+                shift_name:
+                  updated.employment.HrisUserShiftsTemplate?.shift_name ||
+                  prev?.HrisUserShiftsTemplate?.shift_name ||
+                  null,
+              }
               : null,
           };
           console.log("New employment info state", newEmploymentInfo);

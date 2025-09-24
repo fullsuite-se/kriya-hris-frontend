@@ -15,9 +15,10 @@ import CanAccess from "@/utils/permissions/CanAccess";
 import { useFetchAllEmployeesAPI } from "@/hooks/useEmployeeAPI";
 import transformUsers from "@/utils/parsers/transformData";
 import { useFetchEmploymentStatusAPI } from "@/hooks/useJobSettingsAPI";
-import { useFetchDepartmentsAPI } from "@/hooks/useCompanyAPI";
 import { useEmployeesFilter } from "@/context/EmployeesFilterContext";
 import { InformationCircleIcon } from "@heroicons/react/24/solid";
+import LoadingAnimation from "@/components/Loading";
+import { XIcon, SearchIcon } from "lucide-react";
 
 const AllEmployeesPage = () => {
   const navigate = useNavigate();
@@ -25,9 +26,26 @@ const AllEmployeesPage = () => {
   const { filters, setFilters, localFilters, setLocalFilters } =
     useEmployeesFilter();
 
-  const { allEmployees, error, loading } = useFetchAllEmployeesAPI(filters);
-  const { allEmploymentStatuses } = useFetchEmploymentStatusAPI();
+  const {
+    allEmployees,
+    total,
+    page,
+    totalPages,
+    pageSize,
+    setPage,
+    setPageSize,
+    error,
+    loading,
+    filters: apiFilters,
+    searchInput,
+    handleSearchInputChange,
+    performSearch,
+    clearSearch,
+    setFilters: setAPIFilters,
+    refetch,
+  } = useFetchAllEmployeesAPI(filters);
 
+  const { allEmploymentStatuses } = useFetchEmploymentStatusAPI();
   const transformedUsers = transformUsers(allEmployees);
 
   const statusOptions = useMemo(
@@ -88,24 +106,7 @@ const AllEmployeesPage = () => {
       });
       return defaultValues;
     });
-  }, [filterFields]);
-
-  useEffect(() => {
-    setHeaderConfig({
-      title: "All Employees",
-      description: "Manage all employees",
-      button: (
-        <CanAccess feature={"Add Employee"}>
-          <Button
-            className="cursor-pointer !text-xs !text-white hover:!bg-[#008080ed] border-none"
-            onClick={() => navigate("/hris/employees/add")}
-          >
-            + Add Employee
-          </Button>
-        </CanAccess>
-      ),
-    });
-  }, [setHeaderConfig, navigate]);
+  }, [filterFields, setLocalFilters]);
 
   const hasFiltersApplied = useMemo(() => {
     return filterFields.some((filter) => {
@@ -124,23 +125,16 @@ const AllEmployeesPage = () => {
     });
   }, [filterFields, localFilters]);
 
-  const isEmptyObject = (obj) =>
-    !obj ||
-    Object.keys(obj).length === 0 ||
-    Object.values(obj).every((v) => !v);
-
   const hasActiveFilters = useMemo(() => {
-    return !isEmptyObject(filters);
-  }, [filters]);
+    return Object.keys(filters).length > 0 || apiFilters.search;
+  }, [filters, apiFilters.search]);
 
   const handleApplyFilters = (appliedFilters) => {
-    console.log("Filters applied:", appliedFilters);
-
     const formattedFilters = {};
 
-    if (appliedFilters.date_range && appliedFilters.date_range.length > 0) {
+    // Handle date range
+    if (appliedFilters.date_range && appliedFilters.date_range.length === 2) {
       const [start, end] = appliedFilters.date_range;
-
       if (start) {
         const s = new Date(start);
         s.setDate(s.getDate() + 1);
@@ -153,24 +147,21 @@ const AllEmployeesPage = () => {
       }
     }
 
+    // Handle status (convert array to comma-separated string)
     if (appliedFilters.status && appliedFilters.status.length > 0) {
       formattedFilters.status = appliedFilters.status.join(",");
     }
 
-    if (appliedFilters.department && appliedFilters.department.length > 0) {
-      formattedFilters.department = appliedFilters.department;
-    }
+    // Handle single value filters
+    ["department", "job_position", "supervisor"].forEach((key) => {
+      if (appliedFilters[key] && appliedFilters[key].length > 0) {
+        formattedFilters[key] = appliedFilters[key];
+      }
+    });
 
-    if (appliedFilters.supervisor && appliedFilters.supervisor.length > 0) {
-      formattedFilters.supervisor = appliedFilters.supervisor;
-    }
-
-    if (appliedFilters.job_position && appliedFilters.job_position.length > 0) {
-      formattedFilters.job_position = appliedFilters.job_position;
-    }
-
-    console.log("Formatted filters for backend:", formattedFilters);
+    // Update both context and API filters
     setFilters(formattedFilters);
+    setAPIFilters(formattedFilters);
   };
 
   const handleReset = () => {
@@ -181,23 +172,36 @@ const AllEmployeesPage = () => {
         (filter.type === "range" ? [filter.min, filter.max] : []);
     });
     setLocalFilters(reset);
-    setFilters(reset);
-    handleApplyFilters(reset);
+    setFilters({});
+    setAPIFilters({});
   };
 
   const [showFilters, setShowFilters] = useState(false);
   const toggleFilters = () => setShowFilters((prev) => !prev);
 
   useEffect(() => {
+    setHeaderConfig({
+      title: "All Employees",
+      description: "Manage all employees",
+      button: (
+        <CanAccess feature={"Add Employee"}>
+          <Button
+            className="cursor-pointer !text-xs !text-white hover:!bg-[#008080ed] border-none"
+            onClick={() => navigate("/hris/employees/add")}
+          >
+            + Add Employee
+          </Button>
+        </CanAccess>
+      ),
+    });
+  }, [setHeaderConfig, navigate]);
+
+  useEffect(() => {
     document.title = "All Employees";
   }, []);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-primary-color"></div>
-      </div>
-    );
+    return <LoadingAnimation />;
   }
 
   if (error) {
@@ -207,6 +211,7 @@ const AllEmployeesPage = () => {
       </div>
     );
   }
+
   return (
     <div className="w-full">
       <div className="lg:hidden mb-4 flex justify-end text-sm font-medium text-primary-color">
@@ -246,28 +251,62 @@ const AllEmployeesPage = () => {
             <p>Filters Applied</p>
           </div>
 
+          <div className="mb-4 flex gap-2 items-stretch min-w-0">
+            <input
+              type="text"
+              placeholder="Search by ID, email, or name..."
+              className="flex-1 p-2 border border-gray-300 rounded-md text-sm min-w-0"
+              value={searchInput}
+              onChange={(e) => handleSearchInputChange(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  performSearch();
+                }
+              }}
+            />
+
+            <div className="flex gap-2 shrink-0">
+              <Button
+                onClick={performSearch}
+                className="hidden sm:block whitespace-nowrap"
+              >
+                Search
+              </Button>
+              <Button onClick={performSearch} className="block sm:hidden px-3">
+                <SearchIcon color="white" className="w-4 h-4" />
+              </Button>
+
+              {apiFilters.search && (
+                <>
+                  <Button
+                    onClick={clearSearch}
+                    variant="secondary"
+                    className="hidden sm:block whitespace-nowrap"
+                  >
+                    Clear
+                  </Button>
+                  <Button
+                    onClick={clearSearch}
+                    variant="secondary"
+                    className="block sm:hidden px-3"
+                  >
+                    <XIcon className="w-4 h-4" />
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+
           <DataTable
             columns={employeeCols}
             data={transformedUsers}
-            searchKeys={[
-              "employee_id",
-              "email",
-              "job_title",
-              (item) =>
-                `${item.first_name} ${item.middle_name || ""} ${
-                  item.last_name
-                }`.trim(),
-              (item) =>
-                `${item.first_name} ${item.last_name} ${
-                  item.middle_name || ""
-                }`.trim(),
-              (item) =>
-                `${item.last_name} ${item.first_name} ${
-                  item.middle_name || ""
-                }`.trim(),
-              "status",
-            ]}
             onRowClick={(row) => navigate(`/hris/employees/${row.employee_id}`)}
+            totalRows={total}
+            page={page}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            setPage={setPage}
+            setPageSize={setPageSize}
           />
         </div>
 

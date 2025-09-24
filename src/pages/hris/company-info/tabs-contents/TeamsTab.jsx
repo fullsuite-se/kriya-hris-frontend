@@ -1,4 +1,5 @@
 import CustomDialog from "@/components/dialog/CustomDialog";
+import LoadingAnimation from "@/components/Loading";
 import getTeamsColumns from "@/components/table/columns/TeamsColumns";
 import DataTable from "@/components/table/table-components/DataTable";
 import { Button } from "@/components/ui/button";
@@ -22,11 +23,12 @@ export const TeamsTab = () => {
     allTeams,
     refetch: refetchAllTeams,
     setAllTeams,
+    loading
   } = useFetchTeamsAPI();
   const [teamsDialogOpen, setTeamsDialogOpen] = useState(false);
-  const { addTeam, loading: teamsLoading } = useAddTeamAPI();
-  const { deleteTeam, loading: deleteTeamLoading } = useDeleteTeamAPI();
-  const { editTeam, loading: editTeamLoading } = useEditTeamAPI();
+  const { addTeam } = useAddTeamAPI();
+  const { deleteTeam } = useDeleteTeamAPI();
+  const { editTeam} = useEditTeamAPI();
 
   const removeLocalTeam = (team_id) => {
     const teamToRemove = allTeams.find((j) => j.team_id === team_id);
@@ -245,6 +247,14 @@ export const TeamsTab = () => {
     onDelete: handleDeleteTeam,
   });
 
+    if (loading) {
+    return (
+      // <div className="flex items-center justify-center h-screen">
+      //   <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-primary-color"></div>
+      // </div>
+        <LoadingAnimation/>
+    );
+  }
   return (
     <div className=" p-5">
       <div className="justify-between items-center flex mb-8">

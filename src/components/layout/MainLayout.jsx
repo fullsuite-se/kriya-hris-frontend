@@ -6,6 +6,7 @@ import { UserContext } from "@/context/UserContext";
 import { useAuthStore } from "@/stores/useAuthStore";
 import useFetchLoggedInUserDetailsAPI from "@/hooks/useEmployeeAPI";
 import useAutoLogout from "@/hooks/useAutoLogout";
+import LoadingAnimation from "../Loading";
 
 const MainLayout = () => {
   const { loading } = useContext(UserContext);
@@ -20,7 +21,7 @@ const MainLayout = () => {
         <main className="flex-1 overflow-y-auto p-8 pb-0">
           {loading ? (
             <div className="flex items-center justify-center h-screen">
-              <div className="animate-spin rounded-full h-10 w-10 border-t-5 border-b-5 border-primary-color mr-2 inline-block"></div>
+              <LoadingAnimation />
             </div>
           ) : (
             <div>

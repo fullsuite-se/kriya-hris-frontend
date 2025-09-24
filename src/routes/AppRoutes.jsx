@@ -17,7 +17,6 @@ import CompanyInfoPage from "@/pages/hris/company-info/CompanyInfoPage";
 // import EditCompanyInfoPage from "@/pages/hris/company-info/EditCompanyInfoPage";
 import EmployeeDetailsPage from "@/pages/hris/employees/employee-details-page/EmployeeDetailsPage";
 import { EmployeeDetailsProvider } from "@/context/EmployeeDetailsContext";
-import EditPersonalDetailsPage from "@/pages/hris/employees/employee-details-page/edit-pages/personal-infos/EditPersonalDetailsPage";
 import {
   CompanyDetailsContext,
   CompanyDetailsProvider,
@@ -76,22 +75,6 @@ const AppRoutes = () => {
             />
           </Route>
 
-          {/* <Route
-            element={
-              <ProtectedRoute service="HRIS" feature="Edit Employee Personal Details Page" />
-            }
-          >
-            <Route
-              path="hris/employees/:employee_id/edit/personal-details"
-              feature
-              element={
-                <EmployeeDetailsProvider>
-                  <EditPersonalDetailsPage />
-                </EmployeeDetailsProvider>
-              }
-            />
-          </Route> */}
-
           <Route
             element={<ProtectedRoute service="HRIS" feature="Add Employee" />}
           >
@@ -110,15 +93,6 @@ const AppRoutes = () => {
               }
             />
           </Route>
-
-          {/* <Route
-            element={
-              <ProtectedRoute service="HRIS" feature="Edit Company Info" />
-            }
-          >
-            <Route path="hris/company/edit" element={<EditCompanyInfoPage />} />
-          </Route> */}
-
           <Route
             element={
               <ProtectedRoute service="HRIS" feature="HRIS Configurations" />
@@ -136,18 +110,7 @@ const AppRoutes = () => {
             <Route path="hris/access-control" element={<AccessControlPage />} />
           </Route>
 
-          {/* ATS Routes */}
-          <Route
-            element={<ProtectedRoute service="ATS" feature="ATS Dashboard" />}
-          >
-            <Route path="ats" element={<AtsDashboardPage />} />
-          </Route>
-
-          <Route
-            element={<ProtectedRoute service="ATS" feature="Applicants" />}
-          >
-            <Route path="ats/applicants" element={<AllApplicantsPage />} />
-          </Route>
+        
         </Route>
         <Route
           element={
@@ -166,3 +129,20 @@ const AppRoutes = () => {
 };
 
 export default AppRoutes;
+
+
+
+//ats
+
+  {/* ATS Routes */}
+          // <Route
+          //   element={<ProtectedRoute service="ATS" feature="ATS Dashboard" />}
+          // >
+          //   <Route path="ats" element={<AtsDashboardPage />} />
+          // </Route>
+
+          // <Route
+          //   element={<ProtectedRoute service="ATS" feature="Applicants" />}
+          // >
+          //   <Route path="ats/applicants" element={<AllApplicantsPage />} />
+          // </Route>

@@ -1,4 +1,5 @@
 import CustomDialog from "@/components/dialog/CustomDialog";
+import LoadingAnimation from "@/components/Loading";
 import getOfficesColumns from "@/components/table/columns/OfficesColumns";
 import DataTable from "@/components/table/table-components/DataTable";
 import { Button } from "@/components/ui/button";
@@ -22,11 +23,12 @@ export const OfficesTab = () => {
     allOffices,
     refetch: refetchAllOffices,
     setAllOffices,
+    loading
   } = useFetchOfficesAPI();
   const [officesDialogOpen, setOfficesDialogOpen] = useState(false);
-  const { addOffice, loading: officesLoading } = useAddOfficeAPI();
-  const { deleteOffice, loading: deleteOfficeLoading } = useDeleteOfficeAPI();
-  const { editOffice, loading: editOfficeLoading } = useEditOfficeAPI();
+  const { addOffice} = useAddOfficeAPI();
+  const { deleteOffice } = useDeleteOfficeAPI();
+  const { editOffice} = useEditOfficeAPI();
 
   const removeLocalOffice = (office_id) => {
     const officeToRemove = allOffices.find((j) => j.office_id === office_id);
@@ -251,6 +253,15 @@ export const OfficesTab = () => {
     onEdit: handleEditOffice,
     onDelete: handleDeleteOffice,
   });
+
+   if (loading) {
+    return (
+      // <div className="flex items-center justify-center h-screen">
+      //   <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-primary-color"></div>
+      // </div>
+        <LoadingAnimation/>
+    );
+  }
 
   return (
     <div className=" p-5">
