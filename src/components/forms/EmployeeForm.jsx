@@ -28,6 +28,7 @@ import {
   useFetchLatestEmployeeIdAPI,
 } from "@/hooks/useEmployeeAPI";
 import EmployeeIdTextField from "./fields/EmployeeIdTextField";
+import GeneratePasswordButton from "./buttons/GeneratePassword";
 
 const EmployeeForm = ({ onSubmit, onCancel }) => {
   const { allGovernmentRemittances, loading } =
@@ -481,14 +482,35 @@ const EmployeeForm = ({ onSubmit, onCancel }) => {
       </div>
 
       <div>
-        <h2 className="text-sm font-semibold mb-4">User Account</h2>
+        <div className="flex flex-col items-start mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
+            <h2 className="text-sm font-semibold">User Account</h2>
+            <span className="text-muted-foreground text-xs">
+              (Employee login credentials for accessing services)
+            </span>
+          </div>
+
+          <p className="text-muted-foreground text-xs">
+            Generated Password Format:{" "}
+            <code className="bg-gray-100 px-1 rounded">
+              {"{employeeID}-{LASTNAME}-{firstname}"}
+            </code>{" "}
+            <br /> Example:{" "}
+            <code className="bg-gray-100 px-1 rounded">
+              OCCI-0000-DELACRUZ-juan
+            </code>
+          </p>
+
+          <GeneratePasswordButton form={form} />
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
           <PasswordField
             name="password"
             label="Password"
             control={form.control}
-            value={password}
-            onValueChange={(val) => setPassword(val)}
+            value={form.watch("password")}
+            onValueChange={(val) => form.setValue("password", val)}
             required
           />
 
@@ -496,13 +518,19 @@ const EmployeeForm = ({ onSubmit, onCancel }) => {
             name="confirmPassword"
             label="Confirm Password"
             control={form.control}
-            value={confirmPassword}
-            onValueChange={(val) => setConfirmPassword(val)}
-            errorMessage={!doPasswordsMatch ? "Passwords do not match" : ""}
+            value={form.watch("confirmPassword")}
+            onValueChange={(val) => form.setValue("confirmPassword", val)}
+            errorMessage={
+              form.watch("confirmPassword") &&
+              form.watch("password") !== form.watch("confirmPassword")
+                ? "Passwords do not match"
+                : ""
+            }
             required
           />
         </div>
       </div>
+
       <FormActions
         isLoading={isSubmitting}
         onCancel={onCancel}

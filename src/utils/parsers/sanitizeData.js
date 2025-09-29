@@ -3,22 +3,13 @@ const nameLikeFields = [
   "middleName",
   "lastName",
   "nickname",
-  // "extensionName",
   "birthplace",
   "nationality",
-  // "civilStatus",
-  // "bloodType",
   "name",
   "fname",
   "mname",
   "lname",
   "relationship",
-  // "department",
-  // "division",
-  // "office",
-  // "team",
-  // "jobTitle",
-  // "supervisor",
 ];
 
 function capitalizeWords(str) {
@@ -43,10 +34,21 @@ function isEmptyObject(obj) {
 export function sanitizeData(data, currentKey = "") {
   if (Array.isArray(data)) {
     return data
-      .map((item) => sanitizeData(item))
+      .map((item) => sanitizeData(item)) // ok for array
       .filter(
         (item) => item !== undefined && item !== null && !isEmptyObject(item)
       );
+  }
+
+  if (typeof data === "object" && data !== null) {
+    const result = {};
+    for (const key in data) {
+      const sanitizedValue = sanitizeData(data[key], key); // pass key here
+      if (sanitizedValue !== undefined) {
+        result[key] = sanitizedValue;
+      }
+    }
+    return result;
   }
 
   if (typeof data === "string") {
@@ -64,4 +66,5 @@ export function sanitizeData(data, currentKey = "") {
 
   return data;
 }
+
 

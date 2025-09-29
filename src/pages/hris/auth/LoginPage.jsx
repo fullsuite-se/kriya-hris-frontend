@@ -5,7 +5,6 @@ import { useState } from "react";
 import ShowEyeIcon, { HideEyeIcon } from "@/assets/icons/EyeIcon";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/solid";
 import { glassToast } from "@/components/ui/glass-toast";
-import { loginUserAPI } from "@/services/authAPI";
 import { jwtDecode } from "jwt-decode";
 import { useAuthStore } from "@/stores/useAuthStore";
 
@@ -75,7 +74,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex p-10 items-center justify-center h-screen bg-gradient-to-tl from-[#008080] to-[#CC5500]">
+    <div className="dark flex p-10 items-center justify-center h-screen bg-gradient-to-tl from-[#008080] to-[#CC5500]">
       <div className="w-full max-w-md space-y-6 p-8 rounded-2xl shadow-xl border border-white/20 bg-white/10 backdrop-blur-md">
         <div className="flex justify-center">
           <img
@@ -87,7 +86,7 @@ const LoginPage = () => {
 
         <div className="text-center">
           <p className="text-2xl font-semibold text-white">kriyaHRIS</p>
-          <p className="text-white/40 text-sm">Log in to your account</p>
+          <p className="text-white/60 text-sm">Log in to your account</p>
         </div>
 
         <form className="space-y-4" onSubmit={handleLogin}>
@@ -136,7 +135,7 @@ const LoginPage = () => {
           </div>
 
           <div className="flex justify-end mb-10">
-            <a href="#" className="text-xs text-white hover:underline">
+            <a href="/reset-password" className="text-xs text-white hover:underline">
               Forgot password?
             </a>
           </div>

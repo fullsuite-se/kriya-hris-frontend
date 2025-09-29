@@ -2,15 +2,22 @@ import { z } from "zod";
 
 export const employeeFormSchema = z.object({
   //user acc
-  password: z
-    .string()
-    .min(8, { message: "Use at least 8 characters" })
-    .regex(/[A-Z]/, { message: "Include at least one uppercase letter" })
-    .regex(/[a-z]/, { message: "Include at least one lowercase letter" })
-    .regex(/[0-9]/, { message: "Include at least one number" })
-    .regex(/[^A-Za-z0-9]/, {
-      message: "Include at least one special character",
-    }),
+  password: z.string().superRefine((val, ctx) => {
+    const errors = [];
+
+    if (val.length < 8) errors.push("min 8 chars");
+    if (!/[A-Z]/.test(val)) errors.push("1 upper");
+    if (!/[a-z]/.test(val)) errors.push("1 lower");
+    if (!/[0-9]/.test(val)) errors.push("1 number");
+    if (!/[^A-Za-z0-9]/.test(val)) errors.push("1 symbol");
+
+    if (errors.length > 0) {
+      ctx.addIssue({
+        code: z.custom,
+        message: errors.join(", "),
+      });
+    }
+  }),
 
   confirmPassword: z.string().trim().min(1, "required"),
 
@@ -136,25 +143,25 @@ export const employeeFormSchema = z.object({
     .nullable(),
 
   // Employee Info
- employeeId: z
-  .string()
-  .trim()
-  .min(1, "required")
-  .regex(/^[A-Za-z]+-\d+$/, {
-    message: "Must be in format: PREFIX-NUMBERS (e.g., OCCI-0321, TEE-0123)",
-  }),
+  employeeId: z
+    .string()
+    .trim()
+    .min(1, "required")
+    .regex(/^[A-Za-z]+-\d+$/, {
+      message: "Must be in format: PREFIX-NUMBERS (e.g., OCCI-0321, TEE-0123)",
+    }),
 
-workEmail: z
-  .email("invalid work email")
-  .refine(
-    (val) =>
-      ["@getfullsuite.com", "@viascari.com"].some((domain) =>
-        val.endsWith(domain)
-      ),
-    {
-      message: "email must be a @getfullsuite.com or @viascari.com",
-    }
-  ),
+  workEmail: z
+    .email("invalid work email")
+    .refine(
+      (val) =>
+        ["@getfullsuite.com", "@viascari.com"].some((domain) =>
+          val.endsWith(domain)
+        ),
+      {
+        message: "email must be a @getfullsuite.com or @viascari.com",
+      }
+    ),
 
   office: z.string().trim().optional().nullable(),
   division: z.string().trim().optional().nullable(),

@@ -4,6 +4,25 @@ import { Label } from "@/components/ui/label";
 import { useController } from "react-hook-form";
 import { Eye as ShowEyeIcon, EyeOff as HideEyeIcon } from "lucide-react";
 
+const colorMap = {
+  red: {
+    border: "border-red-500 focus-visible:ring-red-500",
+    text: "text-red-500",
+  },
+  white: {
+    border: "border-white focus-visible:ring-white",
+    text: "text-white",
+  },
+  teal: {
+    border: "border-teal-500 focus-visible:ring-teal-500",
+    text: "text-teal-500",
+  },
+  gray: {
+    border: "border-gray-500 focus-visible:ring-gray-500",
+    text: "text-gray-500",
+  },
+};
+
 export default function PasswordField({
   name,
   label,
@@ -11,8 +30,15 @@ export default function PasswordField({
   value,
   onValueChange,
   errorMessage = "",
-  placeholder = "••••••••",
+  placeholder = "",
   required = false,
+  containerClassName = "",
+  labelClassName = "",
+  inputClassName = "",
+  errorClassName = "",
+  requiredAsteriskClassName = "text-primary-color",
+  errorColorClass = "red",
+  iconColorClass = "gray",
 }) {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -21,11 +47,21 @@ export default function PasswordField({
     fieldState: { error },
   } = useController({ name, control });
 
+  const isError = error || errorMessage;
+
+  const errorTheme = colorMap[errorColorClass] || colorMap.red;
+  const iconTheme = isError
+    ? errorTheme.text
+    : colorMap[iconColorClass]?.text || colorMap.gray.text;
+
   return (
-    <div className="space-y-1">
-      <Label htmlFor={name} className="text-xs font-medium gap-0">
+    <div className={`space-y-1 ${containerClassName}`}>
+      <Label
+        htmlFor={name}
+        className={`text-xs font-medium gap-0 ${labelClassName}`}
+      >
         {label}
-        {required && <span className="text-primary-color">*</span>}
+        {required && <span className={`${requiredAsteriskClassName}`}>*</span>}
       </Label>
 
       <div className="relative">
@@ -37,13 +73,11 @@ export default function PasswordField({
           value={value}
           onChange={(e) => {
             field.onChange(e.target.value);
-            onValueChange?.(e.target.value); 
+            onValueChange?.(e.target.value);
           }}
           className={`pr-10 ${
-            error || errorMessage
-              ? "border-red-500 focus-visible:ring-red-500"
-              : ""
-          }`}
+            isError ? errorTheme.border : ""
+          } ${inputClassName}`}
         />
 
         <button
@@ -53,15 +87,19 @@ export default function PasswordField({
           tabIndex={-1}
         >
           {showPassword ? (
-            <HideEyeIcon className="cursor-pointer" size={18} />
+            <HideEyeIcon className={`cursor-pointer ${iconTheme}`} size={18} />
           ) : (
-            <ShowEyeIcon className="cursor-pointer" size={18} />
+            <ShowEyeIcon className={`cursor-pointer ${iconTheme}`} size={18} />
           )}
         </button>
       </div>
 
-      {(error || errorMessage) && (
-        <p className="text-red-500 text-xs">{error?.message || errorMessage}</p>
+      {isError && (
+        <p
+          className={`${errorTheme.text} !text-xs !italic !font-light ${errorClassName}`}
+        >
+          *{error?.message || errorMessage}
+        </p>
       )}
     </div>
   );

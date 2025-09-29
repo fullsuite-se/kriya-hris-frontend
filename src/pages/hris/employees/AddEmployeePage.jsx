@@ -12,12 +12,21 @@ import {
 } from "@heroicons/react/24/solid";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  GoogleReCaptchaProvider,
+  useGoogleReCaptcha,
+} from "react-google-recaptcha-v3";
+import { useRegisterSuiteliferAPI } from "@/hooks/suitelifer/useRegisterSuiteliferAPI";
+
 const AddEmployeePage = () => {
   const { setHeaderConfig } = useHeader();
   const navigate = useNavigate();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   const { addEmployee, loading, error } = useAddEmployeeAPI();
+  const { registerSuitelifer } = useRegisterSuiteliferAPI();
+
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   const handleSubmit = async (formData) => {
     await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -131,7 +140,38 @@ const AddEmployeePage = () => {
     console.log("EMPLOYEE PAYLOAD:", payload);
 
     try {
+      //add to suitelifer first
+
+      if (!executeRecaptcha) {
+        glassToast({
+          message: "reCaptcha is not ready.",
+          icon: <ExclamationTriangleIcon className="text-[#CC5500] w-5 h-5" />,
+          textColor: "black",
+          bgColor: "rgba(255, 255, 255, 0.2)",
+          blur: 12,
+          duration: 4000,
+        });
+        return;
+      }
+
+      const recaptchaToken = await executeRecaptcha("register");
+console.log("cleanData.employeeId: ", cleanData.employeeId)
+      await registerSuitelifer({
+        userId: cleanData.employeeId,
+        workEmail: cleanData.workEmail,
+        password: cleanData.password,
+        firstName: cleanData.firstName,
+        middleName: cleanData.middleName,
+        lastName: cleanData.lastName,
+        recaptchaToken: recaptchaToken,
+        isVerified:1,
+        isActive:1,
+      });
+      console.log("registered in suitelifer!!");
+
+      //then here
       const result = await addEmployee(payload);
+
       console.log("Employee saved successfully:", result);
 
       glassToast({
@@ -184,9 +224,11 @@ const AddEmployeePage = () => {
 
   return (
     <>
-      <div className="flex rounded-md bg-white p-5 w-full">
-        <EmployeeForm onSubmit={handleSubmit} onCancel={handleCancel} />
-      </div>
+  
+        <div className="flex rounded-md bg-white p-5 w-full">
+          <EmployeeForm onSubmit={handleSubmit} onCancel={handleCancel} />
+        </div>
+ 
 
       {showCancelDialog && (
         <CustomDialog

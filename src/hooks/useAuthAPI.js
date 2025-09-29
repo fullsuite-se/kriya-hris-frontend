@@ -1,5 +1,5 @@
 import { useState } from "react";
-import api from "@/config/api";
+import { changePasswordAPI, loginUserAPI, requestResetPasswordAPI, verifyOtpAPI } from "@/services/authAPI";
 
 export const useLoginUserAPI = () => {
   const [data, setData] = useState(null);
@@ -11,21 +11,90 @@ export const useLoginUserAPI = () => {
     setError(null);
 
     try {
-      const response = await api.post("/api/auth/login", {
-        user_email: email,
-        password,
-        service: "HRIS",
-      });
+      const response = await loginUserAPI({ email, password });
       setData(response.data);
       return response.data;
     } catch (err) {
       console.error("Login failed:", err);
       setError(err);
-      throw err; 
+      throw err;
     } finally {
       setLoading(false);
     }
   };
 
   return { loginUser, data, error, loading };
+};
+
+
+
+export const useRequestResetPasswordAPI = () => {
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const requestResetPassword = async (email) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await requestResetPasswordAPI(email);
+      return response;
+    } catch (err) {
+      console.error("request password reset failed:", err);
+      setError(err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { requestResetPassword, error, loading };
+};
+
+
+export const useVerifyOtpAPI = () => {
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const verifyOTP = async (email, otp_code) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await verifyOtpAPI(email, otp_code);
+      return response;
+    } catch (err) {
+      console.error("verify otp failed:", err);
+      setError(err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { verifyOTP, error, loading };
+};
+
+
+export const useChangePasswordAPI = () => {
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const changePassword = async (email, otp_code, new_password) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await changePasswordAPI(email, otp_code, new_password);
+      return response;
+    } catch (err) {
+      console.error("change password failed:", err);
+      setError(err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { changePassword, error, loading };
 };

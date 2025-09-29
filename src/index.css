@@ -119,6 +119,8 @@ body,
 }
 
 :root {
+  --autofill-text-color: black; /* default for light bg */
+
   --radius: 0.625rem;
 
   --background: oklch(1 0 0);
@@ -185,6 +187,8 @@ body,
 }
 
 .dark {
+  --autofill-text-color: white; /* when dark mode */
+
   --background: oklch(0.145 0 0);
 
   --foreground: oklch(0.985 0 0);
@@ -257,20 +261,32 @@ body,
   }
 }
 
-input:-webkit-autofill,
+/* input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
+*/
 /* input:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0.1) inset !important;
   -webkit-text-fill-color: #fff !important;
   transition: background-color 5000s ease-in-out 0s;
 } */
+/*
 input:-webkit-autofill {
   -webkit-box-shadow: 0 0 0px 1000px white inset !important;
   -webkit-text-fill-color: black !important;
   
-}
+} */
 
+/* For Chrome / Safari autofill background fix */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
+  box-shadow: 0 0 0px 1000px transparent inset !important;
+  -webkit-text-fill-color: var(--autofill-text-color, black) !important;
+  transition: background-color 9999s ease-in-out 0s !important;
+}
 
 @keyframes spin-decelerate {
   /* 0% {
@@ -283,7 +299,6 @@ input:-webkit-autofill {
     transform: rotate(1080deg);
   }
 }
-
 
 @keyframes shrinkProgress {
   from {

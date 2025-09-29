@@ -22,6 +22,8 @@ import {
   CompanyDetailsProvider,
 } from "@/context/CompanyDetailsContext";
 import AccessControlPage from "@/pages/hris/access-control/AccessControlPage";
+import ResetPasswordPage from "@/pages/hris/auth/reset-password/ResetPasswordPage";
+import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
 
 const AppRoutes = () => {
   return (
@@ -31,7 +33,23 @@ const AppRoutes = () => {
           path="/login"
           element={
             <PublicRoute>
-              <LoginPage />
+              <GoogleReCaptchaProvider
+                reCaptchaKey={import.meta.env.VITE_RECAPTCHA_SITE}
+              >
+                <LoginPage />
+              </GoogleReCaptchaProvider>
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/reset-password"
+          element={
+            <PublicRoute>
+              <GoogleReCaptchaProvider
+                reCaptchaKey={import.meta.env.VITE_RECAPTCHA_SITE}
+              >
+                <ResetPasswordPage />{" "}
+              </GoogleReCaptchaProvider>
             </PublicRoute>
           }
         />
@@ -78,7 +96,16 @@ const AppRoutes = () => {
           <Route
             element={<ProtectedRoute service="HRIS" feature="Add Employee" />}
           >
-            <Route path="hris/employees/add" element={<AddEmployeePage />} />
+            <Route
+              path="hris/employees/add"
+              element={
+                <GoogleReCaptchaProvider
+                  reCaptchaKey={import.meta.env.VITE_RECAPTCHA_SITE}
+                >
+                  <AddEmployeePage />{" "}
+                </GoogleReCaptchaProvider>
+              }
+            />
           </Route>
 
           <Route
@@ -109,8 +136,6 @@ const AppRoutes = () => {
           >
             <Route path="hris/access-control" element={<AccessControlPage />} />
           </Route>
-
-        
         </Route>
         <Route
           element={
@@ -130,19 +155,19 @@ const AppRoutes = () => {
 
 export default AppRoutes;
 
-
-
 //ats
 
-  {/* ATS Routes */}
-          // <Route
-          //   element={<ProtectedRoute service="ATS" feature="ATS Dashboard" />}
-          // >
-          //   <Route path="ats" element={<AtsDashboardPage />} />
-          // </Route>
+{
+  /* ATS Routes */
+}
+// <Route
+//   element={<ProtectedRoute service="ATS" feature="ATS Dashboard" />}
+// >
+//   <Route path="ats" element={<AtsDashboardPage />} />
+// </Route>
 
-          // <Route
-          //   element={<ProtectedRoute service="ATS" feature="Applicants" />}
-          // >
-          //   <Route path="ats/applicants" element={<AllApplicantsPage />} />
-          // </Route>
+// <Route
+//   element={<ProtectedRoute service="ATS" feature="Applicants" />}
+// >
+//   <Route path="ats/applicants" element={<AllApplicantsPage />} />
+// </Route>
