@@ -124,8 +124,8 @@ const ResetPasswordPage = () => {
             <img
               src="/kriya.svg"
               alt="Logo"
-              className="h-10 animate-[spin-decelerate_1.5s_ease-out]"
-             
+              className="h-10 animate-[spin-decelerate_1.5s_ease-out] cursor-pointer"
+              onClick={() => navigate("/login")}
             />
           </div>
         )}

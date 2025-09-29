@@ -107,11 +107,11 @@ const Step1 = ({ onNext, email }) => {
             {loading ? "Sending..." : "Send OTP"}
           </Button>
         </form>
-        {/* <div className="flex justify-center">
+        <div className="flex justify-center">
           <a href="/login" className="text-xs text-white hover:underline">
             Back to log in
           </a>
-        </div> */}
+        </div>
       </div>
     </div>
   );
