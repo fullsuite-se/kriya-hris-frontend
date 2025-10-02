@@ -45,7 +45,7 @@ const ViewUserAccessDialog = ({
   const [selectedEmployee, setSelectedEmployee] = useState(null);
 
   const { activateSuitelifer } = useActivateSuiteliferAPI();
-  const { updateUserTypeSuitelifer } = useUpdateUserTypeSuiteliferAPI(); // await updateUserTypeSuitelifer({role/feature}, payload.user_id); //await activateSuitelifer(true, user_id)
+  const { updateUserTypeSuitelifer } = useUpdateUserTypeSuiteliferAPI(); 
 
   const { addServicePermission, loading: serviceLoading } =
     useAddServicePermissionAPI();
@@ -159,7 +159,7 @@ const ViewUserAccessDialog = ({
   );
 
   const toggleFeature = useCallback(
-    (featureId, isRadio = false) => {
+    (featureId, serviceId, isRadio = false) => {
       if (method === "add" && !selectedEmployee) return;
 
       setFeaturesSelected((prev) => {
@@ -175,7 +175,7 @@ const ViewUserAccessDialog = ({
   );
 
   const selectAllFeatures = useCallback(
-    ( serviceFeatures) => {
+    (serviceId, serviceFeatures) => {
       if (method === "add" && !selectedEmployee) return;
 
       const allFeatureIds = serviceFeatures.map((f) => f.service_feature_id);
@@ -188,7 +188,7 @@ const ViewUserAccessDialog = ({
   );
 
   const deselectAllFeatures = useCallback(
-    ( serviceFeatures) => {
+    (serviceId, serviceFeatures) => {
       if (method === "add" && !selectedEmployee) return;
 
       const featureIdsToRemove = serviceFeatures.map(
@@ -290,7 +290,6 @@ const ViewUserAccessDialog = ({
       feature_ids: validFeatures,
     };
 
-    // Current permissions for comparison
     let currentServiceIds = [];
     let currentFeatureIds = [];
 
@@ -349,7 +348,6 @@ const ViewUserAccessDialog = ({
         );
 
         if (hasSuiteliferFeatures) {
-          // Pick the first feature (or extend logic to choose role)
           const role = suitelifer.serviceFeatures.find((sf) =>
             payload.feature_ids.includes(sf.service_feature_id)
           )?.feature_name;
@@ -387,6 +385,7 @@ const ViewUserAccessDialog = ({
             <span className="text-[#008080]">{userAccessDetails?.user_id}</span>
           </>
         );
+
       refetchUsers();
       glassToast({
         message,
@@ -594,7 +593,7 @@ const ViewUserAccessDialog = ({
                                 expanded={
                                   expandedFeature ===
                                   `${service.service_id}-${feature.service_feature_id}`
-                                } // ✅ only one open
+                                } 
                                 serviceName={service.service_name}
                                 onToggleExpand={() =>
                                   toggleFeatureDescription(
