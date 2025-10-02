@@ -1,13 +1,12 @@
 import suiteliferAPI from "@/config/suiteliferAPI";
 
-export const registerSuiteliferAPI = async (userId, workEmail, password, firstName, middleName, lastName, recaptchaToken, isVerified, isActive) => {
+export const registerSuiteliferAPI = async (userId, workEmail, firstName, middleName, lastName, recaptchaToken, isVerified, isActive) => {
     try {
 
 
         const response = await suiteliferAPI.post("/api/register", {
             userId,
             workEmail,
-            password,
             firstName,
             middleName,
             lastName,

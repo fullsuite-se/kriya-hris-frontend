@@ -5,15 +5,11 @@ export const useRegisterSuiteliferAPI = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const registerSuitelifer = async ({userId, workEmail, password, firstName, middleName, lastName, recaptchaToken, isVerified, isActive}) => {
+    const registerSuitelifer = async ({ userId, workEmail, firstName, middleName, lastName, recaptchaToken, isVerified, isActive }) => {
         setLoading(true);
         setError(null);
         try {
-            const result = await registerSuiteliferAPI(userId, workEmail, password, firstName, middleName, lastName, recaptchaToken, isVerified, isActive);
-
-
-
-
+            const result = await registerSuiteliferAPI(userId, workEmail, firstName, middleName, lastName, recaptchaToken, isVerified, isActive);
             return result;
         } catch (err) {
             console.error("Failed to add employee in Suitelifer:", err);

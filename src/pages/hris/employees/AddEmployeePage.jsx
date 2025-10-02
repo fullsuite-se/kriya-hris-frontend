@@ -155,7 +155,7 @@ const AddEmployeePage = () => {
       }
 
       const recaptchaToken = await executeRecaptcha("register");
-console.log("cleanData.employeeId: ", cleanData.employeeId)
+      console.log("cleanData.employeeId: ", cleanData.employeeId);
       await registerSuitelifer({
         userId: cleanData.employeeId,
         workEmail: cleanData.workEmail,
@@ -164,8 +164,8 @@ console.log("cleanData.employeeId: ", cleanData.employeeId)
         middleName: cleanData.middleName,
         lastName: cleanData.lastName,
         recaptchaToken: recaptchaToken,
-        isVerified:1,
-        isActive:1,
+        isVerified: 1,
+        isActive: 1,
       });
       console.log("registered in suitelifer!!");
 
@@ -224,11 +224,9 @@ console.log("cleanData.employeeId: ", cleanData.employeeId)
 
   return (
     <>
-  
-        <div className="flex rounded-md bg-white p-5 w-full">
-          <EmployeeForm onSubmit={handleSubmit} onCancel={handleCancel} />
-        </div>
- 
+      <div className="flex rounded-md bg-white p-5 w-full">
+        <EmployeeForm onSubmit={handleSubmit} onCancel={handleCancel} />
+      </div>
 
       {showCancelDialog && (
         <CustomDialog

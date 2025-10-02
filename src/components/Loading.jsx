@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import loadingKriya from "@/assets/images/loading-1.svg";
 
 const LoadingAnimation = () => {
   const [currentPhrase, setCurrentPhrase] = useState(0);
@@ -38,7 +39,7 @@ const LoadingAnimation = () => {
   return (
     <div className="flex flex-col items-center gap-1 justify-center h-screen -mt-30 text-[#008080]">
       <img
-        src="/loading-1.svg"
+        src={loadingKriya}
         alt="loading"
         width={80}
         height={80}

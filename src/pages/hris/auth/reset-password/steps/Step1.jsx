@@ -80,6 +80,12 @@ const Step1 = ({ onNext, email }) => {
     }
   };
 
+   const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+
   return (
     <div className="flex flex-col gap-10">
       <div className="text-center">
@@ -101,8 +107,8 @@ const Step1 = ({ onNext, email }) => {
           />
           <Button
             type="submit"
-            disabled={loading}
-            className="w-full text-primary-color bg-white border-none hover:bg-gray-100 disabled:opacity-50"
+            disabled={loading || !isValidEmail(userEmail)}
+            className="w-full text-white shadow-xs bg-white/30 border-none hover:bg-white/40 disabled:opacity-50"
           >
             {loading ? "Sending..." : "Send OTP"}
           </Button>

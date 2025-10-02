@@ -1,7 +1,7 @@
 import LoadingAnimation from "@/components/Loading";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
+import loadingKriya from "@/assets/images/loading-1.svg";
 const Step4 = () => {
   const navigate = useNavigate();
 
@@ -23,7 +23,7 @@ const Step4 = () => {
       </div>
       <div className="flex justify-center">
         <img
-          src="/loading-1.svg"
+          src={loadingKriya}
           alt="loading"
           width={60}
           height={60}

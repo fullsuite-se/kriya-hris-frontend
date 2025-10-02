@@ -16,6 +16,16 @@ export default function EmployeeSelector({ value = null, onChange }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
 
+useEffect(() => {
+  if (value && allEmployees?.length > 0) {
+    const emp = allEmployees.find((e) => e.user_id === value);
+    setSelectedEmployee(emp || null);
+  } else if (!value) {
+    setSelectedEmployee(null);
+  }
+}, [value, allEmployees]);
+
+
   // Add employee (single)
   const handleSelect = (employee) => {
     onChange(employee.user_id);

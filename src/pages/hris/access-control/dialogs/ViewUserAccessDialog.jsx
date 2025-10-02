@@ -8,7 +8,7 @@ import {
   useDeleteServicePermissionsAPI,
   useDeleteAccessPermissionsAPI,
 } from "@/hooks/useAdminAPI";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import PermissionCheckbox from "../components/PermissionCheckbox";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,8 @@ import {
   ExclamationTriangleIcon,
   InformationCircleIcon,
 } from "@heroicons/react/24/solid";
+import { useActivateSuiteliferAPI } from "@/hooks/suitelifer/useActivateSuiteliferAPI";
+import { useUpdateUserTypeSuiteliferAPI } from "@/hooks/suitelifer/useUpdateUserTypeSuiteliferAPI";
 
 const serviceColors = {
   suitelifer: "bg-[#CCE5E5] text-[#004D4D]",
@@ -39,7 +41,11 @@ const ViewUserAccessDialog = ({
   const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
   const [confirmSubmitOpen, setConfirmSubmitOpen] = useState(false);
   const [expandedByService, setExpandedByService] = useState({});
-  const [expandedFeatures, setExpandedFeatures] = useState({});
+  const [expandedFeature, setExpandedFeature] = useState(null);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+
+  const { activateSuitelifer } = useActivateSuiteliferAPI();
+  const { updateUserTypeSuitelifer } = useUpdateUserTypeSuiteliferAPI(); // await updateUserTypeSuitelifer({role/feature}, payload.user_id); //await activateSuitelifer(true, user_id)
 
   const { addServicePermission, loading: serviceLoading } =
     useAddServicePermissionAPI();
@@ -50,25 +56,28 @@ const ViewUserAccessDialog = ({
   const { deleteAccessPermissions, loading: deleteAccessLoading } =
     useDeleteAccessPermissionsAPI();
 
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
-  // Get all services + features
   const { servicesAndFeatures, loading, error } =
     useFetchFeaturesAndServicesAPI();
 
-  // Get permissions for selected employee (add mode)
+  const shouldFetchEmployeePermissions =
+    method === "add" && selectedEmployee && open;
+
   const {
     services: employeeServices,
     loading: loadingEmployeeServices,
     error: errorEmployeeServices,
-  } = useFetchServicesByUserIdAPI(selectedEmployee);
+  } = useFetchServicesByUserIdAPI(
+    shouldFetchEmployeePermissions ? selectedEmployee : null
+  );
 
   const {
     features: employeeFeatures,
     loading: loadingEmployeeFeatures,
     error: errorEmployeeFeatures,
-  } = useFetchFeaturesByUserIdAPI(selectedEmployee);
+  } = useFetchFeaturesByUserIdAPI(
+    shouldFetchEmployeePermissions ? selectedEmployee : null
+  );
 
-  // User's granted service IDs (only for edit mode)
   const userServiceIds = useMemo(() => {
     return method === "edit"
       ? userAccessDetails?.HrisUserServicePermissions?.map(
@@ -77,7 +86,6 @@ const ViewUserAccessDialog = ({
       : [];
   }, [userAccessDetails, method]);
 
-  // User's granted feature IDs (only for edit mode)
   const userFeatureIds = useMemo(() => {
     return method === "edit"
       ? userAccessDetails?.HrisUserAccessPermissions?.map(
@@ -86,146 +94,162 @@ const ViewUserAccessDialog = ({
       : [];
   }, [userAccessDetails, method]);
 
-  // State for selected services/features
   const [servicesSelected, setServicesSelected] = useState([]);
   const [featuresSelected, setFeaturesSelected] = useState([]);
 
-  // When employee changes in add mode, update permissions
-  // When employee changes in add mode, update permissions
-  useEffect(() => {
-    console.log("empservices:", employeeServices);
-    console.log("empfeatures:", employeeFeatures);
-    if (method === "add") {
-      if (selectedEmployee) {
-        const employeeServiceIds = employeeServices.map(
-          (service) => service.service_id
-        );
-        const employeeFeatureIds = employeeFeatures.map(
-          (feature) => feature.service_feature_id
-        );
+  const employeeServiceIds = useMemo(
+    () => employeeServices?.map((service) => service.service_id) || [],
+    [employeeServices]
+  );
 
+  const employeeFeatureIds = useMemo(
+    () => employeeFeatures?.map((feature) => feature.service_feature_id) || [],
+    [employeeFeatures]
+  );
+
+  useEffect(() => {
+    if (method === "add" && selectedEmployee && open) {
+      if (employeeServiceIds.length > 0 || employeeFeatureIds.length > 0) {
         setServicesSelected(employeeServiceIds);
         setFeaturesSelected(employeeFeatureIds);
 
-        // Auto-expand services that the employee has access to
         const expandedState = {};
         employeeServiceIds.forEach((serviceId) => {
           expandedState[serviceId] = true;
         });
         setExpandedByService(expandedState);
-      } else {
-        // Reset selections when no employee is selected
-        setServicesSelected([]);
-        setFeaturesSelected([]);
-        setExpandedByService({});
       }
     }
-  }, [selectedEmployee, employeeServices, employeeFeatures, method]);
+  }, [selectedEmployee, employeeServiceIds, employeeFeatureIds, method, open]);
 
-  // Reset when dialog opens
   useEffect(() => {
     if (open) {
       if (method === "edit") {
         setServicesSelected(userServiceIds);
         setFeaturesSelected(userFeatureIds);
       } else {
-        // For add mode, start with empty selections
-        setServicesSelected([]);
-        setFeaturesSelected([]);
-        setSelectedEmployee(null);
+        if (!selectedEmployee) {
+          setServicesSelected([]);
+          setFeaturesSelected([]);
+        }
+        setExpandedByService({});
+        setExpandedFeature({});
       }
-      setExpandedByService({});
-      setExpandedFeatures({});
     }
-  }, [open, userServiceIds, userFeatureIds, method]);
-  const toggleService = (serviceId) => {
-    // Disable toggling if in add mode and no employee is selected
-    if (method === "add" && !selectedEmployee) return;
+  }, [open, userServiceIds, userFeatureIds, method, selectedEmployee]);
 
-    if (servicesSelected.includes(serviceId)) {
-      setServicesSelected((prev) => prev.filter((id) => id !== serviceId));
+  const toggleService = useCallback(
+    (serviceId) => {
+      if (method === "add" && !selectedEmployee) return;
+
+      setServicesSelected((prev) => {
+        if (prev.includes(serviceId)) {
+          return prev.filter((id) => id !== serviceId);
+        } else {
+          return [...prev, serviceId];
+        }
+      });
+
       setExpandedByService((prev) => ({
         ...prev,
-        [serviceId]: false,
+        [serviceId]: !prev[serviceId],
       }));
-    } else {
-      setServicesSelected((prev) => [...prev, serviceId]);
-      setExpandedByService((prev) => ({
-        ...prev,
-        [serviceId]: true,
-      }));
-    }
-  };
+    },
+    [method, selectedEmployee]
+  );
 
-  // Toggle a feature on/off
-  const toggleFeature = (featureId, serviceId, isRadio = false) => {
-    // Disable toggling if in add mode and no employee is selected
-    if (method === "add" && !selectedEmployee) return;
+  const toggleFeature = useCallback(
+    (featureId, isRadio = false) => {
+      if (method === "add" && !selectedEmployee) return;
 
-    setFeaturesSelected((prev) => {
-      if (isRadio) {
-        return [featureId];
-      }
-      return prev.includes(featureId)
-        ? prev.filter((id) => id !== featureId)
-        : [...prev, featureId];
-    });
-  };
+      setFeaturesSelected((prev) => {
+        if (isRadio) {
+          return [featureId];
+        }
+        return prev.includes(featureId)
+          ? prev.filter((id) => id !== featureId)
+          : [...prev, featureId];
+      });
+    },
+    [method, selectedEmployee]
+  );
 
-  // Select all features
-  const selectAllFeatures = (serviceId, serviceFeatures) => {
-    // Disable if in add mode and no employee is selected
-    if (method === "add" && !selectedEmployee) return;
+  const selectAllFeatures = useCallback(
+    ( serviceFeatures) => {
+      if (method === "add" && !selectedEmployee) return;
 
-    const allFeatureIds = serviceFeatures.map((f) => f.service_feature_id);
-    setFeaturesSelected((prev) => {
-      const newFeatures = allFeatureIds.filter((id) => !prev.includes(id));
-      return [...prev, ...newFeatures];
-    });
-  };
+      const allFeatureIds = serviceFeatures.map((f) => f.service_feature_id);
+      setFeaturesSelected((prev) => {
+        const newFeatures = allFeatureIds.filter((id) => !prev.includes(id));
+        return [...prev, ...newFeatures];
+      });
+    },
+    [method, selectedEmployee]
+  );
 
-  // Deselect all features
-  const deselectAllFeatures = (serviceId, serviceFeatures) => {
-    // Disable if in add mode and no employee is selected
-    if (method === "add" && !selectedEmployee) return;
+  const deselectAllFeatures = useCallback(
+    ( serviceFeatures) => {
+      if (method === "add" && !selectedEmployee) return;
 
-    const featureIdsToRemove = serviceFeatures.map((f) => f.service_feature_id);
-    setFeaturesSelected((prev) =>
-      prev.filter((id) => !featureIdsToRemove.includes(id))
-    );
-  };
+      const featureIdsToRemove = serviceFeatures.map(
+        (f) => f.service_feature_id
+      );
+      setFeaturesSelected((prev) =>
+        prev.filter((id) => !featureIdsToRemove.includes(id))
+      );
+    },
+    [method, selectedEmployee]
+  );
 
-  // Check if all features for a service are selected
-  const areAllFeaturesSelected = (serviceFeatures) => {
-    if (!serviceFeatures.length) return false;
-    return serviceFeatures.every((feature) =>
-      featuresSelected.includes(feature.service_feature_id)
-    );
-  };
+  const areAllFeaturesSelected = useCallback(
+    (serviceFeatures) => {
+      if (!serviceFeatures.length) return false;
+      return serviceFeatures.every((feature) =>
+        featuresSelected.includes(feature.service_feature_id)
+      );
+    },
+    [featuresSelected]
+  );
 
-  // Toggle description
   const toggleFeatureDescription = (serviceId, featureId) => {
-    setExpandedFeatures((prev) => {
-      const key = `${serviceId}-${featureId}`;
-      return {
-        ...prev,
-        [key]: !prev[key],
-      };
-    });
+    const key = `${serviceId}-${featureId}`;
+    setExpandedFeature((prev) => (prev === key ? null : key));
   };
 
-  // Get access status text
-  const getAccessStatusText = (isServiceSelected, hasSelectedFeatures) => {
-    if (!isServiceSelected) {
-      return method === "add" ? "Turn on to give access." : "No Access.";
-    }
+  const getAccessStatusText = useCallback(
+    (isServiceSelected, hasSelectedFeatures) => {
+      if (!isServiceSelected) {
+        return method === "add" ? "Turn on to give access" : "No Access";
+      }
 
-    if (!hasSelectedFeatures) {
-      return "Choose permissions";
-    }
+      if (!hasSelectedFeatures) {
+        return "Choose permissions";
+      }
 
-    return "Has Access";
-  };
+      return "Has Access";
+    },
+    [method]
+  );
+
+  const groupedServices = useMemo(() => {
+    return (
+      servicesAndFeatures?.map((service) => {
+        const serviceFeatures = service.ServiceFeatures || [];
+        const grouped = serviceFeatures.reduce((acc, feature) => {
+          const category = feature?.category || "Uncategorized";
+          if (!acc[category]) acc[category] = [];
+          acc[category].push(feature);
+          return acc;
+        }, {});
+
+        return {
+          ...service,
+          groupedFeatures: grouped,
+          serviceFeatures,
+        };
+      }) || []
+    );
+  }, [servicesAndFeatures]);
 
   const onSaveChanges = async () => {
     if (method === "add" && !selectedEmployee) {
@@ -244,11 +268,11 @@ const ViewUserAccessDialog = ({
     const validServices = [];
     const validFeatures = [];
 
-    servicesAndFeatures.forEach((service) => {
+    groupedServices.forEach((service) => {
       const isServiceOn = servicesSelected.includes(service.service_id);
       if (!isServiceOn) return;
 
-      const selectedFeatures = service.ServiceFeatures.filter((feature) =>
+      const selectedFeatures = service.serviceFeatures.filter((feature) =>
         featuresSelected.includes(feature.service_feature_id)
       );
 
@@ -266,29 +290,25 @@ const ViewUserAccessDialog = ({
       feature_ids: validFeatures,
     };
 
-    // choose basis for comparison depending on method
+    // Current permissions for comparison
     let currentServiceIds = [];
     let currentFeatureIds = [];
 
     if (method === "add") {
-      currentServiceIds = (employeeServices || []).map((s) => s.service_id);
-      currentFeatureIds = (employeeFeatures || []).map(
-        (f) => f.service_feature_id
-      );
+      currentServiceIds = employeeServiceIds;
+      currentFeatureIds = employeeFeatureIds;
     } else if (method === "edit") {
       currentServiceIds = userServiceIds;
       currentFeatureIds = userFeatureIds;
     }
 
     const setsEqual = (arrA = [], arrB = []) => {
+      if (arrA.length !== arrB.length) return false;
       const a = new Set(arrA);
-      const b = new Set(arrB);
-      if (a.size !== b.size) return false;
-      for (const v of a) if (!b.has(v)) return false;
+      for (const v of arrB) if (!a.has(v)) return false;
       return true;
     };
 
-    // exit if nothing changed
     if (
       setsEqual(currentServiceIds, payload.service_ids) &&
       setsEqual(currentFeatureIds, payload.feature_ids)
@@ -309,7 +329,6 @@ const ViewUserAccessDialog = ({
     }
 
     try {
-      // apply changes (delete then add)
       await deleteServicePermissions(payload.user_id);
       await deleteAccessPermissions(payload.user_id);
 
@@ -320,7 +339,28 @@ const ViewUserAccessDialog = ({
         await addAccessPermission(payload.user_id, payload.feature_ids);
       }
 
-      // detect if only added or if removals happened
+      const suitelifer = groupedServices.find(
+        (s) => s.service_name?.toLowerCase() === "suitelifer"
+      );
+
+      if (suitelifer) {
+        const hasSuiteliferFeatures = payload.feature_ids.some((fid) =>
+          suitelifer.serviceFeatures.some((sf) => sf.service_feature_id === fid)
+        );
+
+        if (hasSuiteliferFeatures) {
+          // Pick the first feature (or extend logic to choose role)
+          const role = suitelifer.serviceFeatures.find((sf) =>
+            payload.feature_ids.includes(sf.service_feature_id)
+          )?.feature_name;
+
+          await updateUserTypeSuitelifer(role, payload.user_id);
+          await activateSuitelifer(true, payload.user_id);
+        } else {
+          await activateSuitelifer(false, payload.user_id);
+        }
+      }
+
       const removedServices = currentServiceIds.filter(
         (id) => !payload.service_ids.includes(id)
       );
@@ -376,14 +416,233 @@ const ViewUserAccessDialog = ({
     }
   };
 
-  const confirmCancel = () => {
+  const confirmCancel = useCallback(() => {
     setConfirmCancelOpen(false);
     setOpen(false);
-  };
+  }, []);
+
+  const ServiceItem = useCallback(
+    ({ service }) => {
+      const isServiceSelected = servicesSelected.includes(service.service_id);
+      const hasSelectedFeatures = service.serviceFeatures.some((feature) =>
+        featuresSelected.includes(feature.service_feature_id)
+      );
+
+      const allFeaturesSelected = areAllFeaturesSelected(
+        service.serviceFeatures
+      );
+      const accessStatusText = getAccessStatusText(
+        isServiceSelected,
+        hasSelectedFeatures
+      );
+      const isExpanded = expandedByService[service.service_id] ?? false;
+
+      const handleToggleExpand = () => {
+        if (!isServiceSelected) return;
+        setExpandedByService((prev) => ({
+          ...prev,
+          [service.service_id]: !prev[service.service_id],
+        }));
+      };
+
+      return (
+        <div className="p-5 border-b last:border-b-0">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  checked={isServiceSelected}
+                  onCheckedChange={() => toggleService(service.service_id)}
+                  id={`service-${service.service_id}`}
+                  disabled={method === "add" && !selectedEmployee}
+                />{" "}
+                <Button
+                  variant={"ghost"}
+                  type="button"
+                  onClick={handleToggleExpand}
+                  disabled={
+                    !isServiceSelected ||
+                    (method === "add" && !selectedEmployee)
+                  }
+                  className={`focus:outline-none transition-transform ${
+                    !isServiceSelected ||
+                    (method === "add" && !selectedEmployee)
+                      ? "opacity-5 !cursor-not-allowed"
+                      : "cursor-pointer"
+                  }`}
+                >
+                  <ChevronDown
+                    className={`w-5 h-5 transform transition-transform duration-300 ${
+                      isExpanded ? "-rotate-180" : ""
+                    }`}
+                  />{" "}
+                </Button>
+                <label
+                  htmlFor={`service-${service.service_id}`}
+                  className={`cursor-pointer select-none inline-block px-4 text-sm sm:px-8 py-1 rounded-2xl sm:text-md font-medium ${
+                    !isServiceSelected
+                      ? "bg-gray-300 text-white"
+                      : serviceColors[service.service_name.toLowerCase()] ||
+                        serviceColors.default
+                  }`}
+                >
+                  {service.service_name}
+                </label>
+              </div>
+            </div>
+
+            <div className="flex gap-3 items-center">
+              <label
+                className={`hidden sm:block text-xs italic ${
+                  isServiceSelected && hasSelectedFeatures
+                    ? "text-green-700"
+                    : "text-muted-foreground"
+                }`}
+              >
+                {accessStatusText}
+              </label>
+            </div>
+          </div>
+
+          <AnimatePresence>
+            {isExpanded && isServiceSelected && (
+              <div>
+                <div className="text-left ">
+                  {isServiceSelected &&
+                    service.serviceFeatures.length > 0 &&
+                    (service.service_name.toLowerCase() === "suitelifer" ? (
+                      featuresSelected.some((id) =>
+                        service.serviceFeatures.some(
+                          (f) => f.service_feature_id === id
+                        )
+                      ) && (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="link"
+                          onClick={() =>
+                            deselectAllFeatures(
+                              service.service_id,
+                              service.serviceFeatures
+                            )
+                          }
+                          className="font-light text-red-700 !p-0"
+                          disabled={method === "add" && !selectedEmployee}
+                        >
+                          Deselect
+                        </Button>
+                      )
+                    ) : (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="link"
+                        onClick={() =>
+                          allFeaturesSelected
+                            ? deselectAllFeatures(
+                                service.service_id,
+                                service.serviceFeatures
+                              )
+                            : selectAllFeatures(
+                                service.service_id,
+                                service.serviceFeatures
+                              )
+                        }
+                        className={`font-light !p-0 ${
+                          allFeaturesSelected
+                            ? "text-red-700"
+                            : "text-green-700"
+                        }`}
+                        disabled={method === "add" && !selectedEmployee}
+                      >
+                        {allFeaturesSelected ? "Deselect All" : "Select All"}
+                      </Button>
+                    ))}
+                </div>
+
+                {Object.entries(service.groupedFeatures || {}).map(
+                  ([category, features]) => {
+                    const isSuitelifer =
+                      service.service_name.toLowerCase() === "suitelifer";
+
+                    return (
+                      <div key={category} className="mb-6">
+                        <p className="font-medium text-gray-600 text-sm mb-3">
+                          {category}
+                        </p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
+                          {features.map((feature) => {
+                            return (
+                              <PermissionCheckbox
+                                key={feature.service_feature_id}
+                                feature={feature}
+                                checked={featuresSelected.includes(
+                                  feature.service_feature_id
+                                )}
+                                onChange={() => {
+                                  if (isSuitelifer) {
+                                    deselectAllFeatures(
+                                      service.service_id,
+                                      features
+                                    );
+                                  }
+                                  toggleFeature(
+                                    feature.service_feature_id,
+                                    service.service_id
+                                  );
+                                }}
+                                expanded={
+                                  expandedFeature ===
+                                  `${service.service_id}-${feature.service_feature_id}`
+                                } // ✅ only one open
+                                serviceName={service.service_name}
+                                onToggleExpand={() =>
+                                  toggleFeatureDescription(
+                                    service.service_id,
+                                    feature.service_feature_id
+                                  )
+                                }
+                                selectionType={
+                                  isSuitelifer ? "single" : "multiple"
+                                }
+                              />
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  }
+                )}
+              </div>
+            )}
+          </AnimatePresence>
+        </div>
+      );
+    },
+    [
+      servicesSelected,
+      featuresSelected,
+      expandedByService,
+      expandedFeature,
+      method,
+      selectedEmployee,
+      toggleService,
+      toggleFeature,
+      selectAllFeatures,
+      deselectAllFeatures,
+      areAllFeaturesSelected,
+      getAccessStatusText,
+      toggleFeatureDescription,
+    ]
+  );
 
   return (
     <div>
       <CustomDialog
+        onCancel={() => {
+          setSelectedEmployee(null);
+        }}
+        isShownCloseButton={false}
         open={open}
         onOpenChange={setOpen}
         trigger={trigger}
@@ -425,230 +684,12 @@ const ViewUserAccessDialog = ({
             </div>
           )}
 
-          {servicesAndFeatures?.map((service) => {
-            const isServiceSelected = servicesSelected.includes(
-              service.service_id
-            );
-            const serviceFeatures = service.ServiceFeatures || [];
-
-            const hasSelectedFeatures = serviceFeatures.some((feature) =>
-              featuresSelected.includes(feature.service_feature_id)
-            );
-
-            const allFeaturesSelected = areAllFeaturesSelected(serviceFeatures);
-            const accessStatusText = getAccessStatusText(
-              isServiceSelected,
-              hasSelectedFeatures
-            );
-
-            // Render grouped features
-            const grouped = serviceFeatures.reduce((acc, feature) => {
-              const category = feature?.category || "Uncategorized";
-              if (!acc[category]) acc[category] = [];
-              acc[category].push(feature);
-              return acc;
-            }, {});
-
-            const isExpanded = expandedByService[service.service_id] ?? false;
-
-            const handleToggleExpand = (serviceId) => {
-              if (!isServiceSelected) return;
-              setExpandedByService((prev) => ({
-                ...prev,
-                [serviceId]: !prev[serviceId],
-              }));
-            };
-
-            return (
-              <div
-                key={service.service_id}
-                className="p-5 border-b last:border-b-0"
-              >
-                {/* Header row */}
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        checked={isServiceSelected}
-                        onCheckedChange={() =>
-                          toggleService(service.service_id)
-                        }
-                        id={`service-${service.service_id}`}
-                        disabled={method === "add" && !selectedEmployee}
-                      />
-                      <label
-                        htmlFor={`service-${service.service_id}`}
-                        className={`hidden sm:block text-xs italic ${
-                          isServiceSelected && hasSelectedFeatures
-                            ? "text-green-700"
-                            : "text-muted-foreground"
-                        }`}
-                      >
-                        {accessStatusText}
-                      </label>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3 items-center">
-                    <div
-                      className={`inline-block px-4 text-sm  sm:px-8 py-1 rounded-2xl sm:text-md font-medium ${
-                        !isServiceSelected
-                          ? "bg-gray-300 text-white"
-                          : serviceColors[service.service_name.toLowerCase()] ||
-                            serviceColors.default
-                      }`}
-                    >
-                      {service.service_name}
-                    </div>
-                    <Button
-                      variant={"ghost"}
-                      type="button"
-                      onClick={() => handleToggleExpand(service.service_id)}
-                      disabled={
-                        !isServiceSelected ||
-                        (method === "add" && !selectedEmployee)
-                      }
-                      className={`focus:outline-none transition-transform ${
-                        !isServiceSelected ||
-                        (method === "add" && !selectedEmployee)
-                          ? "opacity-5 !cursor-not-allowed"
-                          : "cursor-pointer"
-                      }`}
-                    >
-                      <ChevronDown
-                        className={`w-5 h-5 transform transition-transform duration-300 ${
-                          isExpanded ? "-rotate-180" : ""
-                        }`}
-                      />
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Animated collapse */}
-                <AnimatePresence>
-                  {isExpanded && isServiceSelected && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <div className="text-right">
-                        {isServiceSelected &&
-                          serviceFeatures.length > 0 &&
-                          (service.service_name === "Suitelifer" ? (
-                            featuresSelected.some((id) =>
-                              serviceFeatures.some(
-                                (f) => f.service_feature_id === id
-                              )
-                            ) && (
-                              <Button
-                                type="button"
-                                size="sm"
-                                variant="ghost"
-                                onClick={() =>
-                                  deselectAllFeatures(
-                                    service.service_id,
-                                    serviceFeatures
-                                  )
-                                }
-                                className="font-light"
-                                disabled={method === "add" && !selectedEmployee}
-                              >
-                                Deselect
-                              </Button>
-                            )
-                          ) : (
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="ghost"
-                              onClick={() =>
-                                allFeaturesSelected
-                                  ? deselectAllFeatures(
-                                      service.service_id,
-                                      serviceFeatures
-                                    )
-                                  : selectAllFeatures(
-                                      service.service_id,
-                                      serviceFeatures
-                                    )
-                              }
-                              className="font-light"
-                              disabled={method === "add" && !selectedEmployee}
-                            >
-                              {allFeaturesSelected
-                                ? "Deselect All"
-                                : "Select All"}
-                            </Button>
-                          ))}
-                      </div>
-
-                      {Object.entries(grouped || {}).map(
-                        ([category, features]) => {
-                          const isSuitelifer =
-                            service.service_name === "Suitelifer";
-
-                          return (
-                            <div key={category} className="mb-6">
-                              <p className="font-medium text-gray-600 text-sm mb-3">
-                                {category}
-                              </p>
-
-                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
-                                {features.map((feature) => {
-                                  const featureKey = `${service.service_id}-${feature.service_feature_id}`;
-                                  const isFeatureExpanded =
-                                    expandedFeatures[featureKey] || false;
-
-                                  return (
-                                    <PermissionCheckbox
-                                      key={feature.service_feature_id}
-                                      feature={feature}
-                                      checked={featuresSelected.includes(
-                                        feature.service_feature_id
-                                      )}
-                                      onChange={() => {
-                                        if (isSuitelifer) {
-                                          deselectAllFeatures(
-                                            service.service_id,
-                                            features
-                                          );
-                                        }
-                                        toggleFeature(
-                                          feature.service_feature_id,
-                                          service.service_id
-                                        );
-                                      }}
-                                      expanded={isFeatureExpanded}
-                                      serviceName={service.service_name}
-                                      onToggleExpand={() =>
-                                        toggleFeatureDescription(
-                                          service.service_id,
-                                          feature.service_feature_id
-                                        )
-                                      }
-                                      selectionType={
-                                        isSuitelifer ? "single" : "multiple"
-                                      }
-                                    />
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          );
-                        }
-                      )}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            );
-          })}
+          {groupedServices.map((service) => (
+            <ServiceItem key={service.service_id} service={service} />
+          ))}
         </div>
       </CustomDialog>
 
-      {/* Cancel confirmation */}
       <CustomDialog
         open={confirmCancelOpen}
         onOpenChange={setConfirmCancelOpen}
@@ -660,7 +701,6 @@ const ViewUserAccessDialog = ({
         isShownCloseButton={false}
       />
 
-      {/* Submit confirmation */}
       <CustomDialog
         open={confirmSubmitOpen}
         onOpenChange={setConfirmSubmitOpen}

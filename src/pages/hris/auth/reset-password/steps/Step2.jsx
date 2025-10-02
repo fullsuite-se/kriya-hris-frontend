@@ -6,11 +6,22 @@ import {
 } from "@heroicons/react/24/outline";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
-const Step2 = ({ onBack, onVerify, email, otpSentAt, setOtpSentAt }) => {
+const RESEND_DELAY = 60 * 1000;
+
+const Step2 = ({
+  onBack,
+  onVerify,
+  email,
+  otpSentAt,
+  setOtpSentAt,
+  handleResendOTP,
+}) => {
   const [otp, setOtp] = useState("");
   const [timer, setTimer] = useState(60);
   const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
 
   useEffect(() => {
     if (!otpSentAt) return;
@@ -24,28 +35,45 @@ const Step2 = ({ onBack, onVerify, email, otpSentAt, setOtpSentAt }) => {
     return () => clearInterval(interval);
   }, [otpSentAt]);
 
-  const handleResend = () => {
-    if (timer > 0) {
-      glassToast({
-        message: `Wait ${timer}s before resending.`,
-        icon: <ExclamationTriangleIcon className="text-[#CC5500] w-5 h-5" />,
-        textColor: "black",
-        bgColor: "rgba(255, 255, 255, 0.2)",
-        blur: 12,
-        duration: 4000,
-      });
-      return;
-    }
+  const handleResend = async () => {
+    try {
+      setResendLoading(true);
+      if (timer > 0) {
+        glassToast({
+          message: `Wait ${timer}s before resending.`,
+          icon: <ExclamationTriangleIcon className="text-[#CC5500] w-5 h-5" />,
+          textColor: "black",
+          bgColor: "rgba(255, 255, 255, 0.2)",
+          blur: 12,
+          duration: 4000,
+        });
+        return;
+      }
 
-    setOtpSentAt(Date.now());
-    glassToast({
-      message: "OTP resent successfully.",
-      icon: <CheckCircleIcon className="text-[#008080] w-5 h-5" />,
-      textColor: "black",
-      bgColor: "rgba(255, 255, 255, 0.2)",
-      blur: 12,
-      duration: 4000,
-    });
+      const { success } = await handleResendOTP(email);
+
+      if (success) {
+        localStorage.setItem(
+          "otpData",
+          JSON.stringify({ email: email, timestamp: Date.now() })
+        );
+        setTimer(RESEND_DELAY / 1000);
+
+        setOtpSentAt(Date.now());
+        glassToast({
+          message: "OTP resent to your email.",
+          icon: <CheckCircleIcon className="text-[#008080] w-5 h-5" />,
+          textColor: "white",
+          bgColor: "rgba(255, 255, 255, 0.2)",
+          blur: 12,
+          duration: 4000,
+        });
+      }
+    } catch (error) {
+      toast.error(error?.message || "Please try again later.");
+    }finally{
+      setResendLoading(false);
+    }
   };
 
   const handleVerify = async (e) => {
@@ -76,7 +104,7 @@ const Step2 = ({ onBack, onVerify, email, otpSentAt, setOtpSentAt }) => {
         <p className="text-xl font-semibold text-white">Enter OTP</p>
         <p className="text-white/60 text-sm">
           We sent a 6-digit OTP to{" "}
-          <span className="font-medium underline">{email}</span>.
+          <span className="font-medium underline">{email}</span>
         </p>
       </div>
       <div className="flex flex-col gap-5">
@@ -88,13 +116,13 @@ const Step2 = ({ onBack, onVerify, email, otpSentAt, setOtpSentAt }) => {
             placeholder="Enter OTP"
             required
             maxLength={6}
-            className="bg-white/20 text-white !placeholder-white/30 border-white/30"
+            className="bg-white/20 tracking-[0.4em] text-center text-white !placeholder-white/30 border-white/30"
             disabled={loading}
           />
           <Button
             type="submit"
-            disabled={loading}
-            className="w-full text-primary-color bg-white border-none hover:bg-gray-100 disabled:opacity-50"
+            disabled={loading || otp.length !== 6}
+            className="w-full text-white shadow-xs bg-white/30 border-none hover:bg-white/40 disabled:opacity-50"
           >
             {loading ? "Verifying..." : "Verify OTP"}
           </Button>
@@ -113,7 +141,7 @@ const Step2 = ({ onBack, onVerify, email, otpSentAt, setOtpSentAt }) => {
             variant={"link"}
             onClick={handleResend}
             className="text-white text-xs font-light p-0 m-0"
-            disabled={timer > 0 || loading}
+            disabled={timer > 0 || loading || resendLoading}
           >
             {timer > 0 ? `Resend in ${timer}s` : "Resend OTP"}
           </Button>

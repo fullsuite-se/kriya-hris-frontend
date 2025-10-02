@@ -64,7 +64,7 @@ const Step3 = ({ onChangePassword }) => {
     <div className="dark flex flex-col gap-10">
       <div className="text-center">
         <p className="text-xl font-semibold text-white">
-          Enter Your New Password
+          Set Up Your New Password
         </p>
         <p className="text-white/60 text-sm">Please use a strong password.</p>
       </div>
@@ -115,7 +115,7 @@ const Step3 = ({ onChangePassword }) => {
               !form.formState.isValid ||
               form.watch("password") !== form.watch("confirmPassword")
             }
-            className="w-full text-primary-color bg-white border-none hover:bg-gray-100 disabled:opacity-50 mt-10"
+            className="w-full text-white shadow-xs bg-white/30 border-none hover:bg-white/40 disabled:opacity-50 mt-10"
           >
             {loading ? "Updating password..." : "Update Password"}
           </Button>

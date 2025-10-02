@@ -33,7 +33,7 @@ const ResetPasswordPage = () => {
     }
 
     try {
-      const response = await requestResetPassword(enteredEmail);
+      await requestResetPassword(enteredEmail);
 
       setEmail(enteredEmail);
       setOtpSentAt(now);
@@ -61,7 +61,7 @@ const ResetPasswordPage = () => {
 
   const handleVerifyOtp = async (otp) => {
     try {
-      const response = await verifyOTP(email, otp);
+      await verifyOTP(email, otp);
 
       setOtp_code(otp);
       setStep(3);
@@ -88,7 +88,7 @@ const ResetPasswordPage = () => {
 
   const handleChangePassword = async (new_password) => {
     try {
-      const response = await changePassword(email, otp_code, new_password);
+      await changePassword(email, otp_code, new_password);
 
       setStep(4);
 
@@ -139,6 +139,7 @@ const ResetPasswordPage = () => {
             email={email}
             otpSentAt={otpSentAt}
             setOtpSentAt={setOtpSentAt}
+            handleResendOTP={handleSendOtp}
           />
         )}
         {step === 3 && <Step3 onChangePassword={handleChangePassword} />}
