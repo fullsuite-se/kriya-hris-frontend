@@ -194,7 +194,7 @@ const Sidebar = () => {
           <div
             className={`${
               collapsed ? "mt-1.5" : "h-11 w-11"
-            } h-11 w-11 rounded-full border-2 border-gray-300 overflow-hidden flex items-center justify-center bg-primary-color flex-shrink-0`}
+            } h-11 w-11 rounded-full border-1 border-gray-300 overflow-hidden flex items-center justify-center bg-primary-color flex-shrink-0`}
           >
             {personalInfo?.user_pic ? (
               <img

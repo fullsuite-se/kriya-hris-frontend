@@ -28,7 +28,7 @@ export const employeeCols = [
 
       return (
         <div className="flex items-center gap-2 mr-10">
-          <div className="h-10 w-10 rounded-full border-2 border-gray-300 overflow-hidden flex items-center justify-center bg-primary-color flex-shrink-0">
+          <div className="h-10 w-10 rounded-full border-1 border-gray-300 overflow-hidden flex items-center justify-center bg-primary-color flex-shrink-0">
             {employee.user_pic ? (
               <img
                 src={employee.user_pic}

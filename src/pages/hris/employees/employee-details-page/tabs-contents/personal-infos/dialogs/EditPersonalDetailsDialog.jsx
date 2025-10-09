@@ -19,6 +19,7 @@ import {
 } from "@heroicons/react/24/solid";
 import { sanitizeData } from "@/utils/parsers/sanitizeData";
 import { toYMDLocal } from "@/utils/formatters/dateFormatter";
+import { useEditEmployeePersonalDetailsSuiteliferAPI } from "@/hooks/suitelifer/useEditEmployeePersonalDetailsSuiteliferAPI";
 
 const EditPersonalDetailsDialog = ({ trigger }) => {
   const [open, setOpen] = useState(false);
@@ -27,7 +28,8 @@ const EditPersonalDetailsDialog = ({ trigger }) => {
   const [confirmSubmitOpen, setConfirmSubmitOpen] = useState(false);
   const { editEmployeePersonalDetails, loading, error } =
     useEditEmployeePersonalDetailsAPI();
-
+  const { editEmployeePersonalDetailsSuitelifer } =
+    useEditEmployeePersonalDetailsSuiteliferAPI();
   const form = useForm({
     resolver: zodResolver(employeePersonalDetailsFormSchema),
     mode: "onChange",
@@ -145,7 +147,7 @@ const EditPersonalDetailsDialog = ({ trigger }) => {
         user_id,
         cleanData
       );
-
+      await editEmployeePersonalDetailsSuitelifer(user_id, cleanData);
       console.log("Updated Personal Details:", updatedUserInfo);
       setOpen(false);
       setConfirmSubmitOpen(false);

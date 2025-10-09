@@ -2,7 +2,7 @@ import { Pencil } from "lucide-react";
 import ServiceChips from "@/pages/hris/access-control/components/ServicesChips";
 import ViewUserAccessDialog from "@/pages/hris/access-control/dialogs/ViewUserAccessDialog";
 
-export const getAccessControlColumns =(refetch)=> [
+export const getAccessControlColumns = (refetch) => [
   {
     accessorKey: "user_id",
     header: "ID",
@@ -14,7 +14,9 @@ export const getAccessControlColumns =(refetch)=> [
   {
     accessorFn: (row) =>
       `${row.HrisUserInfo.last_name}, ${row.HrisUserInfo.first_name} ${
-        row.HrisUserInfo.middle_name ? row.HrisUserInfo.middle_name[0] + "." : ""
+        row.HrisUserInfo.middle_name
+          ? row.HrisUserInfo.middle_name[0] + "."
+          : ""
       }`,
     header: "User",
     cell: ({ row }) => {
@@ -28,12 +30,14 @@ export const getAccessControlColumns =(refetch)=> [
         HrisUserInfo.last_name?.[0] ?? ""
       }`.toUpperCase();
 
+      const user_pic = user?.HrisUserInfo?.user_pic;
+
       return (
         <div className="flex items-center gap-2 mr-10">
-          <div className="h-10 w-10 rounded-full border-2 border-gray-300 overflow-hidden flex items-center justify-center bg-primary-color flex-shrink-0">
-            {user.user_pic ? (
+          <div className="h-10 w-10 rounded-full border-1 border-gray-300 overflow-hidden flex items-center justify-center bg-primary-color flex-shrink-0">
+            {user_pic ? (
               <img
-                src={user.user_pic}
+                src={user_pic}
                 alt="Profile"
                 className="h-full w-full object-cover rounded-full"
               />
@@ -44,7 +48,9 @@ export const getAccessControlColumns =(refetch)=> [
 
           <div className="flex flex-col max-w-[120px]">
             <span className="text-xs font-medium truncate">{fullName}</span>
-            <span className="text-[10px] text-gray-400 truncate">{user.user_email}</span>
+            <span className="text-[10px] text-gray-400 truncate">
+              {user.user_email}
+            </span>
           </div>
         </div>
       );
@@ -57,7 +63,8 @@ export const getAccessControlColumns =(refetch)=> [
     cell: ({ row }) => {
       const user = row.original;
       // Map HrisUserServicePermissions to array of Service objects
-      const services = user.HrisUserServicePermissions?.map((usp) => usp.Service) || [];
+      const services =
+        user.HrisUserServicePermissions?.map((usp) => usp.Service) || [];
       return <ServiceChips services={services} />;
     },
   },
