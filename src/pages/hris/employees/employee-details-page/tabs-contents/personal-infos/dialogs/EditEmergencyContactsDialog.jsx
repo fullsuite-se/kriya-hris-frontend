@@ -108,7 +108,7 @@ const EditEmergencyContactsDialog = ({ trigger }) => {
       const cleanPayload = {
         emergencyContacts: data.emergencyContacts,
       };
-
+      console.log("cleanpayloaaad: ", cleanPayload);
       const response = await editEmployeeEmergencyContacts(
         user_id,
         cleanPayload

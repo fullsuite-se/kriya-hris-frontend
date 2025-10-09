@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ShowEyeIcon, { HideEyeIcon } from "@/assets/icons/EyeIcon";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/solid";
 import { glassToast } from "@/components/ui/glass-toast";
@@ -72,6 +72,11 @@ const LoginPage = () => {
       });
     }
   };
+
+
+    useEffect(() => {
+      document.title = "Log in";
+    }, []);
 
   return (
     <div className="dark flex p-10 items-center justify-center h-screen bg-gradient-to-tl from-[#008080] to-[#CC5500]">

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Step1 from "./steps/Step1";
 import Step2 from "./steps/Step2";
 import Step3 from "./steps/Step3";
@@ -116,6 +116,9 @@ const ResetPasswordPage = () => {
     setStep(1);
   };
 
+  useEffect(() => {
+    document.title = "Reset Password";
+  }, []);
   return (
     <div className="flex items-center justify-center h-screen bg-gradient-to-tl from-[#008080] to-[#CC5500] p-6">
       <div className="w-full max-w-md space-y-6 p-8 rounded-2xl shadow-xl border border-white/20 bg-white/10 backdrop-blur-md">

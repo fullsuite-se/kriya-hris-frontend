@@ -111,9 +111,9 @@ const EmployeeDetailsPage = () => {
                 {personalInfo?.last_name?.[0]?.toUpperCase()}
               </span>
             )}
-            <div className="absolute bottom-1 right-1 sm:bottom-3 sm:right-3 bg-white p-1 rounded-full shadow-md">
+            {/* <div className="absolute bottom-1 right-1 sm:bottom-3 sm:right-3 bg-white p-1 rounded-full shadow-md">
               <PencilIcon className="w-4 h-4 text-[#008080]" />
-            </div>
+            </div> */}
           </div>
 
           <div className="flex flex-col gap-4 min-w-[200px]">

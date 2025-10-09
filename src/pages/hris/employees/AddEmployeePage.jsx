@@ -12,10 +12,7 @@ import {
 } from "@heroicons/react/24/solid";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  GoogleReCaptchaProvider,
-  useGoogleReCaptcha,
-} from "react-google-recaptcha-v3";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import { useRegisterSuiteliferAPI } from "@/hooks/suitelifer/useRegisterSuiteliferAPI";
 
 const AddEmployeePage = () => {
@@ -140,8 +137,6 @@ const AddEmployeePage = () => {
     console.log("EMPLOYEE PAYLOAD:", payload);
 
     try {
-      //add to suitelifer first
-
       if (!executeRecaptcha) {
         glassToast({
           message: "reCaptcha is not ready.",
@@ -155,7 +150,10 @@ const AddEmployeePage = () => {
       }
 
       const recaptchaToken = await executeRecaptcha("register");
+
       console.log("cleanData.employeeId: ", cleanData.employeeId);
+
+      const result = await addEmployee(payload, recaptchaToken);
       await registerSuitelifer({
         userId: cleanData.employeeId,
         workEmail: cleanData.workEmail,
@@ -163,14 +161,10 @@ const AddEmployeePage = () => {
         firstName: cleanData.firstName,
         middleName: cleanData.middleName,
         lastName: cleanData.lastName,
-        recaptchaToken: recaptchaToken,
         isVerified: 1,
         isActive: 1,
       });
       console.log("registered in suitelifer!!");
-
-      //then here
-      const result = await addEmployee(payload);
 
       console.log("Employee saved successfully:", result);
 

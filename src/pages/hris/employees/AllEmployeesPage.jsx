@@ -126,8 +126,8 @@ const AllEmployeesPage = () => {
   }, [filterFields, localFilters]);
 
   const hasActiveFilters = useMemo(() => {
-    return Object.keys(filters).length > 0 || apiFilters.search;
-  }, [filters, apiFilters.search]);
+    return Object.keys(filters).length > 0;
+  }, [filters]);
 
   const handleApplyFilters = (appliedFilters) => {
     const formattedFilters = {};

@@ -8,7 +8,6 @@ import {
 import EmployeesIcon, {
   EmployeesOutlineIcon,
 } from "../../assets/icons/EmployeesIcon";
-import BarsIcon from "../../assets/icons/BarsIcon";
 import LogoutIcon from "../../assets/icons/LogoutIcon";
 import CloseIcon from "../../assets/icons/CloseIcon";
 import ArrowHeadDownIcon, {
@@ -18,7 +17,6 @@ import ArrowHeadDownIcon, {
 import DashboardIcon, {
   DashboardOutlineIcon,
 } from "../../assets/icons/DashboardIcon";
-import { loggedInUser } from "../../mocks/usersMockData";
 import DrawerToggle from "@/components/layout/DrawerToggle";
 import ArrowLeftLineIcon, {
   ArrowRightLineIcon,
@@ -26,7 +24,9 @@ import ArrowLeftLineIcon, {
 import { useAuthStore } from "@/stores/useAuthStore";
 import { UserContext } from "@/context/UserContext";
 import BuildingIcon, { BuildingOutlineIcon } from "@/assets/icons/BuildingIcon";
-import UserGroupIcon, { UserGroupOutlineIcon } from "@/assets/icons/UserGroupIcon";
+import UserGroupIcon, {
+  UserGroupOutlineIcon,
+} from "@/assets/icons/UserGroupIcon";
 
 const sidebarLinks = [
   {
@@ -51,7 +51,7 @@ const sidebarLinks = [
         icon: <EmployeesOutlineIcon className="group-hover:text-[#008080]" />,
         iconActive: <EmployeesIcon className="text-[#008080]" />,
       },
-  {
+      {
         feature: "HRIS Configurations",
         label: "Configurations",
         path: "/hris/configurations",
@@ -69,14 +69,11 @@ const sidebarLinks = [
         iconActive: <BuildingIcon className="text-[#008080]" />,
       },
 
-    
       {
         feature: "Access Control",
         label: "Access Control",
         path: "/hris/access-control",
-        icon: (
-          <UserGroupOutlineIcon className="group-hover:text-[#008080]" />
-        ),
+        icon: <UserGroupOutlineIcon className="group-hover:text-[#008080]" />,
         iconActive: <UserGroupIcon className="text-[#008080]" />,
       },
     ],
@@ -105,8 +102,7 @@ const sidebarLinks = [
 ];
 
 const Sidebar = () => {
-  const { personalInfo, jobDetails, user, designations } =
-    useContext(UserContext);
+  const { personalInfo, user, designations } = useContext(UserContext);
   const { servicePermissions, accessPermissions } = useAuthStore();
   const allowedServices = servicePermissions.map((s) => s.toLowerCase());
   const allowedFeatures = accessPermissions.map((f) => f.toLowerCase());
@@ -141,15 +137,6 @@ const Sidebar = () => {
 
     return hasAtLeastOneAllowedFeature;
   });
-  useEffect(() => {
-    // console.log("allowedServices:", allowedServices);
-    // console.log("allowedFeatures:", allowedFeatures);
-    // console.log("filteredSections:", filteredSections);
-    // console.log("personalInfo:", personalInfo);
-    // console.log("jobDetails:", jobDetails);
-    // console.log("designations:", designations);
-  }, []);
-  // }, [personalInfo, jobDetails, designations]);
 
   return (
     <>

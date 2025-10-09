@@ -102,7 +102,7 @@ export const fetchAllEmployeesAPI = async (filters = {}) => {
   try {
     // Convert filters object to URLSearchParams, handling nested objects
     const params = new URLSearchParams();
-    
+
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
         if (Array.isArray(value)) {
@@ -117,7 +117,7 @@ export const fetchAllEmployeesAPI = async (filters = {}) => {
     const response = await api.get(
       `/api/hris-user-accounts${queryString ? `?${queryString}` : ""}`
     );
-    
+
     console.log("Employees fetched successfully:", response.data);
 
     return {
@@ -153,9 +153,9 @@ export const fetchEmployeeCountsAPI = async () => {
   }
 };
 
-export const addEmployeeAPI = async (employeeData, token) => {
+export const addEmployeeAPI = async (employeeData, token, recaptchaToken) => {
   try {
-    const response = await api.post(`/api/hris-user-accounts`, employeeData, {
+    const response = await api.post(`/api/hris-user-accounts`, { ...employeeData, recaptchaToken }, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",

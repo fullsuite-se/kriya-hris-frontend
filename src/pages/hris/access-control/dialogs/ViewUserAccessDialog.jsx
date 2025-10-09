@@ -350,7 +350,7 @@ const ViewUserAccessDialog = ({
         if (hasSuiteliferFeatures) {
           const role = suitelifer.serviceFeatures.find((sf) =>
             payload.feature_ids.includes(sf.service_feature_id)
-          )?.feature_name;
+          )?.feature_name.toUpperCase().trim();
 
           await updateUserTypeSuitelifer(role, payload.user_id);
           await activateSuitelifer(true, payload.user_id);

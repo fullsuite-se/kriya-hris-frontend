@@ -446,12 +446,12 @@ export const useAddEmployeeAPI = () => {
 
   const { addServicePermission, loading: addServiceLoading } = useAddServicePermissionAPI();
   const { addAccessPermission, loading: addAccessLoading } = useAddAccessPermissionAPI();
-  const addEmployee = async (employeeData) => {
+  const addEmployee = async (employeeData, recaptchaToken) => {
     setLoading(true);
     setError(null);
 
     try {
-      const result = await addEmployeeAPI(employeeData, token);
+      const result = await addEmployeeAPI(employeeData, token, recaptchaToken);
       const user_id = result?.data?.hrisUserAccount?.user_id;
       if (!user_id) throw new Error("User ID missing in response");
 

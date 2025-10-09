@@ -61,74 +61,71 @@ export const employeeFormSchema = z.object({
   // Permanent Address
   buildingNumPermanent: z.string().trim().optional().nullable(),
   streetPermanent: z.string().trim().optional().nullable(),
-  postalCodePermanent: z.string().trim().min(1, "required"),
-  countryPermanent: z.string().trim().min(1, "required"),
+  postalCodePermanent: z.string().trim().optional().nullable(),
+  countryPermanent: z.string().trim().optional().nullable(),
   regionPermanent: z
     .object({
       code: z.string().trim(),
       name: z.string().trim(),
-    })
-    .catch({ code: "", name: "" })
-    .refine((val) => !!val?.code, { message: "required" }),
+    }).optional().nullable(),
 
   provincePermanent: z
     .object({
       code: z.string().trim(),
       name: z.string().trim(),
-    })
-    .catch({ code: "", name: "" })
-    .refine((val) => !!val?.code, { message: "required" }),
+    }).optional().nullable(),
 
   cityPermanent: z
     .object({
       code: z.string().trim(),
       name: z.string().trim(),
-    })
-    .catch({ code: "", name: "" })
-    .refine((val) => !!val?.code, { message: "required" }),
+    }).optional().nullable(),
 
   barangayPermanent: z
     .object({
       code: z.string().trim(),
       name: z.string().trim(),
-    })
-    .catch({ code: "", name: "" })
-    .refine((val) => !!val?.code, { message: "required" }),
+    }).optional().nullable(),
 
   // Present Address
   buildingNumPresent: z.string().trim().optional().nullable(),
   streetPresent: z.string().trim().optional().nullable(),
-  postalCodePresent: z.string().trim().min(1, "required"),
-  countryPresent: z.string().trim().min(1, "required"),
+  postalCodePresent: z.string().trim().optional().nullable(),
+  countryPresent: z.string().trim().optional().nullable(),
 
   regionPresent: z
     .object({
       code: z.string().trim(),
       name: z.string().trim(),
-    })
-    .catch({ code: "", name: "" })
-    .refine((val) => !!val?.code, { message: "required" }),
+    }).optional().nullable(),
   provincePresent: z
     .object({
       code: z.string().trim(),
       name: z.string().trim(),
-    })
-    .catch({ code: "", name: "" })
-    .refine((val) => !!val?.code, { message: "required" }),
+    }).optional().nullable(),
   cityPresent: z
     .object({
       code: z.string().trim(),
       name: z.string().trim(),
-    })
-    .catch({ code: "", name: "" })
-    .refine((val) => !!val?.code, { message: "required" }),
+    }).optional().nullable(),
   barangayPresent: z
     .object({
       code: z.string().trim(),
       name: z.string().trim(),
-    })
-    .catch({ code: "", name: "" })
-    .refine((val) => !!val?.code, { message: "required" }),
+    }).optional().nullable(),
+
+  //when address to be required - this
+  /*
+  e.g.
+    barangayPresent: z
+      .object({
+        code: z.string().trim(),
+        name: z.string().trim(),
+      })
+      .catch({ code: "", name: "" })
+      .refine((val) => !!val?.code, { message: "required" }),
+  
+  */
 
   // Government Remittances
   governmentRemittances: z

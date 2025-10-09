@@ -154,33 +154,31 @@ export const EmployeeDocumentsTab = () => {
             </TooltipProvider>
           </div>
           <Button
-  asChild
-  variant="ghost"
-  className={`!text-xs !text-[#008080] border-none select-none ${
-    !hr201?.hr201_url
-      ? "pointer-events-none opacity-50"
-      : "cursor-pointer hover:!bg-[#0080801a]"
-  }`}
-  disabled={!hr201?.hr201_url} // this disables Button if empty
->
-  {hr201?.hr201_url ? (
-    <a
-      href={hr201.hr201_url}
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      <span className="hidden md:block">Open in Google Drive</span>
-      <ArrowTopRightOnSquareIcon />
-    </a>
-  ) : (
-    <div className="flex">
-      
-      <span className="hidden md:block">Open in Google Drive</span>
-         <ArrowTopRightOnSquareIcon />
-    </div>
-  )}
-</Button>
-
+            asChild
+            variant="ghost"
+            className={`!text-xs !text-[#008080] border-none select-none ${
+              !hr201?.hr201_url
+                ? "pointer-events-none opacity-50"
+                : "cursor-pointer hover:!bg-[#0080801a]"
+            }`}
+            disabled={!hr201?.hr201_url} // this disables Button if empty
+          >
+            {hr201?.hr201_url ? (
+              <a
+                href={hr201.hr201_url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span className="hidden md:block">Open in Google Drive</span>
+                <ArrowTopRightOnSquareIcon />
+              </a>
+            ) : (
+              <div className="flex">
+                <span className="hidden md:block">Open in Google Drive</span>
+                <ArrowTopRightOnSquareIcon />
+              </div>
+            )}
+          </Button>
         </div>
         <DriveFolderEmbed
           folderLink={hr201?.hr201_url}
