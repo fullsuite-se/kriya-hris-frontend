@@ -4,7 +4,12 @@ import CustomDialog from "@/components/dialog/CustomDialog";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 
-export const getDepartmentsColumns = ({ onEdit, onDelete }) => [
+export const getDepartmentsColumns = ({
+  onEdit,
+  onDelete,
+  editLoading,
+  deleteLoading,
+}) => [
   {
     accessorKey: "department_name",
     header: "Department",
@@ -33,14 +38,15 @@ export const getDepartmentsColumns = ({ onEdit, onDelete }) => [
   },
   {
     id: "actions",
-    header: () => <div className="text-right mr-1 sm:mr-3">Actions</div>,
+    // header: () => <div className="text-right mr-1 sm:mr-3">Actions</div>,
     cell: ({ row }) => {
-      const { department_id, department_name, department_address } = row.original;
+      const { department_id, department_name, department_address } =
+        row.original;
 
       const [editDialogOpen, setEditDialogOpen] = useState(false);
 
       return (
-        <div className="flex justify-start w-full gap-2 sm:gap-5">
+        <div className="flex justify-end w-full gap-2 sm:gap-5">
           <CustomDialog
             open={editDialogOpen}
             onOpenChange={setEditDialogOpen}
@@ -53,6 +59,7 @@ export const getDepartmentsColumns = ({ onEdit, onDelete }) => [
               </button>
             }
             title="Edit Department"
+            loading={editLoading}
             description={`Modify details for "${department_name}"`}
             confirmLabel="Save Changes"
             onConfirm={async (formData) => {
@@ -60,17 +67,16 @@ export const getDepartmentsColumns = ({ onEdit, onDelete }) => [
               setEditDialogOpen(false);
             }}
           >
-              <div className="space-y-2">
-                <label className="text-xs font-medium block">
-                  Department<span className="text-primary-color">*</span>
-                </label>
-                <Input
-                  name="department_name"
-                  defaultValue={department_name}
-                  // className="border rounded px-2 py-1 w-full"
-                />
-              </div>
-              
+            <div className="space-y-2">
+              <label className="text-xs font-medium block">
+                Department<span className="text-primary-color">*</span>
+              </label>
+              <Input
+                name="department_name"
+                defaultValue={department_name}
+                // className="border rounded px-2 py-1 w-full"
+              />
+            </div>
           </CustomDialog>
 
           <CustomDialog
@@ -83,6 +89,7 @@ export const getDepartmentsColumns = ({ onEdit, onDelete }) => [
               </button>
             }
             title="Confirm Delete"
+            loading={deleteLoading}
             description={`Delete "${department_name}"? Employees using this will have no department.`}
             confirmLabel="Yes, delete"
             cancelLabel="Cancel"

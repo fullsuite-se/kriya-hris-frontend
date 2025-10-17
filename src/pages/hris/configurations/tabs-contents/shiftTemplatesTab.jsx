@@ -1,6 +1,5 @@
 import CustomDialog from "@/components/dialog/CustomDialog";
 import LoadingAnimation from "@/components/Loading";
-import getJobPositionColumns from "@/components/table/columns/JobPositionsColumns";
 import getShiftTemplatesColumns from "@/components/table/columns/ShiftTemplatesColumns";
 import DataTable from "@/components/table/table-components/DataTable";
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,6 @@ import {
   useAddJobAPI,
   useDeleteJobAPI,
   useEditJobAPI,
-  useFetchAllJobsAPI,
 } from "@/hooks/useJobAPI";
 import useFetchAllShiftTemplatesAPI from "@/hooks/useShiftTemplatesAPI";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -20,7 +18,6 @@ import {
   InformationCircleIcon,
 } from "@heroicons/react/24/solid";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 export const ShiftTemplatesTab = () => {
   const { systemCompanyId } = useAuthStore();
@@ -251,6 +248,8 @@ export const ShiftTemplatesTab = () => {
             </Button>
           }
           title="Add New Shift Template"
+          height="lg"
+          width="md"
           confirmLabel="Save Shift Template"
           description="Enter the details for the new job position"
           onConfirm={handleSave}

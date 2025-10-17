@@ -4,7 +4,12 @@ import CustomDialog from "@/components/dialog/CustomDialog";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 
-export const getTeamsColumns = ({ onEdit, onDelete }) => [
+export const getTeamsColumns = ({
+  onEdit,
+  onDelete,
+  editLoading,
+  deleteLoading,
+}) => [
   {
     accessorKey: "team_name",
     header: "Team",
@@ -41,14 +46,14 @@ export const getTeamsColumns = ({ onEdit, onDelete }) => [
   },
   {
     id: "actions",
-    header: () => <div className="text-right mr-1 sm:mr-3">Actions</div>,
+    // header: () => <div className="text-right mr-1 sm:mr-3">Actions</div>,
     cell: ({ row }) => {
       const { team_id, team_name, team_description } = row.original;
 
       const [editDialogOpen, setEditDialogOpen] = useState(false);
 
       return (
-        <div className="flex justify-start w-full gap-2 sm:gap-5">
+        <div className="flex justify-end w-full gap-2 sm:gap-5">
           <CustomDialog
             open={editDialogOpen}
             onOpenChange={setEditDialogOpen}
@@ -61,6 +66,8 @@ export const getTeamsColumns = ({ onEdit, onDelete }) => [
               </button>
             }
             title="Edit Team"
+            height="md"
+            loading={editLoading}
             description={`Modify details for "${team_name}"`}
             confirmLabel="Save Changes"
             onConfirm={async (formData) => {
@@ -102,6 +109,7 @@ export const getTeamsColumns = ({ onEdit, onDelete }) => [
               </button>
             }
             title="Confirm Delete"
+            loading={deleteLoading}
             description={`Delete "${team_name}"? Employees using this will have no team.`}
             confirmLabel="Yes, delete"
             cancelLabel="Cancel"

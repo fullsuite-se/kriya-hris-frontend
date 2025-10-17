@@ -226,14 +226,16 @@ export const DepartmentsTab = () => {
   const departmentsColumns = getDepartmentsColumns({
     onEdit: handleEditDepartment,
     onDelete: handleDeleteDepartment,
+    editLoading: editDepartmentLoading,
+    deleteLoading: deleteDepartmentLoading,
   });
 
-   if (loading) {
+  if (loading) {
     return (
       // <div className="flex items-center justify-center h-screen">
       //   <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-primary-color"></div>
       // </div>
-        <LoadingAnimation/>
+      <LoadingAnimation />
     );
   }
 
@@ -250,6 +252,7 @@ export const DepartmentsTab = () => {
             </Button>
           }
           title="Add New Department"
+          loading={addDepartmentLoading}
           confirmLabel="Save Department"
           description="Enter the details for the new department"
           onConfirm={handleSaveDepartment}

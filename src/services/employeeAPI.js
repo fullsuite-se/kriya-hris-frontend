@@ -138,6 +138,33 @@ export const fetchAllEmployeesAPI = async (filters = {}) => {
   }
 };
 
+//dropdown
+
+export const fetchEmployeesForDropdownAPI = async (search = '') => {
+  try {
+    const params = new URLSearchParams();
+
+    if (search && search.trim() !== '') {
+      params.append('search', search.trim());
+    }
+
+    const queryString = params.toString();
+    const response = await api.get(
+      `/api/hris-user-accounts/dropdown${queryString ? `?${queryString}` : ""}`
+    );
+
+    console.log("Dropdown employees fetched successfully:", response.data);
+
+    return response.data.employees || [];
+  } catch (error) {
+    console.error("Failed to fetch dropdown employees:", error);
+    return {
+      employees: [],
+      total: 0,
+      error,
+    };
+  }
+};
 
 
 //get emp counts

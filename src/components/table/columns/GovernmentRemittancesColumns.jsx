@@ -33,14 +33,14 @@ export const getGovernmentRemittancesColumns = ({ onEdit, onDelete }) => [
   },
   {
     id: "actions",
-    header: () => <div className="text-right mr-1 sm:mr-3">Actions</div>,
+    // header: () => <div className="text-right mr-1 sm:mr-3">Actions</div>,
     cell: ({ row }) => {
       const { government_id_type_id, government_id_name } = row.original;
 
       const [editDialogOpen, setEditDialogOpen] = useState(false);
 
       return (
-        <div className="flex justify-start w-full gap-2 sm:gap-5">
+        <div className="flex justify-end w-full gap-2 sm:gap-5">
           <CustomDialog
             open={editDialogOpen}
             onOpenChange={setEditDialogOpen}
@@ -61,7 +61,9 @@ export const getGovernmentRemittancesColumns = ({ onEdit, onDelete }) => [
             }}
           >
             <div className="space-y-2">
-              <label className="text-xs font-medium block">Government Remittance</label>
+              <label className="text-xs font-medium block">
+                Government Remittance
+              </label>
               <Input
                 name="government_id_name"
                 defaultValue={government_id_name}

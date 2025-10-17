@@ -16,24 +16,24 @@ import {
   ExclamationTriangleIcon,
   InformationCircleIcon,
 } from "@heroicons/react/24/solid";
-import { use, useEffect, useState } from "react";
+import { useState } from "react";
 
 export const TeamsTab = () => {
   const {
     allTeams,
     refetch: refetchAllTeams,
     setAllTeams,
-    loading
+    loading,
   } = useFetchTeamsAPI();
   const [teamsDialogOpen, setTeamsDialogOpen] = useState(false);
-  const { addTeam } = useAddTeamAPI();
-  const { deleteTeam } = useDeleteTeamAPI();
-  const { editTeam} = useEditTeamAPI();
+  const { addTeam, loading: addTeamLoading } = useAddTeamAPI();
+  const { deleteTeam, loading: deleteTeamLoading } = useDeleteTeamAPI();
+  const { editTeam, loading: editTeamLoading } = useEditTeamAPI();
 
   const removeLocalTeam = (team_id) => {
     const teamToRemove = allTeams.find((j) => j.team_id === team_id);
     setAllTeams((prev) => prev.filter((j) => j.team_id !== team_id));
-    return teamToRemove; // store this for undo
+    return teamToRemove;
   };
 
   const restoreLocalTeam = (team) => {
@@ -245,14 +245,16 @@ export const TeamsTab = () => {
   const teamsColumns = getTeamsColumns({
     onEdit: handleEditTeam,
     onDelete: handleDeleteTeam,
+    editLoading: editTeamLoading,
+    deleteLoading: deleteTeamLoading,
   });
 
-    if (loading) {
+  if (loading) {
     return (
       // <div className="flex items-center justify-center h-screen">
       //   <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-primary-color"></div>
       // </div>
-        <LoadingAnimation/>
+      <LoadingAnimation />
     );
   }
   return (
@@ -267,7 +269,9 @@ export const TeamsTab = () => {
               +<span className=" hidden sm:inline text-xs">&nbsp;Add New</span>
             </Button>
           }
+          height="md"
           title="Add New Team"
+          loading={addTeamLoading}
           confirmLabel="Save Team"
           description="Enter the details for the new team"
           onConfirm={handleSaveTeam}

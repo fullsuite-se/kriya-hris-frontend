@@ -44,8 +44,10 @@ const ViewUserAccessDialog = ({
   const [expandedFeature, setExpandedFeature] = useState(null);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
 
-  const { activateSuitelifer } = useActivateSuiteliferAPI();
-  const { updateUserTypeSuitelifer } = useUpdateUserTypeSuiteliferAPI(); 
+  const { activateSuitelifer, loading: activateLoadingSL } =
+    useActivateSuiteliferAPI();
+  const { updateUserTypeSuitelifer, loading: updateTypeLoadingSL } =
+    useUpdateUserTypeSuiteliferAPI();
 
   const { addServicePermission, loading: serviceLoading } =
     useAddServicePermissionAPI();
@@ -56,6 +58,7 @@ const ViewUserAccessDialog = ({
   const { deleteAccessPermissions, loading: deleteAccessLoading } =
     useDeleteAccessPermissionsAPI();
 
+  // Fetch services and features only when dialog is open
   const { servicesAndFeatures, loading, error } =
     useFetchFeaturesAndServicesAPI();
 
@@ -78,6 +81,7 @@ const ViewUserAccessDialog = ({
     shouldFetchEmployeePermissions ? selectedEmployee : null
   );
 
+  // Memoized user service and feature IDs
   const userServiceIds = useMemo(() => {
     return method === "edit"
       ? userAccessDetails?.HrisUserServicePermissions?.map(
@@ -107,9 +111,20 @@ const ViewUserAccessDialog = ({
     [employeeFeatures]
   );
 
+  // Initialize state when dialog opens
   useEffect(() => {
-    if (method === "add" && selectedEmployee && open) {
-      if (employeeServiceIds.length > 0 || employeeFeatureIds.length > 0) {
+    if (open) {
+      if (method === "edit") {
+        setServicesSelected(userServiceIds);
+        setFeaturesSelected(userFeatureIds);
+
+        // Expand services that have permissions
+        const expandedState = {};
+        userServiceIds.forEach((serviceId) => {
+          expandedState[serviceId] = true;
+        });
+        setExpandedByService(expandedState);
+      } else if (selectedEmployee) {
         setServicesSelected(employeeServiceIds);
         setFeaturesSelected(employeeFeatureIds);
 
@@ -118,36 +133,33 @@ const ViewUserAccessDialog = ({
           expandedState[serviceId] = true;
         });
         setExpandedByService(expandedState);
-      }
-    }
-  }, [selectedEmployee, employeeServiceIds, employeeFeatureIds, method, open]);
-
-  useEffect(() => {
-    if (open) {
-      if (method === "edit") {
-        setServicesSelected(userServiceIds);
-        setFeaturesSelected(userFeatureIds);
       } else {
-        if (!selectedEmployee) {
-          setServicesSelected([]);
-          setFeaturesSelected([]);
-        }
+        setServicesSelected([]);
+        setFeaturesSelected([]);
         setExpandedByService({});
-        setExpandedFeature({});
       }
     }
-  }, [open, userServiceIds, userFeatureIds, method, selectedEmployee]);
+  }, [
+    open,
+    method,
+    selectedEmployee,
+    userServiceIds,
+    userFeatureIds,
+    employeeServiceIds,
+    employeeFeatureIds,
+  ]);
 
+  // Optimized service and feature toggles
   const toggleService = useCallback(
     (serviceId) => {
       if (method === "add" && !selectedEmployee) return;
 
       setServicesSelected((prev) => {
-        if (prev.includes(serviceId)) {
-          return prev.filter((id) => id !== serviceId);
-        } else {
-          return [...prev, serviceId];
-        }
+        const newServices = prev.includes(serviceId)
+          ? prev.filter((id) => id !== serviceId)
+          : [...prev, serviceId];
+
+        return newServices;
       });
 
       setExpandedByService((prev) => ({
@@ -180,8 +192,8 @@ const ViewUserAccessDialog = ({
 
       const allFeatureIds = serviceFeatures.map((f) => f.service_feature_id);
       setFeaturesSelected((prev) => {
-        const newFeatures = allFeatureIds.filter((id) => !prev.includes(id));
-        return [...prev, ...newFeatures];
+        const newFeatures = [...new Set([...prev, ...allFeatureIds])];
+        return newFeatures;
       });
     },
     [method, selectedEmployee]
@@ -211,10 +223,10 @@ const ViewUserAccessDialog = ({
     [featuresSelected]
   );
 
-  const toggleFeatureDescription = (serviceId, featureId) => {
+  const toggleFeatureDescription = useCallback((serviceId, featureId) => {
     const key = `${serviceId}-${featureId}`;
     setExpandedFeature((prev) => (prev === key ? null : key));
-  };
+  }, []);
 
   const getAccessStatusText = useCallback(
     (isServiceSelected, hasSelectedFeatures) => {
@@ -231,6 +243,7 @@ const ViewUserAccessDialog = ({
     [method]
   );
 
+  // Memoized grouped services
   const groupedServices = useMemo(() => {
     return (
       servicesAndFeatures?.map((service) => {
@@ -348,9 +361,10 @@ const ViewUserAccessDialog = ({
         );
 
         if (hasSuiteliferFeatures) {
-          const role = suitelifer.serviceFeatures.find((sf) =>
-            payload.feature_ids.includes(sf.service_feature_id)
-          )?.feature_name.toUpperCase().trim();
+          const role = suitelifer.serviceFeatures
+            .find((sf) => payload.feature_ids.includes(sf.service_feature_id))
+            ?.feature_name.toUpperCase()
+            .trim();
 
           await updateUserTypeSuitelifer(role, payload.user_id);
           await activateSuitelifer(true, payload.user_id);
@@ -593,7 +607,7 @@ const ViewUserAccessDialog = ({
                                 expanded={
                                   expandedFeature ===
                                   `${service.service_id}-${feature.service_feature_id}`
-                                } 
+                                }
                                 serviceName={service.service_name}
                                 onToggleExpand={() =>
                                   toggleFeatureDescription(
@@ -638,6 +652,7 @@ const ViewUserAccessDialog = ({
   return (
     <div>
       <CustomDialog
+        loading={method === "add" ? !selectedEmployee : !userAccessDetails}
         onCancel={() => {
           setSelectedEmployee(null);
         }}
@@ -663,7 +678,6 @@ const ViewUserAccessDialog = ({
         onConfirm={() => setConfirmSubmitOpen(true)}
       >
         <div className="space-y-6">
-          {loading && <p>Loading services and features...</p>}
           {error && (
             <p className="text-red-500">
               Failed to load services and features.
@@ -717,7 +731,9 @@ const ViewUserAccessDialog = ({
           serviceLoading ||
           featureLoading ||
           deleteAccessLoading ||
-          deleteServiceLoading
+          deleteServiceLoading ||
+          activateLoadingSL ||
+          updateTypeLoadingSL
         }
         onConfirm={onSaveChanges}
         isShownCloseButton={false}

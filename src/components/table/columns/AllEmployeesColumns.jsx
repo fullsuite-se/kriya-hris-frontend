@@ -77,7 +77,7 @@ export const employeeCols = [
   },
   {
     accessorKey: "regularization_date",
-    header: "Regularization Date",
+    header: "Regularization",
     cell: ({ row }) => {
       const regularizationDate = row.original.regularization_date;
       const detailsUrl = `/hris/employees/${row.original.employee_id}`;

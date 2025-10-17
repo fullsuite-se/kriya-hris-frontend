@@ -4,7 +4,12 @@ import CustomDialog from "@/components/dialog/CustomDialog";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 
-export const getOfficesColumns = ({ onEdit, onDelete }) => [
+export const getOfficesColumns = ({
+  onEdit,
+  onDelete,
+  editLoading,
+  deleteLoading,
+}) => [
   {
     accessorKey: "office_name",
     header: "Office",
@@ -41,14 +46,14 @@ export const getOfficesColumns = ({ onEdit, onDelete }) => [
   },
   {
     id: "actions",
-    header: () => <div className="text-right mr-1 sm:mr-3">Actions</div>,
+    // header: () => <div className="text-right mr-1 sm:mr-3">Actions</div>,
     cell: ({ row }) => {
       const { office_id, office_name, office_address } = row.original;
 
       const [editDialogOpen, setEditDialogOpen] = useState(false);
 
       return (
-        <div className="flex justify-start w-full gap-2 sm:gap-5">
+        <div className="flex justify-end w-full gap-2 sm:gap-5">
           <CustomDialog
             open={editDialogOpen}
             onOpenChange={setEditDialogOpen}
@@ -60,7 +65,9 @@ export const getOfficesColumns = ({ onEdit, onDelete }) => [
                 <Pencil size={16} />
               </button>
             }
+            height="md"
             title="Edit Office"
+            loading={editLoading}
             description={`Modify details for "${office_name}"`}
             confirmLabel="Save Changes"
             onConfirm={async (formData) => {
@@ -102,6 +109,7 @@ export const getOfficesColumns = ({ onEdit, onDelete }) => [
               </button>
             }
             title="Confirm Delete"
+            loading={deleteLoading}
             description={`Delete "${office_name}"? Employees using this will have no office.`}
             confirmLabel="Yes, delete"
             cancelLabel="Cancel"

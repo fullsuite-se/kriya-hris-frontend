@@ -8,37 +8,29 @@ import {
   fetchJobLevelsAPI,
   fetchSalaryTypesAPI,
 } from "@/services/jobSettingsAPI";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
+import { useQuery } from '@tanstack/react-query';
 
 export const useFetchEmploymentStatusAPI = () => {
-  const [allEmploymentStatuses, setAllEmploymentStatuses] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  const fetchEmploymentStatus = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetchEmploymentStatusAPI();
-      console.log("Employment status fetched successfully:", response);
-      setAllEmploymentStatuses(response || []);
-    } catch (err) {
-      console.error("Failed to fetch employment status:", err);
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchEmploymentStatus();
-  }, [fetchEmploymentStatus]);
+  const {
+    data: allEmploymentStatuses = [],
+    error,
+    isLoading: loading,
+    refetch,
+  } = useQuery({
+    queryKey: ['employmentStatus'],
+    queryFn: () => fetchEmploymentStatusAPI(),
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    cacheTime: 15 * 60 * 1000, // 15 minutes
+    refetchOnWindowFocus: false,
+    retry: 2,
+  });
 
   return {
     allEmploymentStatuses,
     loading,
     error,
-    refetch: fetchEmploymentStatus,
+    refetch,
   };
 };
 
@@ -67,36 +59,31 @@ export const useAddEmploymentStatusAPI = () => {
 
 
 // joblevelss
-
 export const useFetchJobLevelsAPI = () => {
-  const [allJobLevels, setAllJobLevels] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  const fetchJobLevels = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
+  const {
+    data: allJobLevels = [],
+    isLoading: loading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["jobLevels"],
+    queryFn: async () => {
       const response = await fetchJobLevelsAPI();
       console.log("Job Levels fetched successfully:", response);
-      setAllJobLevels(response || []);
-    } catch (err) {
-      console.error("Failed to fetch Job Levels:", err);
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchJobLevels();
-  }, [fetchJobLevels]);
+      return response || [];
+    },
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    cacheTime: 15 * 60 * 1000, // 15 minutes
+    refetchOnWindowFocus: false,
+    retry: 2,
+  });
 
   return {
     allJobLevels,
     loading,
-    error,
-    refetch: fetchJobLevels,
+    error: isError ? error : null,
+    refetch,
   };
 };
 
@@ -105,11 +92,11 @@ export const useAddJobLevelAPI = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const addJobLevel = async ({job_level_name, job_level_description}) => {
+  const addJobLevel = async ({ job_level_name, job_level_description }) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await addJobLevelAPI({job_level_name, job_level_description});
+      const response = await addJobLevelAPI({ job_level_name, job_level_description });
       console.log("Job Level added successfully:", response);
       return response;
     } catch (err) {
@@ -126,36 +113,31 @@ export const useAddJobLevelAPI = () => {
 
 
 //employettype
-
 export const useFetchEmployeeTypesAPI = () => {
-  const [allEmployeeTypes, setAllEmployeeTypes] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  const fetchEmployeeTypes = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
+  const {
+    data: allEmployeeTypes = [],
+    isLoading: loading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["employeeTypes"],
+    queryFn: async () => {
       const response = await fetchEmployeeTypesAPI();
       console.log("Employee Types fetched successfully:", response);
-      setAllEmployeeTypes(response || []);
-    } catch (err) {
-      console.error("Failed to fetch Employee Types:", err);
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchEmployeeTypes();
-  }, [fetchEmployeeTypes]);
+      return response || [];
+    },
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    cacheTime: 15 * 60 * 1000, // 15 minutes
+    refetchOnWindowFocus: false,
+    retry: 2,
+  });
 
   return {
     allEmployeeTypes,
     loading,
-    error,
-    refetch: fetchEmployeeTypes,
+    error: isError ? error : null,
+    refetch,
   };
 };
 
@@ -184,34 +166,30 @@ export const useAddEmployeeTypeAPI = () => {
 
 //salary type
 export const useFetchSalaryTypesAPI = () => {
-  const [allSalaryTypes, setAllSalaryTypes] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  const fetchSalaryTypes = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
+  const {
+    data: allSalaryTypes = [],
+    isLoading: loading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["salaryTypes"],
+    queryFn: async () => {
       const response = await fetchSalaryTypesAPI();
       console.log("Salary Types fetched successfully:", response);
-      setAllSalaryTypes(response || []);
-    } catch (err) {
-      console.error("Failed to fetch Salary Types:", err);
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchSalaryTypes();
-  }, [fetchSalaryTypes]);
+      return response || [];
+    },
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    cacheTime: 15 * 60 * 1000, // 15 minutes
+    refetchOnWindowFocus: false,
+    retry: 2,
+  });
 
   return {
     allSalaryTypes,
     loading,
-    error,
-    refetch: fetchSalaryTypes,
+    error: isError ? error : null,
+    refetch,
   };
 };
 

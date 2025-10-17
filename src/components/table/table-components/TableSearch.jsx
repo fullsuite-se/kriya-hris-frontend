@@ -1,4 +1,5 @@
 import { Input } from "@/components/ui/input";
+import { X } from "lucide-react";
 
 const TableSearch = ({ search, onChange }) => {
   return (
@@ -13,9 +14,9 @@ const TableSearch = ({ search, onChange }) => {
       {search && (
         <p
           onClick={() => onChange("")}
-          className="absolute right-2 top-1/2 -translate-y-1/2 text-xs cursor-pointer text-[#008080] hover:text-[#72b0b1]"
+          className="absolute right-2 top-1/2 -translate-y-1/2 text-xs cursor-pointer text-gray-400 hover:text-gray-600"
         >
-          Clear
+      <X className="w-4 h-4"/>
         </p>
       )}
     </div>

@@ -1,32 +1,60 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
-import { useFetchAllEmployeesAPI } from "@/hooks/useEmployeeAPI";
+import { useEmployeeDropdownAPI } from "@/hooks/useEmployeeAPI";
 import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function EmployeeSelector({ value = null, onChange }) {
-  const {
-    allEmployees,
-    searchInput,
-    handleSearchInputChange,
-    performSearch,
+  const { 
+    allEmployees, 
+    searchInput, 
+    handleSearchInputChange, 
     clearSearch,
-  } = useFetchAllEmployeesAPI();
+    loading 
+  } = useEmployeeDropdownAPI();
 
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
 
-useEffect(() => {
-  if (value && allEmployees?.length > 0) {
-    const emp = allEmployees.find((e) => e.user_id === value);
-    setSelectedEmployee(emp || null);
-  } else if (!value) {
-    setSelectedEmployee(null);
-  }
-}, [value, allEmployees]);
+  // Filter employees client-side based on search input
+  const filteredEmployees = useMemo(() => {
+    if (!searchInput) return allEmployees;
+    
+    const searchTerm = searchInput.toLowerCase();
+    return allEmployees.filter(emp => 
+      emp.first_name?.toLowerCase().includes(searchTerm) ||
+      emp.last_name?.toLowerCase().includes(searchTerm) ||
+      emp.user_email?.toLowerCase().includes(searchTerm) ||
+      emp.job_title?.toLowerCase().includes(searchTerm) ||
+      `${emp.first_name} ${emp.last_name}`.toLowerCase().includes(searchTerm)
+    );
+  }, [allEmployees, searchInput]);
 
+  useEffect(() => {
+    if (value && allEmployees?.length > 0) {
+      const emp = allEmployees.find((e) => e.user_id === value);
+      setSelectedEmployee(emp || null);
+    } else if (!value) {
+      setSelectedEmployee(null);
+    }
+  }, [value, allEmployees]);
 
-  // Add employee (single)
+  // Function to get initials from first and last name
+  const getInitials = (employee) => {
+    if (!employee) return "??";
+    const { first_name, last_name } = employee;
+    return (
+      `${first_name?.[0] || ""}${last_name?.[0] || ""}`.toUpperCase() || "??"
+    );
+  };
+
+  // Function to get display name
+  const getDisplayName = (employee) => {
+    if (!employee) return "Unnamed";
+    return `${employee.first_name} ${employee.last_name}`;
+  };
+
   const handleSelect = (employee) => {
     onChange(employee.user_id);
     setSelectedEmployee(employee);
@@ -34,36 +62,51 @@ useEffect(() => {
     clearSearch();
   };
 
-  // Clear selection
   const handleRemove = () => {
     onChange(null);
     setSelectedEmployee(null);
+    clearSearch();
   };
 
-  // Show dropdown when typing
-  useEffect(() => {
-    if (searchInput?.length > 0) {
-      performSearch();
+  const handleInputChange = (value) => {
+    handleSearchInputChange(value);
+    // Always show dropdown when user types, even if no results yet
+    setShowDropdown(true);
+  };
+
+  const handleInputFocus = () => {
+    if (!selectedEmployee) {
       setShowDropdown(true);
-    } else {
-      setShowDropdown(false);
     }
-  }, [searchInput]);
+  };
+
+  const handleInputBlur = () => {
+    // Small delay to allow click events to register
+    setTimeout(() => setShowDropdown(false), 200);
+  };
 
   return (
     <div className="w-full relative">
-      {/* If selected, show pill-style box instead of input */}
       {selectedEmployee ? (
         <div className="flex items-center justify-between border rounded-lg px-3 py-2 bg-white shadow-sm">
-          <div className="flex flex-col">
-            <span className="font-medium text-gray-900">
-              {selectedEmployee.HrisUserInfo
-                ? `${selectedEmployee.HrisUserInfo.first_name} ${selectedEmployee.HrisUserInfo.last_name}`
-                : "Unnamed"}
-            </span>
-            <span className="text-sm text-gray-500">
-              {selectedEmployee.user_email}
-            </span>
+          <div className="flex items-center gap-3">
+            <Avatar className="h-8 w-8">
+              <AvatarImage
+                src={selectedEmployee.user_pic}
+                alt={getDisplayName(selectedEmployee)}
+              />
+              <AvatarFallback className="bg-[#008080] text-white text-xs">
+                {getInitials(selectedEmployee)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col">
+              <span className="font-medium text-gray-900">
+                {getDisplayName(selectedEmployee)}
+              </span>
+              <span className="text-sm text-gray-500">
+                {selectedEmployee.user_email}
+              </span>
+            </div>
           </div>
           <X
             size={16}
@@ -72,35 +115,59 @@ useEffect(() => {
           />
         </div>
       ) : (
-        <Input
-          placeholder="Type to select an employee..."
-          value={searchInput}
-          onChange={(e) => handleSearchInputChange(e.target.value)}
-          onFocus={() => searchInput?.length > 0 && setShowDropdown(true)}
-          className="rounded-lg border px-3 py-2"
-        />
+        <div className="relative">
+          <Input
+            placeholder="Type to select an employee..."
+            value={searchInput}
+            onChange={(e) => handleInputChange(e.target.value)}
+            onFocus={handleInputFocus}
+            onBlur={handleInputBlur}
+            className="rounded-lg border px-3 py-2"
+          />
+          {loading && (
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#008080]"></div>
+            </div>
+          )}
+        </div>
       )}
 
-      {/* Dropdown Suggestions */}
-      {showDropdown && !selectedEmployee && allEmployees?.length > 0 && (
+      {showDropdown && (
         <div className="absolute z-10 mt-1 w-full border rounded-lg shadow-lg bg-white max-h-60 overflow-y-auto">
-          {allEmployees.map((emp) => (
-            <div
-              key={emp.user_id}
-              onClick={() => handleSelect(emp)}
-              className={cn(
-                "px-3 py-2 cursor-pointer transition-colors hover:bg-teal-50"
-              )}
-            >
-              <p className="font-medium text-gray-900">
-                {emp.HrisUserInfo
-                  ? `${emp.HrisUserInfo.first_name} ${emp.HrisUserInfo.last_name}`
-                  : "Unnamed"}
-              </p>
-              <p className="text-sm text-gray-500">{emp.user_email}</p>
-              
+          {filteredEmployees.length > 0 ? (
+            filteredEmployees.map((emp) => (
+              <div
+                key={emp.user_id}
+                onClick={() => handleSelect(emp)}
+                className={cn(
+                  "px-3 py-2 cursor-pointer transition-colors hover:bg-[#008080]/10 flex items-center gap-3"
+                )}
+              >
+                <Avatar className="h-8 w-8">
+                  <AvatarImage
+                    src={emp.user_pic}
+                    alt={getDisplayName(emp)}
+                  />
+                  <AvatarFallback className="bg-[#008080] text-white text-xs">
+                    {getInitials(emp)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <p className="font-medium text-gray-900">
+                    {getDisplayName(emp)}
+                  </p>
+               
+                  {emp.job_title && (
+                    <p className="text-xs text-gray-500">{emp.user_email} | <span className="text-xs text-gray-400">{emp.job_title}</span> </p>
+                  )}
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="px-3 py-5 text-sm text-gray-500 text-center">
+              {searchInput ? "No employees found" : "No employees available"}
             </div>
-          ))}
+          )}
         </div>
       )}
     </div>

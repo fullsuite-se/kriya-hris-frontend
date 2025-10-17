@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useHeader } from "@/context/HeaderContext";
 import { Button } from "@/components/ui/button";
 import { employeeCols } from "@/components/table/columns/AllEmployeesColumns";
@@ -18,7 +18,8 @@ import { useFetchEmploymentStatusAPI } from "@/hooks/useJobSettingsAPI";
 import { useEmployeesFilter } from "@/context/EmployeesFilterContext";
 import { InformationCircleIcon } from "@heroicons/react/24/solid";
 import LoadingAnimation from "@/components/Loading";
-import { XIcon, SearchIcon } from "lucide-react";
+import { X, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 const AllEmployeesPage = () => {
   const navigate = useNavigate();
@@ -36,13 +37,12 @@ const AllEmployeesPage = () => {
     setPageSize,
     error,
     loading,
-    filters: apiFilters,
+    searchLoading,
     searchInput,
+    setSearchInput,
     handleSearchInputChange,
-    performSearch,
     clearSearch,
     setFilters: setAPIFilters,
-    refetch,
   } = useFetchAllEmployeesAPI(filters);
 
   const { allEmploymentStatuses } = useFetchEmploymentStatusAPI();
@@ -74,6 +74,11 @@ const AllEmployeesPage = () => {
         defaultValue: [null, null],
       },
       {
+        key: "office",
+        type: FILTER_TYPES.DROPDOWN,
+        label: "Office",
+      },
+      {
         key: "department",
         type: FILTER_TYPES.DROPDOWN,
         label: "Department",
@@ -87,6 +92,11 @@ const AllEmployeesPage = () => {
         key: "supervisor",
         type: FILTER_TYPES.DROPDOWN,
         label: "Supervisor",
+      },
+      {
+        key: "employer",
+        type: FILTER_TYPES.DROPDOWN,
+        label: "Employer",
       },
     ],
     [statusOptions]
@@ -108,73 +118,78 @@ const AllEmployeesPage = () => {
     });
   }, [filterFields, setLocalFilters]);
 
-  const hasFiltersApplied = useMemo(() => {
-    return filterFields.some((filter) => {
-      const current = localFilters[filter.key];
-      const defaultVal =
-        filter.defaultValue ||
-        (filter.type === "range" ? [filter.min, filter.max] : []);
-
-      if (Array.isArray(current) && Array.isArray(defaultVal)) {
-        return (
-          current.length !== defaultVal.length ||
-          current.some((val, idx) => val !== defaultVal[idx])
-        );
-      }
-      return current !== defaultVal;
-    });
-  }, [filterFields, localFilters]);
-
   const hasActiveFilters = useMemo(() => {
-    return Object.keys(filters).length > 0;
-  }, [filters]);
+    return Object.keys(filters).length > 0 || searchInput.trim() !== "";
+  }, [filters, searchInput]);
 
-  const handleApplyFilters = (appliedFilters) => {
-    const formattedFilters = {};
+  const handleApplyFilters = useCallback(
+    (appliedFilters) => {
+      const formattedFilters = {};
 
-    // Handle date range
-    if (appliedFilters.date_range && appliedFilters.date_range.length === 2) {
-      const [start, end] = appliedFilters.date_range;
-      if (start) {
-        const s = new Date(start);
-        s.setDate(s.getDate() + 1);
-        formattedFilters.startdate = s.toISOString().split("T")[0];
+      // Handle date range
+      if (appliedFilters.date_range && appliedFilters.date_range.length === 2) {
+        const [start, end] = appliedFilters.date_range;
+        if (start) {
+          const s = new Date(start);
+          s.setDate(s.getDate() + 1);
+          formattedFilters.startdate = s.toISOString().split("T")[0];
+        }
+        if (end) {
+          const e = new Date(end);
+          e.setDate(e.getDate() + 1);
+          formattedFilters.enddate = e.toISOString().split("T")[0];
+        }
       }
-      if (end) {
-        const e = new Date(end);
-        e.setDate(e.getDate() + 1);
-        formattedFilters.enddate = e.toISOString().split("T")[0];
+
+      // Handle status (convert array to comma-separated string)
+      if (appliedFilters.status && appliedFilters.status.length > 0) {
+        formattedFilters.status = appliedFilters.status.join(",");
       }
-    }
 
-    // Handle status (convert array to comma-separated string)
-    if (appliedFilters.status && appliedFilters.status.length > 0) {
-      formattedFilters.status = appliedFilters.status.join(",");
-    }
+      // Handle single-value filters
+      ["department", "job_position", "supervisor", "office", "employer"].forEach((key) => {
+        if (appliedFilters[key] && appliedFilters[key].length > 0) {
+          formattedFilters[key] = appliedFilters[key];
+        }
+      });
 
-    // Handle single value filters
-    ["department", "job_position", "supervisor"].forEach((key) => {
-      if (appliedFilters[key] && appliedFilters[key].length > 0) {
-        formattedFilters[key] = appliedFilters[key];
+      // Include current search input with applied filters
+      if (searchInput.trim() !== "") {
+        formattedFilters.search = searchInput.trim();
       }
-    });
 
-    // Update both context and API filters
-    setFilters(formattedFilters);
-    setAPIFilters(formattedFilters);
-  };
+      // Only update if filters actually changed to prevent loops
+      const currentFiltersString = JSON.stringify(filters);
+      const newFiltersString = JSON.stringify(formattedFilters);
 
-  const handleReset = () => {
+      if (currentFiltersString !== newFiltersString) {
+        setFilters(formattedFilters);
+        setAPIFilters(formattedFilters);
+      }
+
+      console.log("formatted filteeeeers: ", formattedFilters);
+    },
+    [filters, searchInput, setFilters, setAPIFilters]
+  );
+
+  const handleReset = useCallback(() => {
     const reset = {};
     filterFields.forEach((filter) => {
       reset[filter.key] =
         filter.defaultValue ||
         (filter.type === "range" ? [filter.min, filter.max] : []);
     });
+    setSearchInput("");
     setLocalFilters(reset);
     setFilters({});
     setAPIFilters({});
-  };
+  }, [
+    filterFields,
+    setSearchInput,
+    setLocalFilters,
+    setFilters,
+    setAPIFilters,
+  ]);
 
   const [showFilters, setShowFilters] = useState(false);
   const toggleFilters = () => setShowFilters((prev) => !prev);
@@ -200,9 +215,10 @@ const AllEmployeesPage = () => {
     document.title = "All Employees";
   }, []);
 
-  if (loading) {
-    return <LoadingAnimation />;
-  }
+  // Only show full page loading on initial load
+  // if (loading && !searchLoading && page === 1) {
+  //   return <LoadingAnimation />;
+  // }
 
   if (error) {
     return (
@@ -213,7 +229,7 @@ const AllEmployeesPage = () => {
   }
 
   return (
-    <div className="w-full">
+    <div className="max-w-full">
       <div className="lg:hidden mb-4 flex justify-end text-sm font-medium text-primary-color">
         <div
           onClick={toggleFilters}
@@ -223,8 +239,7 @@ const AllEmployeesPage = () => {
           {showFilters ? <ArrowHeadUpIcon /> : <ArrowHeadDownIcon />}
         </div>
       </div>
-
-      <div className="flex flex-col lg:flex-row gap-5 w-full">
+      <div className="flex flex-col justify-start lg:flex-row gap-5 w-full max-w-full">
         {/* Mobile filters sidebar */}
         {showFilters && (
           <div className="block lg:hidden w-full">
@@ -233,7 +248,6 @@ const AllEmployeesPage = () => {
               onApply={handleApplyFilters}
               localFilters={localFilters}
               setLocalFilters={setLocalFilters}
-              hasFiltersApplied={hasFiltersApplied}
               handleReset={handleReset}
               hasActiveFilters={hasActiveFilters}
             />
@@ -241,73 +255,59 @@ const AllEmployeesPage = () => {
         )}
 
         {/* Data table */}
-        <div className="w-full lg:w-[80%] bg-white shadow-xs rounded-lg p-5">
+        <div className="w-full lg:flex-0.75 bg-white shadow-xs rounded-lg p-5 min-w-0 h-fit">
           <div
             className={`${
               hasActiveFilters ? "block" : "hidden"
             } flex justify-end align-middle text-right italic text-xs mb-3 text-[#008080]/70 select-none`}
           >
             <InformationCircleIcon width={15} className="mr-1" />{" "}
-            <p>Filters Applied</p>
+            <p>Search/Filters Applied</p>
           </div>
 
-          <div className="mb-4 flex gap-2 items-stretch min-w-0">
-            <input
-              type="text"
-              placeholder="Search by ID, email, or name..."
-              className="flex-1 p-2 border border-gray-300 rounded-md text-sm min-w-0"
-              value={searchInput}
-              onChange={(e) => handleSearchInputChange(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  performSearch();
-                }
-              }}
-            />
+          <div className="mb-4 flex items-stretch min-w-0">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                type="text"
+                placeholder="Search by ID, email, or name..."
+                className="pl-10 pr-10 py-2 border border-gray-300 rounded-md text-sm min-w-0"
+                value={searchInput}
+                onChange={(e) => handleSearchInputChange(e.target.value)}
+              />
 
-            <div className="flex gap-2 shrink-0">
-              <Button
-                onClick={performSearch}
-                className="hidden sm:block whitespace-nowrap"
-              >
-                Search
-              </Button>
-              <Button onClick={performSearch} className="block sm:hidden px-3">
-                <SearchIcon color="white" className="w-4 h-4" />
-              </Button>
-
-              {apiFilters.search && (
-                <>
-                  <Button
-                    onClick={clearSearch}
-                    variant="secondary"
-                    className="hidden sm:block whitespace-nowrap"
-                  >
-                    Clear
-                  </Button>
-                  <Button
-                    onClick={clearSearch}
-                    variant="secondary"
-                    className="block sm:hidden px-3"
-                  >
-                    <XIcon className="w-4 h-4" />
-                  </Button>
-                </>
+              {searchInput && (
+                <X
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 cursor-pointer hover:text-gray-600"
+                  onClick={() => {
+                    clearSearch();
+                  }}
+                />
               )}
             </div>
           </div>
 
-          <DataTable
-            columns={employeeCols}
-            data={transformedUsers}
-            onRowClick={(row) => navigate(`/hris/employees/${row.employee_id}`)}
-            totalRows={total}
-            page={page}
-            totalPages={totalPages}
-            pageSize={pageSize}
-            setPage={setPage}
-            setPageSize={setPageSize}
-          />
+          {/* Show subtle loading indicator in table area for both search and filter changes */}
+          <div className="relative">
+            {(searchLoading || loading) && (
+              <div className="absolute inset-0 bg-white/70 z-10 flex items-center justify-center rounded-lg">
+                <LoadingAnimation size={60} withText={false} />
+              </div>
+            )}
+            <DataTable
+              columns={employeeCols}
+              data={transformedUsers}
+              onRowClick={(row) =>
+                navigate(`/hris/employees/${row.employee_id}`)
+              }
+              totalRows={total}
+              page={page}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              setPage={setPage}
+              setPageSize={setPageSize}
+            />
+          </div>
         </div>
 
         {/* Desktop filters sidebar */}
@@ -317,7 +317,6 @@ const AllEmployeesPage = () => {
             onApply={handleApplyFilters}
             localFilters={localFilters}
             setLocalFilters={setLocalFilters}
-            hasFiltersApplied={hasFiltersApplied}
             handleReset={handleReset}
             hasActiveFilters={hasActiveFilters}
           />

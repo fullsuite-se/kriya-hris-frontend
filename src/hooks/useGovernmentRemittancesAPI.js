@@ -1,39 +1,27 @@
 
 import { addGovernmentRemittanceAPI, fetchAllGovernmentRemittancesAPI } from "@/services/governmentRemittancesAPI";
-import { useCallback, useEffect, useState } from "react";
-
-
-
-
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 export const useFetchGovernmentRemittancesAPI = () => {
-  const [allGovernmentRemittances, setAllGovernmentRemittances] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  const fetchGovernmentRemittances = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetchAllGovernmentRemittancesAPI();
-      console.log("Government Remittances fetched successfully:", response);
-      setAllGovernmentRemittances(response || []);
-    } catch (err) {
-      console.error("Failed to fetch Government Remittances:", err);
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchGovernmentRemittances();
-  }, [fetchGovernmentRemittances]);
+  const {
+    data: allGovernmentRemittances = [],
+    isLoading: loading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["governmentRemittances"],
+    queryFn: fetchAllGovernmentRemittancesAPI,
+    staleTime: 1000 * 60 * 10,
+    cacheTime: 1000 * 60 * 15,
+    refetchOnWindowFocus: false,
+  });
 
   return {
     allGovernmentRemittances,
     loading,
-    error,
-    refetch: fetchGovernmentRemittances,
+    error: isError ? error : null,
+    refetch,
   };
 };
 

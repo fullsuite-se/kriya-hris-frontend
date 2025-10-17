@@ -1,11 +1,7 @@
 import CustomDialog from "@/components/dialog/CustomDialog";
 import LoadingAnimation from "@/components/Loading";
-import getEmployeeTypesColumns from "@/components/table/columns/EmployeeTypesColumns";
-import getEmploymentStatusColumns from "@/components/table/columns/EmploymentStatusColumns";
 import getGovernmentRemittancesColumns from "@/components/table/columns/GovernmentRemittancesColumns";
-import getJobLevelsColumns from "@/components/table/columns/JobLevelsColumns";
-import getJobPositionColumns from "@/components/table/columns/JobPositionsColumns";
-import getSalaryTypesColumns from "@/components/table/columns/SalaryTypesColumns";
+
 import DataTable from "@/components/table/table-components/DataTable";
 import { Button } from "@/components/ui/button";
 import { glassToast } from "@/components/ui/glass-toast";
@@ -15,29 +11,10 @@ import {
   useFetchGovernmentRemittancesAPI,
 } from "@/hooks/useGovernmentRemittancesAPI";
 import {
-  useAddJobAPI,
-  useDeleteJobAPI,
-  useEditJobAPI,
-  useFetchAllJobsAPI,
-} from "@/hooks/useJobAPI";
-import {
-  useAddEmployeeTypeAPI,
-  useAddEmploymentStatusAPI,
-  useAddJobLevelAPI,
-  useAddSalaryTypeAPI,
-  useFetchEmployeeTypesAPI,
-  useFetchEmploymentStatusAPI,
-  useFetchJobLevelsAPI,
-  useFetchSalaryTypesAPI,
-} from "@/hooks/useJobSettingsAPI";
-import { useAuthStore } from "@/stores/useAuthStore";
-import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
-  InformationCircleIcon,
 } from "@heroicons/react/24/solid";
-import { use, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {  useState } from "react";
 
 export const GovernmentRemittanceTab = () => {
   const { allGovernmentRemittances, refetch: refetchAllGovernmentRemittances, loading, error } =

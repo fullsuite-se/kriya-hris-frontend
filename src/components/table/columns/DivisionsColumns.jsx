@@ -4,7 +4,12 @@ import CustomDialog from "@/components/dialog/CustomDialog";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 
-export const getDivisionsColumns = ({ onEdit, onDelete }) => [
+export const getDivisionsColumns = ({
+  onEdit,
+  onDelete,
+  editLoading,
+  deleteLoading,
+}) => [
   {
     accessorKey: "division_name",
     header: "Division",
@@ -33,14 +38,14 @@ export const getDivisionsColumns = ({ onEdit, onDelete }) => [
   },
   {
     id: "actions",
-    header: () => <div className="text-right mr-1 sm:mr-3">Actions</div>,
+    // header: () => <div className="text-right mr-1 sm:mr-3">Actions</div>,
     cell: ({ row }) => {
       const { division_id, division_name } = row.original;
 
       const [editDialogOpen, setEditDialogOpen] = useState(false);
 
       return (
-        <div className="flex justify-start w-full gap-2 sm:gap-5">
+        <div className="flex justify-end w-full gap-2 sm:gap-5">
           <CustomDialog
             open={editDialogOpen}
             onOpenChange={setEditDialogOpen}
@@ -53,6 +58,7 @@ export const getDivisionsColumns = ({ onEdit, onDelete }) => [
               </button>
             }
             title="Edit Division"
+            loading={editLoading}
             description={`Modify details for "${division_name}"`}
             confirmLabel="Save Changes"
             onConfirm={async (formData) => {
@@ -80,6 +86,7 @@ export const getDivisionsColumns = ({ onEdit, onDelete }) => [
               </button>
             }
             title="Confirm Delete"
+            loading={deleteLoading}
             description={`Delete "${division_name}"? Employees using this will have no division.`}
             confirmLabel="Yes, delete"
             cancelLabel="Cancel"

@@ -5,7 +5,7 @@ const nameLikeFields = [
   "nickname",
   "birthplace",
   "nationality",
-  "name",
+  "fullname",
   "fname",
   "mname",
   "lname",

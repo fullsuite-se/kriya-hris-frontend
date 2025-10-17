@@ -1,71 +1,74 @@
 import { useMemo, useEffect, useState } from "react";
 import { useController } from "react-hook-form";
 import ControlledDynamicComboBox from "./ControlledDynamicComboBox";
-import { useFetchOfficesAPI } from "@/hooks/useCompanyAPI";
+import { useFetchCompanyEmployersAPI } from "@/hooks/useCompanyAPI";
 
-export default function OfficeSearchComboBox({
+export default function CompanyEmployerSearchComboBox({
   name,
   control,
-  label = "Office",
+  label = "Employer",
   required = false,
   initialValue = null,
   value: controlledValue,
   onChange: controlledOnChange,
 }) {
-  const { allOffices, loading } = useFetchOfficesAPI();
+  const { allCompanyEmployers, loading } = useFetchCompanyEmployersAPI();
   const [selectedObject, setSelectedObject] = useState(null);
 
-  // Support both RHF and external control
+  // handle both RHF-controlled and standalone modes
   const rhf = control && name ? useController({ name, control }) : null;
+
   const field = rhf?.field ?? {
     value: controlledValue,
     onChange: controlledOnChange,
   };
+
   const error = rhf?.fieldState?.error;
 
-  // Memoized office options
-  const officeOptions = useMemo(() => {
-    if (!allOffices) return [];
-    return [...allOffices]
-      .sort((a, b) => (a.office_name || "").localeCompare(b.office_name || ""))
-      .map((office) => ({
-        id: office.office_id,
-        name: office.office_name,
-        address: office.office_address || "---",
+  // prepare options
+  const companyEmployerOptions = useMemo(() => {
+    if (!allCompanyEmployers) return [];
+    return [...allCompanyEmployers]
+      .sort((a, b) =>
+        (a.company_employer_name || "").localeCompare(b.company_employer_name || "")
+      )
+      .map((companyEmployer) => ({
+        id: companyEmployer.company_employer_id,
+        name: companyEmployer.company_employer_name,
       }));
-  }, [allOffices]);
+  }, [allCompanyEmployers]);
 
-  // Set initial value if provided
+  // handle initialValue
   useEffect(() => {
-    if (initialValue && officeOptions.length && rhf) {
+    if (initialValue && companyEmployerOptions.length && rhf) {
       const found =
-        officeOptions.find((o) => o.id === initialValue) || null;
+        companyEmployerOptions.find((o) => o.id === initialValue) || null;
       setSelectedObject(found);
       field.onChange(found?.id ?? null);
     }
-  }, [initialValue, officeOptions, rhf]);
+  }, [initialValue, companyEmployerOptions, rhf]);
 
-  // Sync selected object when value changes externally
+  // sync field value with selected object
   useEffect(() => {
-    if (field.value && officeOptions.length) {
-      const found = officeOptions.find((o) => o.id === field.value) || null;
+    if (field.value && companyEmployerOptions.length) {
+      const found =
+        companyEmployerOptions.find((o) => o.id === field.value) || null;
       setSelectedObject(found);
     } else if (!field.value) {
       setSelectedObject(null);
     }
-  }, [field.value, officeOptions]);
+  }, [field.value, companyEmployerOptions]);
 
   return (
     <div className="space-y-1">
       <ControlledDynamicComboBox
-        options={officeOptions}
+        options={companyEmployerOptions}
         valueKey="id"
         label={label}
         required={required}
         value={selectedObject}
         onChange={(selected) => {
           if (selected?.id === selectedObject?.id) {
-            // Deselect same option
             setSelectedObject(null);
             field.onChange?.(null);
           } else {
@@ -73,9 +76,8 @@ export default function OfficeSearchComboBox({
             field.onChange?.(selected?.id ?? null);
           }
         }}
-        getSearchable={(o) => `${o.name} ${o.address}`.toLowerCase()}
+        getSearchable={(o) => o.name.toLowerCase()}
         getOptionLabel={(o) => o.name}
-        getOptionSubLabel={(o) => o.address}
         placeholder={loading ? "Loading..." : "Select"}
         error={error?.message}
       />

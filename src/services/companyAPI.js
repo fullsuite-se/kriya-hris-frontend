@@ -33,6 +33,8 @@ export const editCompanyDetailsAPI = async (company_id, updateData) => {
   }
 };
 
+//offices
+
 export const fetchOfficesAPI = async (company_id) => {
   try {
     const response = await api.get(`/api/companies/${company_id}/offices`);
@@ -94,6 +96,21 @@ export const editOfficeAPI = async (
   } catch (error) {
     console.error("Failed to update office:", error);
     throw error;
+  }
+};
+
+
+//employers
+
+
+export const fetchCompanyEmployersAPI = async () => {
+  try {
+    const response = await api.get(`/api/companies/employers`);
+    console.log("Company Employers fetched successfully:", response.data.company_employers);
+    return response.data.company_employers;
+  } catch (error) {
+    console.error("Failed to fetch Company Employers:", error);
+    return null;
   }
 };
 

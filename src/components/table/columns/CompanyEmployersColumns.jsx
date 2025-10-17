@@ -4,15 +4,21 @@ import CustomDialog from "@/components/dialog/CustomDialog";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 
-export const getEmploymentStatusColumns = ({ onEdit, onDelete }) => [
+export const getCompanyEmployersColumns = ({
+  onEdit,
+  onDelete,
+  editLoading,
+  deleteLoading,
+}) => [
   {
-    accessorKey: "employment_status",
-    header: "Employment Status",
+    accessorKey: "company_employer_name",
+    header: "Employer",
     cell: ({ row }) => {
-      const employmentStatus = row.original.employment_status;
-      return <span className="text-xs">{employmentStatus || "---"}</span>;
+      const company_employer_name = row.original.company_employer_name;
+      return <span className="text-xs">{company_employer_name || "---"}</span>;
     },
   },
+
   {
     accessorKey: "created_at",
     header: "Date Created",
@@ -35,7 +41,7 @@ export const getEmploymentStatusColumns = ({ onEdit, onDelete }) => [
     id: "actions",
     // header: () => <div className="text-right mr-1 sm:mr-3">Actions</div>,
     cell: ({ row }) => {
-      const { employment_status_id, employment_status } = row.original;
+      const { company_employer_id, company_employer_name } = row.original;
 
       const [editDialogOpen, setEditDialogOpen] = useState(false);
 
@@ -52,23 +58,32 @@ export const getEmploymentStatusColumns = ({ onEdit, onDelete }) => [
                 <Pencil size={16} />
               </button>
             }
-            title="Edit Employment Status"
-            description={`Modify details for "${employment_status}"`}
+            height="md"
+            title="Edit Employer"
+            loading={editLoading}
+            description={`Modify details for "${company_employer_name}"`}
             confirmLabel="Save Changes"
             onConfirm={async (formData) => {
-              await onEdit(formData, employment_status_id, employment_status);
+              await onEdit(
+                formData,
+                company_employer_id,
+                company_employer_name,
+              );
               setEditDialogOpen(false);
             }}
           >
-            <div className="space-y-2">
-              <label className="text-xs font-medium block">
-                Employment Status
-              </label>
-              <Input
-                name="employment_status"
-                defaultValue={employment_status}
-                // className="border rounded px-2 py-1 w-full"
-              />
+            <div className="flex flex-col gap-4">
+              <div className="space-y-2">
+                <label className="text-xs font-medium block">
+                  Employer<span className="text-primary-color">*</span>
+                </label>
+                <Input
+                  name="company_employer_name"
+                  defaultValue={company_employer_name}
+                  // className="border rounded px-2 py-1 w-full"
+                />
+              </div>
+             
             </div>
           </CustomDialog>
 
@@ -82,10 +97,11 @@ export const getEmploymentStatusColumns = ({ onEdit, onDelete }) => [
               </button>
             }
             title="Confirm Delete"
-            description={`Delete "${employment_status}"? Employees using this will have no employment status.`}
+            loading={deleteLoading}
+            description={`Delete "${company_employer_name}"? Employees using this will have no employer.`}
             confirmLabel="Yes, delete"
             cancelLabel="Cancel"
-            onConfirm={() => onDelete(employment_status_id, employment_status)}
+            onConfirm={() => onDelete(company_employer_id, company_employer_name)}
           />
         </div>
       );
@@ -94,4 +110,4 @@ export const getEmploymentStatusColumns = ({ onEdit, onDelete }) => [
   },
 ];
 
-export default getEmploymentStatusColumns;
+export default getCompanyEmployersColumns;

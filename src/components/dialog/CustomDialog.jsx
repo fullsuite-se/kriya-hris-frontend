@@ -26,20 +26,20 @@ const heightClasses = {
   full: "max-h-[90vh]",
 };
 
-const titleSizes={
+const titleSizes = {
   xs: "text-xs",
   sm: "text-sm",
   md: "text-md",
   lg: "text-lg",
   xl: "text-xl",
-}
+};
 
 const CustomDialog = ({
   open,
   onOpenChange,
   trigger,
   title = "Dialog Title",
-  titleSize="lg",
+  titleSize = "lg",
   description = "",
   className = "",
   children,
@@ -67,14 +67,14 @@ const CustomDialog = ({
   };
 
   return (
-    <Dialog {...dialogProps}>
+    <Dialog {...dialogProps} modal={true}>
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
 
       <DialogContent
         className={`
           ${widthClasses[width] || widthClasses.sm}
           ${heightClasses[height] || heightClasses.sm}
-          ${scrollable ? "overflow-y-auto" : ""}
+          flex flex-col
           ${className}
         `}
         onInteractOutside={
@@ -84,10 +84,11 @@ const CustomDialog = ({
           allowOutsideInteraction ? undefined : (e) => e.preventDefault()
         }
         showCloseButton={isShownCloseButton}
-        
       >
-        <DialogHeader>
-          <DialogTitle className={`${titleSizes[titleSize]}`}>{title}</DialogTitle>
+        <DialogHeader className="flex-shrink-0">
+          <DialogTitle className={`${titleSizes[titleSize]}`}>
+            {title}
+          </DialogTitle>
           {description && (
             <DialogDescription className="text-xs">
               {description}
@@ -95,11 +96,20 @@ const CustomDialog = ({
           )}
         </DialogHeader>
 
-        <form onSubmit={handleSubmit}>
-          {children && <div className="py-2">{children}</div>}
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+          {children && (
+            <div
+              className={`
+    py-2 flex-1 
+    ${scrollable ? "overflow-y-auto overflow-x-hidden custom-scrollbar" : ""}
+  `}
+            >
+              {children}
+            </div>
+          )}
 
           {showFooter && (
-            <DialogFooter className="mt-4">
+            <DialogFooter className="mt-4 flex-shrink-0">
               {!hideCancel && (
                 <DialogClose asChild>
                   <Button type="button" variant="outline" onClick={onCancel}>

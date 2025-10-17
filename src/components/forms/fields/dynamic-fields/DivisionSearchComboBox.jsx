@@ -9,15 +9,23 @@ export default function DivisionSearchComboBox({
   label = "Division",
   required = false,
   initialValue = null,
+  value: controlledValue,
+  onChange: controlledOnChange,
 }) {
-  const {
-    field,
-    fieldState: { error },
-  } = useController({ name, control });
-
   const { allDivisions, loading } = useFetchDivisionsAPI();
   const [selectedObject, setSelectedObject] = useState(null);
 
+  // Handles both react-hook-form or standalone controlled component
+  const rhf = control && name ? useController({ name, control }) : null;
+
+  const field = rhf?.field ?? {
+    value: controlledValue,
+    onChange: controlledOnChange,
+  };
+
+  const error = rhf?.fieldState?.error;
+
+  // Prepare dropdown options
   const divisionOptions = useMemo(() => {
     if (!allDivisions) return [];
     return [...allDivisions]
@@ -30,13 +38,24 @@ export default function DivisionSearchComboBox({
       }));
   }, [allDivisions]);
 
+  // Handle preloaded initialValue
   useEffect(() => {
-    if (initialValue && divisionOptions.length) {
+    if (initialValue && divisionOptions.length && rhf) {
       const found = divisionOptions.find((d) => d.id === initialValue) || null;
       setSelectedObject(found);
       field.onChange(found?.id ?? null);
     }
-  }, [initialValue, divisionOptions]);
+  }, [initialValue, divisionOptions, rhf]);
+
+  // Keep selectedObject in sync with field value
+  useEffect(() => {
+    if (field.value && divisionOptions.length) {
+      const found = divisionOptions.find((d) => d.id === field.value) || null;
+      setSelectedObject(found);
+    } else if (!field.value) {
+      setSelectedObject(null);
+    }
+  }, [field.value, divisionOptions]);
 
   return (
     <div className="space-y-1">
@@ -47,8 +66,13 @@ export default function DivisionSearchComboBox({
         required={required}
         value={selectedObject}
         onChange={(selected) => {
-          setSelectedObject(selected);
-          field.onChange(selected?.id ?? null);
+          if (selected?.id === selectedObject?.id) {
+            setSelectedObject(null);
+            field.onChange?.(null);
+          } else {
+            setSelectedObject(selected);
+            field.onChange?.(selected?.id ?? null);
+          }
         }}
         getSearchable={(d) => d.name.toLowerCase()}
         getOptionLabel={(d) => d.name}

@@ -16,6 +16,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Label } from "@radix-ui/react-label";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function ControlledDynamicComboBox({
   options = [],
@@ -38,8 +39,8 @@ export default function ControlledDynamicComboBox({
 
     return String(item?.id ?? "");
   },
-
   getOptionSubLabel = (item) => (typeof item === "object" ? item.email : ""),
+  getUserPic = (item) => (typeof item === "object" ? item.user_pic : null),
   name,
   valueKey = "id",
   value = null,
@@ -61,6 +62,34 @@ export default function ControlledDynamicComboBox({
     return item === value;
   });
 
+  const shouldRenderAvatar = (item) => {
+    const userPic = getUserPic(item);
+    return userPic !== null && userPic !== undefined && userPic !== '';
+  };
+
+  const getAvatarSrc = (item) => {
+    const userPic = getUserPic(item);
+    if (userPic && !userPic.startsWith('initials:')) {
+      return userPic; 
+    }
+    return undefined;
+  };
+
+  const getAvatarFallback = (item) => {
+    const userPic = getUserPic(item);
+    if (userPic && userPic.startsWith('initials:')) {
+      return userPic.replace('initials:', '');
+    }
+    
+    if (typeof item === 'object') {
+      const firstName = item.fname || item.first_name || '';
+      const lastName = item.lname || item.last_name || '';
+      return `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase() || '??';
+    }
+    
+    return '??';
+  };
+
   const handleSelect = (searchableValue) => {
     const matched = options.find((item) => {
       const itemSearchable =
@@ -75,7 +104,7 @@ export default function ControlledDynamicComboBox({
   };
 
   return (
-    <div className="flex flex-col gap-1 ">
+    <div className="flex flex-col gap-1">
       {label && (
         <Label htmlFor={name} className="text-xs font-medium gap-0">
           {label}
@@ -83,7 +112,7 @@ export default function ControlledDynamicComboBox({
         </Label>
       )}
 
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover open={open} onOpenChange={setOpen} modal={true}>
         <PopoverTrigger asChild>
           <Button
             disabled={disabled}
@@ -95,22 +124,37 @@ export default function ControlledDynamicComboBox({
               "bg-transparent justify-between text-xs font-normal",
               width,
               error && "border-red-500 ring-1 ring-red-500",
-              "min-h-9" // Ensure consistent height
+              "min-h-9"
             )}
           >
-            <span 
-              className="truncate flex-1 text-left overflow-hidden"
-              title={selectedItem ? getOptionLabel(selectedItem) : placeholder}
-            >
-              {selectedItem ? getOptionLabel(selectedItem) : placeholder}
-            </span>
+            <div className="flex items-center gap-2 truncate flex-1 text-left overflow-hidden">
+              {selectedItem && shouldRenderAvatar(selectedItem) && (
+                <Avatar className="h-5 w-5 flex-shrink-0">
+                  <AvatarImage 
+                    src={getAvatarSrc(selectedItem)} 
+                    alt={getOptionLabel(selectedItem)}
+                  />
+                  <AvatarFallback className="bg-[#008080] text-white text-[8px]">
+                    {getAvatarFallback(selectedItem)}
+                  </AvatarFallback>
+                </Avatar>
+              )}
+              <span title={selectedItem ? getOptionLabel(selectedItem) : placeholder}>
+                {selectedItem ? getOptionLabel(selectedItem) : placeholder}
+              </span>
+            </div>
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className={cn("p-0", width)}>
+        <PopoverContent
+          className={cn("p-0", width)}
+          sideOffset={5}
+          align="start"
+          style={{ zIndex: 9999 }}
+        >
           <Command>
             <CommandInput placeholder="Search..." className="h-9" />
-            <CommandList>
+            <CommandList className="max-h-[300px] overflow-y-scroll">
               <CommandEmpty>{noResultsLabel}</CommandEmpty>
               <CommandGroup>
                 {options.map((item) => {
@@ -121,6 +165,7 @@ export default function ControlledDynamicComboBox({
                   const isSelected = isObject
                     ? value?.[valueKey] === item?.[valueKey]
                     : value === item;
+                  const shouldShowAvatar = shouldRenderAvatar(item);
 
                   return (
                     <CommandItem
@@ -129,21 +174,36 @@ export default function ControlledDynamicComboBox({
                       onSelect={handleSelect}
                       className="flex items-center justify-between"
                     >
-                      <div className="flex flex-col min-w-0 flex-1">
-                        <span 
-                          className="text-sm font-medium truncate"
-                          title={label}
-                        >
-                          {label}
-                        </span>
-                        {subLabel && (
-                          <span 
-                            className="text-xs text-muted-foreground truncate"
-                            title={subLabel}
-                          >
-                            {subLabel}
-                          </span>
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        {shouldShowAvatar && (
+                          <Avatar className="h-8 w-8 flex-shrink-0">
+                            <AvatarImage 
+                              src={getAvatarSrc(item)} 
+                              alt={label}
+                            />
+                            <AvatarFallback className="bg-[#008080] text-white text-xs">
+                              {getAvatarFallback(item)}
+                            </AvatarFallback>
+                          </Avatar>
                         )}
+                        <div className="flex flex-col min-w-0 flex-1" style={{
+                          marginLeft: shouldShowAvatar ? '0' : '0'
+                        }}>
+                          <span
+                            className="text-sm font-medium truncate"
+                            title={label}
+                          >
+                            {label}
+                          </span>
+                          {subLabel && (
+                            <span
+                              className="text-xs text-muted-foreground truncate"
+                              title={subLabel}
+                            >
+                              {subLabel}
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <Check
                         className={cn(

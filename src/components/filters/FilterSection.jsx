@@ -14,6 +14,8 @@ import { Calendar as CalendarIcon, ChevronDown, ChevronUp } from "lucide-react";
 import DepartmentSearchComboBox from "../forms/fields/dynamic-fields/DepartmentSearchComboBox";
 import EmployeeSearchComboBox from "../forms/fields/dynamic-fields/EmployeeSearchComboBox";
 import JobPositionSearchComboBox from "../forms/fields/dynamic-fields/JobPositionSearchComboBox";
+import OfficeSearchComboBox from "../forms/fields/dynamic-fields/OfficeSearchComboBox";
+import CompanyEmployerSearchComboBox from "../forms/fields/dynamic-fields/CompanyEmployerSearchComboBox";
 
 export function FilterSection({ filter, values, onChange }) {
   const [isOpen, setIsOpen] = useState(true);
@@ -30,7 +32,7 @@ export function FilterSection({ filter, values, onChange }) {
         onClick={toggleOpen}
       >
         <h4
-          className={`text-sm font-semibold ${isOpen ? "text-[#008080]" : ""}`}
+          className={`text-xs font-semibold ${isOpen ? "text-[#008080]" : ""}`}
         >
           {filter.label}
         </h4>
@@ -154,9 +156,28 @@ export function FilterSection({ filter, values, onChange }) {
             </>
           )}
 
+          {filter.type === FILTER_TYPES.DROPDOWN && filter.key === "office" && (
+            <OfficeSearchComboBox
+              value={values || null}
+              onChange={onChange}
+              label={""}
+              required={false}
+            />
+          )}
+
           {filter.type === FILTER_TYPES.DROPDOWN &&
             filter.key === "department" && (
               <DepartmentSearchComboBox
+                value={values || null}
+                onChange={onChange}
+                label={""}
+                required={false}
+              />
+            )}
+
+          {filter.type === FILTER_TYPES.DROPDOWN &&
+            filter.key === "employer" && (
+              <CompanyEmployerSearchComboBox
                 value={values || null}
                 onChange={onChange}
                 label={""}

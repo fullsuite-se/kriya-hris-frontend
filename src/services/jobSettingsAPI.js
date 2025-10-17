@@ -30,6 +30,18 @@ export const fetchEmploymentStatusAPI = async () => {
   }
 };
 
+
+export const editEmploymentStatusAPI = async ({ employment_status_id, employment_status }) => {
+  try {
+    const response = await api.patch(`/api/hris-user-accounts/employment-info/employment-statuses/${employment_status_id}`, { employment_status });
+    console.log("Employment Status updated successfully:", response.data.status);
+    return response.data.status;
+  } catch (error) {
+    console.error("Failed to update Employment Status:", error);
+    throw error;
+  }
+};
+
 //job levels
 
 export const addJobLevelAPI = async ({

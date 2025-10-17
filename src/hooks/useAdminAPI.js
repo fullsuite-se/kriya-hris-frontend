@@ -1,29 +1,34 @@
 import { addFeatureAccessPermissionAPI, addServicePermissionAPI, deleteAccessPermissionsAPI, deleteServicePermissionsAPI, fetchAllUsersWithPermissionsAPI, fetchFeaturesAndServicesAPI, fetchFeaturesByUserIdAPI, fetchServicesByUserIdAPI } from "@/services/adminAPI";
-import { useCallback, useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect, useState, useMemo, useRef } from "react";
+
+
 
 export const useFetchFeaturesAndServicesAPI = (serviceId) => {
-  const [servicesAndFeatures, setServicesAndFeatures] = useState([]);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const queryKey = useMemo(() =>
+    ['servicesAndFeatures', serviceId || 'all'],
+    [serviceId]
+  );
 
-  useEffect(() => {
-    const fetchFeaturesAndServices = async () => {
-      setLoading(true);
-      try {
-        const response = await fetchFeaturesAndServicesAPI(serviceId);
-        setServicesAndFeatures(response || []);
-      } catch (err) {
-        console.error("Failed to fetch services and features:", err);
-        setError(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const {
+    data: servicesAndFeatures = [],
+    error,
+    isLoading: loading,
+  } = useQuery({
+    queryKey,
+    queryFn: () => fetchFeaturesAndServicesAPI(serviceId),
+    staleTime: 30 * 60 * 1000, // 30 minutes
+    cacheTime: 60 * 60 * 1000, // 1 hour
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
 
-    fetchFeaturesAndServices();
-  }, [serviceId]);
-
-  return { servicesAndFeatures, error, loading };
+  return {
+    servicesAndFeatures,
+    error,
+    loading
+  };
 };
 
 export const useFetchServicesByUserIdAPI = (user_id) => {
@@ -78,95 +83,125 @@ export const useFetchFeaturesByUserIdAPI = (user_id) => {
   return { features, loading, error };
 }
 
-
-
 export const useFetchAllUsersWithPermissionsAPI = (initialFilters = {}) => {
-  const [allSystemUsers, setAllSystemUsers] = useState([]);
-  const [counts, setCounts] = useState({
+  const queryClient = useQueryClient();
+  const [filters, setFilters] = useState(initialFilters);
+  const [searchInput, setSearchInput] = useState("");
+  const [isSearching, setIsSearching] = useState(false); 
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  // --- counts query (unchanged)
+  const countsQueryKey = ['allUsersPermissionsCounts'];
+
+  const usersQueryKey = useMemo(
+    () => ['allUsersWithPermissions', { ...filters, page, pageSize }],
+    [filters, page, pageSize]
+  );
+
+  const { data: countsData } = useQuery({
+    queryKey: countsQueryKey,
+    queryFn: () => fetchAllUsersWithPermissionsAPI([], [], 1, 1, ""),
+    staleTime: Infinity,
+    cacheTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    select: (data) => ({
+      allCount: data?.allCount || 0,
+      suiteliferCount: data?.suiteliferCount || 0,
+      hrisCount: data?.hrisCount || 0,
+      atsCount: data?.atsCount || 0,
+      payrollCount: data?.payrollCount || 0,
+    }),
+  });
+
+  const {
+    data: queryData,
+    error,
+    isLoading: loading,
+    isFetching,
+    refetch: refetchUsers,
+  } = useQuery({
+    queryKey: usersQueryKey,
+    queryFn: () =>
+      fetchAllUsersWithPermissionsAPI(
+        filters.serviceIds || [],
+        filters.serviceFeatureIds || [],
+        page,
+        pageSize,
+        filters.search || ""
+      ),
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 30 * 60 * 1000,
+    keepPreviousData: true,
+    refetchOnWindowFocus: false,
+    onSettled: () => setIsSearching(false),
+  });
+
+  const allSystemUsers = queryData?.users || [];
+  const total = queryData?.pagination?.total || 0;
+  const totalPages = Math.ceil(total / pageSize);
+
+  const counts = countsData || {
     allCount: 0,
     suiteliferCount: 0,
     hrisCount: 0,
     atsCount: 0,
     payrollCount: 0,
-  });
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState(initialFilters);
-  const [searchInput, setSearchInput] = useState("");
-
-  const fetchData = async (currentFilters = filters) => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const data = await fetchAllUsersWithPermissionsAPI(
-        currentFilters.serviceIds || [],
-        currentFilters.serviceFeatureIds || [],
-        page,
-        pageSize,
-        currentFilters.search || ""
-      );
-
-      if (data) {
-        setAllSystemUsers(data.users || []);
-        setCounts({
-          allCount: data.allCount || 0,
-          suiteliferCount: data.suiteliferCount || 0,
-          hrisCount: data.hrisCount || 0,
-          atsCount: data.atsCount || 0,
-          payrollCount: data.payrollCount || 0,
-        });
-
-        const totalCount = data.pagination?.total || 0;
-        setTotal(totalCount);
-        setTotalPages(Math.ceil(totalCount / pageSize));
-        if (data.pagination?.page) setPage(data.pagination.page);
-      }
-    } catch (err) {
-      setError(err.response?.data?.message || err.message || "Failed to fetch users");
-    } finally {
-      setLoading(false);
-    }
   };
 
-  const updateFilters = (newFilters) => {
-    setFilters(newFilters);
-    setPage(1);
-  };
+  const updateFilters = useCallback((newFilters) => {
+    setFilters((prev) =>
+      JSON.stringify(prev) === JSON.stringify(newFilters) ? prev : newFilters
+    );
+  }, []);
 
-  const handleSearchInputChange = (value) => {
+  const handleSearchInputChange = useCallback((value) => {
     setSearchInput(value);
-  };
+  }, []);
 
-  const handleSearch = (searchTerm) => {
-    const term = searchTerm || searchInput;
-    if (term.trim() === "") {
-      const { search: _, ...restFilters } = filters;
-      updateFilters(restFilters);
-    } else {
-      updateFilters({ ...filters, search: term.trim() });
-    }
-  };
+  const debouncedSearchRef = useRef(
+    debounce((searchTerm, currentFilters, updateFn) => {
+      if (searchTerm.trim() === "") {
+        const { search: _, ...rest } = currentFilters;
+        updateFn(rest);
+      } else {
+        updateFn({ ...currentFilters, search: searchTerm.trim() });
+      }
+    }, 300)
+  );
 
-  const clearSearch = () => {
+  const handleSearch = useCallback(
+    (searchTerm) => {
+      const term = searchTerm || searchInput;
+      setIsSearching(true); 
+      debouncedSearchRef.current(term, filters, updateFilters);
+      setPage(1);
+    },
+    [searchInput, filters, updateFilters]
+  );
+
+  const clearSearch = useCallback(() => {
     setSearchInput("");
-    const { search: _, ...restFilters } = filters;
-    updateFilters(restFilters);
-  };
+    const { search: _, ...rest } = filters;
+    updateFilters(rest);
+  }, [filters, updateFilters]);
 
-  const handlePageChange = (newPage) => setPage(newPage);
-  const handlePageSizeChange = (newPageSize) => {
+  const handlePageChange = useCallback((newPage) => setPage(newPage), []);
+  const handlePageSizeChange = useCallback((newPageSize) => {
     setPageSize(newPageSize);
     setPage(1);
-  };
+  }, []);
 
-  useEffect(() => {
-    fetchData();
-  }, [page, pageSize, JSON.stringify(filters)]);
+  const refetch = useCallback(async () => {
+    await Promise.all([
+      queryClient.invalidateQueries(countsQueryKey),
+      refetchUsers(),
+    ]);
+  }, [queryClient, countsQueryKey, refetchUsers]);
+
+  const tableLoading = isSearching && isFetching;
 
   return {
     allSystemUsers,
@@ -177,6 +212,7 @@ export const useFetchAllUsersWithPermissionsAPI = (initialFilters = {}) => {
     pageSize,
     error,
     loading,
+    tableLoading, 
     filters,
     searchInput,
     searchFilter: filters.search || "",
@@ -185,11 +221,23 @@ export const useFetchAllUsersWithPermissionsAPI = (initialFilters = {}) => {
     clearSearch,
     handlePageChange,
     handlePageSizeChange,
-    refetch: () => fetchData(),
+    refetch,
     updateFilters,
-
   };
 };
+
+
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
 
 
 export const useAddServicePermissionAPI = () => {

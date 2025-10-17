@@ -1,11 +1,7 @@
 import CustomDialog from "@/components/dialog/CustomDialog";
-
 import { useState, useContext, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import DatepickerField from "@/components/forms/fields/DatePickerField";
-import { employeeTimelineFormSchema } from "@/components/forms/schemas/employeeSchema";
-import { useEditEmployeeTimelineAPI } from "@/hooks/useEmployeeAPI";
 import { glassToast } from "@/components/ui/glass-toast";
 import {
   BuildingOffice2Icon,
@@ -18,8 +14,7 @@ import {
   MapPinIcon,
 } from "@heroicons/react/24/solid";
 import { sanitizeData } from "@/utils/parsers/sanitizeData";
-import { toYMDLocal } from "@/utils/formatters/dateFormatter";
-import useFetchCompanyDetailsAPI, {
+import  {
   useEditCompanyDetailsAPI,
 } from "@/hooks/useCompanyAPI";
 import TextField from "@/components/forms/fields/TextField";
@@ -33,8 +28,7 @@ const EditCompanyProfileDialog = ({ trigger }) => {
   const [confirmSubmitOpen, setConfirmSubmitOpen] = useState(false);
 
   const { editCompanyDetails, loading } = useEditCompanyDetailsAPI();
-
-  useFetchCompanyDetailsAPI();
+  
 
   const {
     companyEmail,
@@ -65,7 +59,6 @@ const EditCompanyProfileDialog = ({ trigger }) => {
       company_tin: "",
       business_type: "",
       industry_type: "",
-      // status: "",
       floor_bldg_street: "",
       barangay: "",
       city_municipality: "",
@@ -75,9 +68,10 @@ const EditCompanyProfileDialog = ({ trigger }) => {
     },
   });
 
+  // Reset form with current company data when dialog opens or company data changes
   useEffect(() => {
-    form.reset(
-      {
+    if (open) {
+      form.reset({
         company_name: companyName || "",
         company_trade_name: companyTradeName || "",
         company_email: companyEmail || "",
@@ -86,16 +80,26 @@ const EditCompanyProfileDialog = ({ trigger }) => {
         company_tin: companyTin || "",
         business_type: businessType || "",
         industry_type: industryType || "",
-        floor_bldg_street: companyAddress.floor_bldg_street || "",
-        barangay: companyAddress.barangay || "",
-        city_municipality: companyAddress.city_municipality || "",
-        province_region: companyAddress.province_region || "",
-        country: companyAddress.country || "",
-        postal_code: companyAddress.postal_code || "",
-      },
-      { keepDirty: false }
-    );
-  }, [form]);
+        floor_bldg_street: companyAddress?.floor_bldg_street || "",
+        barangay: companyAddress?.barangay || "",
+        city_municipality: companyAddress?.city_municipality || "",
+        province_region: companyAddress?.province_region || "",
+        country: companyAddress?.country || "",
+        postal_code: companyAddress?.postal_code || "",
+      });
+    }
+  }, [
+    open, 
+    companyName,
+    companyTradeName,
+    companyEmail,
+    companyPhone,
+    companyBrn,
+    companyTin,
+    businessType,
+    industryType,
+    companyAddress
+  ]);
 
   const onSaveChanges = async (data) => {
     try {
@@ -158,7 +162,6 @@ const EditCompanyProfileDialog = ({ trigger }) => {
         });
         setOpen(false);
         setConfirmSubmitOpen(false);
-        form.reset();
         return;
       }
 
@@ -166,25 +169,7 @@ const EditCompanyProfileDialog = ({ trigger }) => {
 
       const updatedCompany = await editCompanyDetails(cleanData);
 
-      form.reset({
-        company_name: updatedCompany?.companyInfo?.company_name || "",
-        company_trade_name:
-          updatedCompany.companyInfo?.company_trade_name || "",
-        company_email: updatedCompany?.company?.company_email || "",
-        company_phone: updatedCompany?.companyInfo?.company_phone || "",
-        company_brn: updatedCompany?.companyInfo?.company_brn || "",
-        company_tin: updatedCompany?.companyInfo?.company_tin || "",
-        business_type: updatedCompany?.companyInfo?.business_type || "",
-        industry_type: updatedCompany?.companyInfo?.industry_type || "",
-        floor_bldg_street:
-          updatedCompany?.companyAddress?.floor_bldg_street || "",
-        barangay: updatedCompany?.companyAddress?.barangay || "",
-        city_municipality:
-          updatedCompany?.companyAddress?.city_municipality || "",
-        province_region: updatedCompany?.companyAddress?.province_region || "",
-        country: updatedCompany?.companyAddress?.country || "",
-        postal_code: updatedCompany?.companyAddress?.postal_code || "",
-      });
+
 
       glassToast({
         message: (
@@ -202,7 +187,6 @@ const EditCompanyProfileDialog = ({ trigger }) => {
 
       setOpen(false);
       setConfirmSubmitOpen(false);
-      form.reset();
       console.log("Updated Company Profile:", updatedCompany);
     } catch (error) {
       glassToast({
@@ -217,36 +201,40 @@ const EditCompanyProfileDialog = ({ trigger }) => {
     }
   };
 
+  const handleOpenChange = (isOpen) => {
+    if (!isOpen) {
+      if (form.formState.isDirty) {
+        setConfirmCancelOpen(true);
+      } else {
+        setOpen(false);
+        form.reset();
+      }
+    } else {
+      setOpen(true);
+    }
+  };
+
   const confirmCancel = () => {
     setConfirmCancelOpen(false);
     setOpen(false);
     form.reset();
   };
+
   return (
     <div>
       <CustomDialog
         open={open}
-        onOpenChange={(isOpen) => {
-          if (!isOpen) {
-            if (form.formState.isDirty) {
-              setConfirmCancelOpen(true);
-            } else {
-              setOpen(false);
-              form.reset();
-            }
-          } else {
-            setOpen(true);
-          }
-        }}
+        onOpenChange={handleOpenChange}
         trigger={trigger}
         title="Update Company Profile"
         width="xl"
         height="full"
         confirmLabel="Save Changes"
         onConfirm={() => setConfirmSubmitOpen(true)}
+        loading={loading}
       >
-        <div className="grid grid-cols-1 sm:grid-cols-2  gap-4">
-          <div className="col-span-full flex items-center gap-2 text-[#008080]  text-xs font-semibold uppercase">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="col-span-full flex items-center gap-2 text-[#008080] text-xs font-semibold uppercase">
             <BuildingOffice2Icon className="h-4 w-4" />
             Company Identity
           </div>
@@ -262,7 +250,8 @@ const EditCompanyProfileDialog = ({ trigger }) => {
             control={form.control}
             required
           />
-          <div className="col-span-full flex items-center gap-2 text-[#008080]  text-xs font-semibold uppercase mt-4">
+          
+          <div className="col-span-full flex items-center gap-2 text-[#008080] text-xs font-semibold uppercase mt-4">
             <EnvelopeIcon className="h-4 w-4" />
             Contact Information
           </div>
@@ -279,7 +268,8 @@ const EditCompanyProfileDialog = ({ trigger }) => {
             control={form.control}
             required
           />
-          <div className="col-span-full flex items-center gap-2 text-[#008080]  text-xs font-semibold uppercase mt-4">
+          
+          <div className="col-span-full flex items-center gap-2 text-[#008080] text-xs font-semibold uppercase mt-4">
             <IdentificationIcon className="h-4 w-4" />
             Government Remittances
           </div>
@@ -295,7 +285,8 @@ const EditCompanyProfileDialog = ({ trigger }) => {
             control={form.control}
             required
           />
-          <div className="col-span-full flex items-center gap-2 text-[#008080]  text-xs font-semibold uppercase mt-4">
+          
+          <div className="col-span-full flex items-center gap-2 text-[#008080] text-xs font-semibold uppercase mt-4">
             <BriefcaseIcon className="h-4 w-4" />
             Business Information
           </div>
@@ -316,12 +307,7 @@ const EditCompanyProfileDialog = ({ trigger }) => {
             control={form.control}
             required
           />
-          {/* <TextField
-            name="status"
-            label="Status"
-            control={form.control}
-            required
-          /> */}
+          
           <div className="col-span-full flex items-center gap-2 text-[#008080] text-xs font-semibold uppercase mt-4">
             <MapPinIcon className="h-4 w-4" />
             Company Address
@@ -331,31 +317,31 @@ const EditCompanyProfileDialog = ({ trigger }) => {
             label="Building/House No., Street"
             control={form.control}
             required
-          />{" "}
+          />
           <TextField
             name="barangay"
             label="Barangay"
             control={form.control}
             required
-          />{" "}
+          />
           <TextField
             name="city_municipality"
             label="City/Municipality"
             control={form.control}
             required
-          />{" "}
+          />
           <TextField
             name="province_region"
             label="Province"
             control={form.control}
             required
-          />{" "}
+          />
           <TextField
             name="country"
             label="Country"
             control={form.control}
             required
-          />{" "}
+          />
           <TextField
             name="postal_code"
             label="Postal Code"
@@ -364,6 +350,7 @@ const EditCompanyProfileDialog = ({ trigger }) => {
           />
         </div>
       </CustomDialog>
+      
       <CustomDialog
         open={confirmCancelOpen}
         onOpenChange={setConfirmCancelOpen}
@@ -375,6 +362,7 @@ const EditCompanyProfileDialog = ({ trigger }) => {
         isShownCloseButton={false}
         allowOutsideInteraction={true}
       />
+      
       <CustomDialog
         open={confirmSubmitOpen}
         onOpenChange={setConfirmSubmitOpen}

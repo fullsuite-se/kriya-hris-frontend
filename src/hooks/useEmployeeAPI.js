@@ -12,42 +12,34 @@ import fetchEmployeeDetailsAPI, {
   editEmployeeTimelineAPI,
   fetchAllEmployeesAPI,
   fetchEmployeeCountsAPI,
+  fetchEmployeesForDropdownAPI,
   fetchLatestEmployeeIdAPI,
 } from "@/services/employeeAPI";
-import { use, useCallback, useContext, useEffect, useState } from "react";
+import { use, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { UserContext } from "../context/UserContext";
 import { EmployeeDetailsContext } from "@/context/EmployeeDetailsContext";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useAddAccessPermissionAPI, useAddServicePermissionAPI } from "./useAdminAPI";
-
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 
 //check availability emp id
 
 export const useCheckEmployeeIdAvailabilityAPI = () => {
-  const [isEmpIdAvailable, setIsEmpIdAvailable] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const { mutateAsync, data, isPending, error } = useMutation({
+    mutationFn: checkEmployeeIdAvailabilityAPI,
+  });
 
   const checkAvailability = async (userId) => {
-    if (!userId) {
-      setIsEmpIdAvailable(null);
-      return;
-    }
-    setLoading(true);
-    try {
-      const available = await checkEmployeeIdAvailabilityAPI(userId);
-      setIsEmpIdAvailable(available);
-    } catch {
-      setIsEmpIdAvailable(null);
-    } finally {
-      setLoading(false);
-    }
+    if (!userId) return null;
+    return await mutateAsync(userId);
   };
 
   return {
-    isEmpIdAvailable,
-    isEmpIdAvailableLoading: loading,
+    isEmpIdAvailable: data,
+    isEmpIdAvailableLoading: isPending,
     checkAvailability,
+    error,
   };
 };
 
@@ -74,241 +66,193 @@ export const useFetchLatestEmployeeIdAPI = () => {
   return { latestEmployeeId, loading };
 };
 
-//all
-//prod
-// export const useFetchAllEmployeesAPI = (filters = {}) => {
-//   const [allEmployees, setAllEmployees] = useState([]);
-//   const [error, setError] = useState(null);
-//   const [loading, setLoading] = useState(false);
 
-//   useEffect(() => {
-//     const fetchAllEmployees = async () => {
-//       setLoading(true);
-//       try {
-//         const response = await fetchAllEmployeesAPI(filters);
-//         setAllEmployees(response || []);
-//       } catch (err) {
-//         console.error("Failed to fetch all employees:", err);
-//         setError(err);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchAllEmployees();
-//   }, [JSON.stringify(filters)]);
-
-//   return { allEmployees, error, loading };
-// };
-
-//pagination
-// export const useFetchAllEmployeesAPI = (filters = {}) => {
-//   const [allEmployees, setAllEmployees] = useState([]);
-//   const [total, setTotal] = useState(0);
-//   const [page, setPage] = useState(1);       // keep current page in state
-//   const [totalPages, setTotalPages] = useState(1);
-//   const [pageSize, setPageSize] = useState(10); // rows per page
-//   const [error, setError] = useState(null);
-//   const [loading, setLoading] = useState(false);
-
-//   const fetchData = async () => {
-//     setLoading(true);
-//     try {
-//       const {
-//         users,
-//         total: totalCount,
-//         page: currentPage,
-//         totalPages: totalPageCount,
-//       } = await fetchAllEmployeesAPI({
-//         ...filters,
-//         page,
-//         limit: pageSize,
-//       });
-
-//       setAllEmployees(users);
-//       setTotal(totalCount);
-//       setTotalPages(totalPageCount);
-//       // if your backend echoes the current page, you can sync it:
-//       setPage(currentPage);
-//     } catch (err) {
-//       console.error("Failed to fetch all employees:", err);
-//       setError(err);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-
-//   useEffect(() => {
-//     fetchData();
-//   }, [JSON.stringify(filters), page, pageSize]);
-
-//   return {
-//     allEmployees,
-//     total,
-//     page,
-//     totalPages,
-//     pageSize,
-//     setPage,
-//     setPageSize,
-//     error,
-//     loading,
-//   };
-// };
-
-//page w search
 export const useFetchAllEmployeesAPI = (initialFilters = {}) => {
-  const [allEmployees, setAllEmployees] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState(initialFilters);
-  const [searchInput, setSearchInput] = useState(''); // Local search input state
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [searchInput, setSearchInput] = useState('');
+  const queryClient = useQueryClient();
 
-  const fetchData = async (currentFilters = filters) => {
-    setLoading(true);
-    try {
+  const queryKey = ['employees', { ...filters, page, pageSize }];
 
-      const backendFilters = {};
+  const {
+    data: employeesData,
+    error,
+    isLoading: loading,
+    isFetching: searchLoading,
+  } = useQuery({
+    queryKey,
+    queryFn: () => fetchAllEmployeesAPI({
+      ...filters,
+      page,
+      limit: pageSize,
+    }),
+    staleTime: 1000 * 60 * 20, // 20 minutes
+    cacheTime: 1000 * 60 * 30, // 25 minutes
+    keepPreviousData: true,
+    refetchOnWindowFocus: false,
+  });
 
-      if (currentFilters.status) {
-        backendFilters.status = currentFilters.status;
-      }
-      if (currentFilters.department) {
-        backendFilters.department = currentFilters.department;
-      }
-      if (currentFilters.job_position) {
-        backendFilters.job_position = currentFilters.job_position;
-      }
-      if (currentFilters.supervisor) {
-        backendFilters.supervisor = currentFilters.supervisor;
-      }
-      if (currentFilters.startdate) {
-        backendFilters.startdate = currentFilters.startdate;
-      }
-      if (currentFilters.enddate) {
-        backendFilters.enddate = currentFilters.enddate;
-      }
-      if (currentFilters.search) {
-        backendFilters.search = currentFilters.search;
-      }
-      const {
-        users,
-        total: totalCount,
-        page: currentPage,
-        totalPages: totalPageCount,
-      } = await fetchAllEmployeesAPI({
-        ...backendFilters,
-        page,
-        limit: pageSize,
-      });
-
-      setAllEmployees(users);
-      setTotal(totalCount);
-      setTotalPages(totalPageCount);
-      setPage(currentPage);
-    } catch (err) {
-      console.error("Failed to fetch all employees:", err);
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const debounceTimerRef = useRef(null);
 
   // Function to update filters and reset to page 1
   const updateFilters = (newFilters) => {
     setFilters(newFilters);
-    setPage(1); // Reset to first page when filters change
+    setPage(1);
   };
 
-  // Function to handle search input change
+  // Function to handle search input change with debouncing
   const handleSearchInputChange = (value) => {
     setSearchInput(value);
-  };
 
-  // Function to perform search (called when button is clicked)
-  const performSearch = () => {
-    if (searchInput.trim() === '') {
-      // If search is empty, remove the search filter
-      const { search: _, ...restFilters } = filters;
-      updateFilters(restFilters);
-    } else {
-      updateFilters({ ...filters, search: searchInput.trim() });
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
     }
-  };
 
-  // Function to handle specific field searches (immediate)
-  const handleFieldSearch = (fieldName, value) => {
-    if (value.trim() === '') {
-      // Remove the field filter if value is empty
-      const { [fieldName]: _, ...restFilters } = filters;
-      updateFilters(restFilters);
-    } else {
-      updateFilters({ ...filters, [fieldName]: value.trim() });
-    }
+    debounceTimerRef.current = setTimeout(() => {
+      const newFilters = { ...filters };
+
+      if (value.trim() === '') {
+        delete newFilters.search;
+      } else {
+        newFilters.search = value.trim();
+      }
+
+      updateFilters(newFilters);
+    }, 500);
   };
 
   // Function to clear search
   const clearSearch = () => {
     setSearchInput('');
-    const { search: _, ...restFilters } = filters;
-    updateFilters(restFilters);
+
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    const newFilters = { ...filters };
+    delete newFilters.search;
+    updateFilters(newFilters);
   };
 
+  // Prefetch next page
   useEffect(() => {
-    fetchData();
-  }, [page, pageSize, JSON.stringify(filters)]); // Include filters in dependency array
+    if (employeesData?.totalPages && page < employeesData.totalPages) {
+      const nextPageFilters = { ...filters, page: page + 1, pageSize };
+      queryClient.prefetchQuery({
+        queryKey: ['employees', nextPageFilters],
+        queryFn: () => fetchAllEmployeesAPI(nextPageFilters),
+      });
+    }
+  }, [page, filters, pageSize, employeesData?.totalPages, queryClient]);
+
+  // Cleanup
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
 
   return {
-    allEmployees,
-    total,
+    allEmployees: employeesData?.users || [],
+    total: employeesData?.total || 0,
     page,
-    totalPages,
+    totalPages: employeesData?.totalPages || 1,
     pageSize,
     setPage,
     setPageSize,
     error,
     loading,
+    searchLoading,
     filters,
     searchInput,
+    setSearchInput,
     setFilters: updateFilters,
+    handleSearchInputChange,
+    clearSearch,
+    refetch: () => queryClient.invalidateQueries({ queryKey: ['employees'] }),
+  };
+};
+
+//dropdown
+export const useEmployeeDropdownAPI = () => {
+  const [searchInput, setSearchInput] = useState("");
+
+  // Query that fetches employees based on searchInput
+  const {
+    data: allEmployees = [],
+    error,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["dropdownEmployees", searchInput],
+    queryFn: async () => {
+      const employees = await fetchEmployeesForDropdownAPI(searchInput);
+      return employees || [];
+    },
+    staleTime: 5 * 60 * 1000, // cache for 5 min
+    keepPreviousData: true, // keep showing old data while fetching new
+  });
+
+  // Handle search input change (controlled by user)
+  const handleSearchInputChange = (value) => {
+    setSearchInput(value);
+  };
+
+  // Manual search trigger (when user clicks "Search" button)
+  const performSearch = () => {
+    refetch();
+  };
+
+  // Clear search and reset data
+  const clearSearch = () => {
+    setSearchInput("");
+    refetch();
+  };
+
+  // Real-time search (optional)
+  const handleImmediateSearch = (value) => {
+    setSearchInput(value);
+    refetch();
+  };
+
+  return {
+    allEmployees,
+    error,
+    loading: isLoading,
+    searchInput,
     handleSearchInputChange,
     performSearch,
     clearSearch,
-    handleFieldSearch,
-    refetch: () => fetchData(),
+    handleImmediateSearch,
+    refetch,
   };
 };
 
 
+
 //get employee counts
 export const useFetchEmployeeCountsAPI = () => {
-  const [employeeCounts, setEmployeeCounts] = useState([]);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const {
+    data: employeeCounts = [],
+    error,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["employeeCounts"],
+    queryFn: fetchEmployeeCountsAPI,
+    staleTime: 10 * 60 * 1000,
+  });
 
-  const fetchEmployeeCounts = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await fetchEmployeeCountsAPI();
-      console.log("employee counts: ", response);
-      setEmployeeCounts(response);
-    } catch (err) {
-      console.error("Failed to fetch employee counts:", err);
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchEmployeeCounts();
-  }, [fetchEmployeeCounts]);
-
-  return { employeeCounts, error, loading, refetch: fetchEmployeeCounts, setEmployeeCounts };
+  return {
+    employeeCounts,
+    error,
+    loading: isLoading,
+    refetch,
+  };
 };
 
 
@@ -325,38 +269,102 @@ export const useFetchLoggedInUserDetailsAPI = (userId) => {
     setGovernmentIds,
     setAddresses,
     setEmergencyContacts,
+    user,
+    isCacheLoaded,
+    setIsCacheLoaded,
   } = useContext(UserContext);
 
+  const hasFetchedRef = useRef(false);
+  const isInitialMount = useRef(true);
+
+  // Initial fetch effect - runs only once if needed
   useEffect(() => {
     const fetchUser = async () => {
-      if (!userId) return;
+      // Skip if no userId
+      if (!userId) {
+        return;
+      }
+
+      // If cache is already loaded and user exists, skip fetch
+      if (isCacheLoaded && user) {
+        return;
+      }
+
+      // Prevent duplicate fetches
+      if (hasFetchedRef.current) {
+        return;
+      }
+
+      hasFetchedRef.current = true;
       setLoading(true);
 
       try {
         const data = await fetchEmployeeDetailsAPI({ user_id: userId });
-        // console.log("Fetched user details:", data);
 
         if (data?.user) {
-          const user = data.user;
+          const userData = data.user;
 
-          setUser(user);
-          setPersonalInfo(user.HrisUserInfo);
-          setDesignations(user.HrisUserDesignations?.[0] || {});
-          setEmploymentInfo(user.HrisUserEmploymentInfo);
-          setSalaryInfo(user.HrisUserSalary);
-          setHr201(user.HrisUserHr201);
-          setGovernmentIds(user.HrisUserGovernmentIds);
-          setAddresses(user.HrisUserAddresses);
-          setEmergencyContacts(user.HrisUserEmergencyContacts);
+          setUser(userData);
+          setPersonalInfo(userData.HrisUserInfo);
+          setDesignations(userData.HrisUserDesignations?.[0] || {});
+          setEmploymentInfo(userData.HrisUserEmploymentInfo);
+          setSalaryInfo(userData.HrisUserSalary);
+          setHr201(userData.HrisUserHr201);
+          setGovernmentIds(userData.HrisUserGovernmentIds);
+          setAddresses(userData.HrisUserAddresses);
+          setEmergencyContacts(userData.HrisUserEmergencyContacts);
+
+          setIsCacheLoaded(true);
         }
       } catch (error) {
-        console.error("Failed to fetch user details:", error);
+        console.error(" Failed to fetch user details:", error);
+        hasFetchedRef.current = false; // Allow retry on error
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUser();
+    // Only fetch on initial mount
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      fetchUser();
+    }
+  }, [userId]); // Minimal dependencies - only userId matters for initial fetch
+
+  // Memoized refresh function - prevents recreation on every render
+  const refreshUserData = useCallback(async () => {
+    if (!userId) {
+      return;
+    }
+
+    hasFetchedRef.current = false;
+    setLoading(true);
+
+    try {
+      const data = await fetchEmployeeDetailsAPI({ user_id: userId });
+
+      if (data?.user) {
+        const userData = data.user;
+
+        // Batch all state updates
+        setUser(userData);
+        setPersonalInfo(userData.HrisUserInfo);
+        setDesignations(userData.HrisUserDesignations?.[0] || {});
+        setEmploymentInfo(userData.HrisUserEmploymentInfo);
+        setSalaryInfo(userData.HrisUserSalary);
+        setHr201(userData.HrisUserHr201);
+        setGovernmentIds(userData.HrisUserGovernmentIds);
+        setAddresses(userData.HrisUserAddresses);
+        setEmergencyContacts(userData.HrisUserEmergencyContacts);
+
+        console.log("User data refreshed successfully");
+      }
+    } catch (error) {
+      console.error("Failed to refresh user details:", error);
+    } finally {
+      setLoading(false);
+      hasFetchedRef.current = true;
+    }
   }, [
     userId,
     setUser,
@@ -370,6 +378,8 @@ export const useFetchLoggedInUserDetailsAPI = (userId) => {
     setAddresses,
     setEmergencyContacts,
   ]);
+
+  return { refreshUserData };
 };
 
 //single lang
@@ -395,7 +405,6 @@ export const useFetchEmployeeDetailsAPI = (userId) => {
 
       try {
         const data = await fetchEmployeeDetailsAPI({ user_id: userId });
-        // console.log("Fetched user details:", data);
         if (data == 404) {
           setNotFound(true);
         }
@@ -833,6 +842,16 @@ export const useEditEmployeeDesignationAPI = () => {
           const newDesignations = {
             ...prev,
             ...updated.designation,
+            CompanyEmployer: updated.designation.company_employer_id
+              ? {
+                ...(prev?.CompanyEmployer || {}),
+                company_employer_id: updated.designation.company_employer_id,
+                company_employer_name:
+                  updated.designation.CompanyEmployer?.company_employer_name ||
+                  prev?.CompanyEmployer?.company_employer_name ||
+                  null,
+              }
+              : null,
             CompanyOffice: updated.designation.office_id
               ? {
                 ...(prev?.CompanyOffice || {}),

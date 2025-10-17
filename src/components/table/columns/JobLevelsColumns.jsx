@@ -41,7 +41,7 @@ export const getJobLevelsColumns = ({ onEdit, onDelete }) => [
   },
   {
     id: "actions",
-    header: () => <div className="text-right mr-1 sm:mr-3">Actions</div>,
+    // header: () => <div className="text-right mr-1 sm:mr-3">Actions</div>,
     cell: ({ row }) => {
       const { job_level_id, job_level_name, job_level_description } =
         row.original;
@@ -49,7 +49,7 @@ export const getJobLevelsColumns = ({ onEdit, onDelete }) => [
       const [editDialogOpen, setEditDialogOpen] = useState(false);
 
       return (
-        <div className="flex justify-start w-full gap-2 sm:gap-5">
+        <div className="flex justify-end w-full gap-2 sm:gap-5">
           <CustomDialog
             open={editDialogOpen}
             onOpenChange={setEditDialogOpen}
@@ -62,6 +62,7 @@ export const getJobLevelsColumns = ({ onEdit, onDelete }) => [
               </button>
             }
             title="Edit Job Level"
+            height="md"
             description={`Modify details for "${job_level_name}"`}
             confirmLabel="Save Changes"
             onConfirm={async (formData) => {

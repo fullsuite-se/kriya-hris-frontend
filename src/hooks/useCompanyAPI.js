@@ -14,6 +14,7 @@ import {
   editOfficeAPI,
   editTeamAPI,
   fetchCompanyDetailsAPI,
+  fetchCompanyEmployersAPI,
   fetchDepartmentsAPI,
   fetchDivisionsAPI,
   fetchOfficesAPI,
@@ -21,10 +22,10 @@ import {
 } from "@/services/companyAPI";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { CompanyDetailsContext } from "@/context/CompanyDetailsContext";
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 
 export const useFetchCompanyDetailsAPI = () => {
   const { systemCompanyId } = useAuthStore();
-
   const {
     setCompanyEmail,
     setCompanyId,
@@ -41,149 +42,96 @@ export const useFetchCompanyDetailsAPI = () => {
     setCompanyAddress,
   } = useContext(CompanyDetailsContext);
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  const fetchCompanyDetails = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetchCompanyDetailsAPI(systemCompanyId);
-
-      setCompanyEmail(response.company_email ?? null);
-      setCompanyId(response.company_id ?? null);
-      setIndustryId(response.CompanyInfo?.industry_id ?? null);
-      setIndustryType(response.CompanyInfo?.industry_type ?? null);
-      setBusinessType(response.CompanyInfo?.business_type ?? null);
-      setCompanyBrn(response.CompanyInfo?.company_brn ?? null);
-      setCompanyInfoId(response.CompanyInfo?.company_info_id ?? null);
-      setCompanyLogo(response.CompanyInfo?.company_logo ?? null);
-      setCompanyName(response.CompanyInfo?.company_name ?? null);
-      setCompanyPhone(response.CompanyInfo?.company_phone ?? null);
-      setCompanyTin(response.CompanyInfo?.company_tin ?? null);
-      setCompanyTradeName(response.CompanyInfo?.company_trade_name ?? null);
-      setCompanyAddress(response.CompanyAddress ?? {});
-
-      console.log("Company details set in context");
-    } catch (err) {
-      console.error("Failed to fetch company details:", err);
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [systemCompanyId]);
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["companyDetails", systemCompanyId],
+    queryFn: () => fetchCompanyDetailsAPI(systemCompanyId),
+    enabled: !!systemCompanyId,
+    staleTime: 1000 * 60 * 10, // 10 minutes
+    cacheTime: 1000 * 60 * 15, // 15 minutes
+    refetchOnWindowFocus: false,
+  });
 
   useEffect(() => {
-    if (systemCompanyId) fetchCompanyDetails();
-  }, [systemCompanyId, fetchCompanyDetails]);
+    if (!data) return;
+    setCompanyEmail(data.company_email ?? null);
+    setCompanyId(data.company_id ?? null);
+    setIndustryId(data.CompanyInfo?.industry_id ?? null);
+    setIndustryType(data.CompanyInfo?.industry_type ?? null);
+    setBusinessType(data.CompanyInfo?.business_type ?? null);
+    setCompanyBrn(data.CompanyInfo?.company_brn ?? null);
+    setCompanyInfoId(data.CompanyInfo?.company_info_id ?? null);
+    setCompanyLogo(data.CompanyInfo?.company_logo ?? null);
+    setCompanyName(data.CompanyInfo?.company_name ?? null);
+    setCompanyPhone(data.CompanyInfo?.company_phone ?? null);
+    setCompanyTin(data.CompanyInfo?.company_tin ?? null);
+    setCompanyTradeName(data.CompanyInfo?.company_trade_name ?? null);
+    setCompanyAddress(data.CompanyAddress ?? {});
+  }, [data]);
 
-  return { loading, error, refetch: fetchCompanyDetails };
+  return { loading: isLoading, error: isError ? error : null, refetch };
 };
 
 //update company info
 
-//edit employment timeline
-
 export const useEditCompanyDetailsAPI = () => {
-  const {
-    setCompanyEmail,
-    setCompanyId,
-    setIndustryId,
-    setIndustryType,
-    setBusinessType,
-    setCompanyBrn,
-    setCompanyInfoId,
-    setCompanyLogo,
-    setCompanyName,
-    setCompanyPhone,
-    setCompanyTin,
-    setCompanyTradeName,
-    setCompanyAddress,
-  } = useContext(CompanyDetailsContext);
-
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const { systemCompanyId } = useAuthStore();
+  const queryClient = useQueryClient();
 
-  const editCompanyDetails = async (updateData) => {
-    setLoading(true);
-    setError(null);
+  const { mutateAsync: editCompanyDetails, isPending, error } = useMutation({
+    mutationFn: (updateData) => editCompanyDetailsAPI(systemCompanyId, updateData),
+    onSuccess: (updatedCompanyInfo) => {
+      queryClient.setQueryData(["companyDetails", systemCompanyId], (oldData) => ({
+        ...oldData,
+        ...updatedCompanyInfo,
+      }));
 
-    try {
-      const updatedCompanyInfo = await editCompanyDetailsAPI(
-        systemCompanyId,
-        updateData
-      );
+      queryClient.invalidateQueries(["companyDetails", systemCompanyId]);
+    },
+    onError: (err) => {
+      console.error("Failed to update company details:", err);
+    },
+  });
 
-      // const refreshedData = await fetchCompanyDetailsAPI({ company_id });
-
-      if (updatedCompanyInfo) {
-        setCompanyEmail(updatedCompanyInfo?.company?.company_email);
-        setCompanyId(updatedCompanyInfo?.company?.company_id);
-        setIndustryId(updatedCompanyInfo?.companyInfo?.industry_id);
-        setIndustryType(updatedCompanyInfo?.companyInfo?.industry_type);
-        setBusinessType(updatedCompanyInfo?.companyInfo?.business_type);
-        setCompanyBrn(updatedCompanyInfo?.companyInfo?.company_brn);
-        setCompanyInfoId(updatedCompanyInfo?.companyInfo?.company_info_id);
-        setCompanyLogo(updatedCompanyInfo?.companyInfo?.company_logo);
-        setCompanyName(updatedCompanyInfo?.companyInfo?.company_name);
-        setCompanyPhone(updatedCompanyInfo?.companyInfo?.company_phone);
-        setCompanyTin(updatedCompanyInfo?.companyInfo?.company_tin);
-        setCompanyTradeName(
-          updatedCompanyInfo?.companyInfo?.company_trade_name
-        );
-        setCompanyAddress(updatedCompanyInfo?.companyAddress);
-      }
-
-      console.log("Company Info updated successfully:", updatedCompanyInfo);
-      return updatedCompanyInfo;
-    } catch (err) {
-      console.error("Failed to update Company Info:", err);
-      setError(err);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return { editCompanyDetails, loading, error };
+  return { editCompanyDetails, loading: isPending, error };
 };
 
-export default useFetchCompanyDetailsAPI;
+
 
 //OFFCIES
 export const useFetchOfficesAPI = () => {
   const { systemCompanyId } = useAuthStore();
-  const [allOffices, setAllOffices] = useState([]);
+  const queryClient = useQueryClient();
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const {
+    data: allOffices = [],
+    error,
+    isLoading: loading,
+    refetch,
+  } = useQuery({
+    queryKey: ['offices', systemCompanyId],
+    queryFn: () => fetchOfficesAPI(systemCompanyId),
+    enabled: !!systemCompanyId, // Only fetch if companyId exists
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    cacheTime: 15 * 60 * 1000, // 15 minutes
+  });
 
-  const fetchOffices = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetchOfficesAPI(systemCompanyId);
-      console.log("Offices fetched successfully:", response);
-      setAllOffices(response);
-    } catch (err) {
-      console.error("Failed to fetch offices:", err);
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchOffices();
-  }, [fetchOffices]);
+  // Function to update offices (for optimistic updates)
+  const setAllOffices = useCallback((newOffices) => {
+    queryClient.setQueryData(['offices', systemCompanyId], newOffices);
+  }, [queryClient, systemCompanyId]);
 
   return {
     allOffices,
     setAllOffices,
     loading,
     error,
-    refetch: fetchOffices,
+    refetch,
   };
 };
 
@@ -266,39 +214,64 @@ export const useEditOfficeAPI = () => {
   return { editOffice, loading, error };
 };
 
+//COMPANY EMPLOYERS
+export const useFetchCompanyEmployersAPI = () => {
+  const queryClient = useQueryClient();
+
+  const {
+    data: allCompanyEmployers = [],
+    error,
+    isLoading: loading,
+    refetch,
+  } = useQuery({
+    queryKey: ['company-employers'],
+    queryFn: () => fetchCompanyEmployersAPI(),
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    cacheTime: 15 * 60 * 1000, // 15 minutes
+  });
+
+  const setAllCompanyEmployers = useCallback((newCompanyEmployers) => {
+    queryClient.setQueryData(['company-employers'], newCompanyEmployers);
+  }, [queryClient]);
+
+  return {
+    allCompanyEmployers,
+    setAllCompanyEmployers,
+    loading,
+    error,
+    refetch,
+  };
+};
+
+
 //DIVISIONS
 export const useFetchDivisionsAPI = () => {
   const { systemCompanyId } = useAuthStore();
-  const [allDivisions, setAllDivisions] = useState([]);
+  const queryClient = useQueryClient();
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const {
+    data: allDivisions = [],
+    error,
+    isLoading: loading,
+    refetch,
+  } = useQuery({
+    queryKey: ['divisions', systemCompanyId],
+    queryFn: () => fetchDivisionsAPI(systemCompanyId),
+    enabled: !!systemCompanyId, // Only fetch if companyId exists
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    cacheTime: 15 * 60 * 1000, // 15 minutes
+  });
 
-  const fetchDivisions = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetchDivisionsAPI(systemCompanyId);
-      console.log("Divisions fetched successfully:", response);
-      setAllDivisions(response);
-    } catch (err) {
-      console.error("Failed to fetch Divisions:", err);
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchDivisions();
-  }, [fetchDivisions]);
+  const setAllDivisions = useCallback((newDivisions) => {
+    queryClient.setQueryData(['divisions', systemCompanyId], newDivisions);
+  }, [queryClient, systemCompanyId]);
 
   return {
     allDivisions,
     setAllDivisions,
     loading,
     error,
-    refetch: fetchDivisions,
+    refetch,
   };
 };
 
@@ -375,41 +348,37 @@ export const useDeleteDivisionAPI = () => {
 };
 
 //department
+
 export const useFetchDepartmentsAPI = () => {
   const { systemCompanyId } = useAuthStore();
-  const [allDepartments, setAllDepartments] = useState([]);
+  const queryClient = useQueryClient();
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const {
+    data: allDepartments = [],
+    error,
+    isLoading: loading,
+    refetch,
+  } = useQuery({
+    queryKey: ['departments', systemCompanyId],
+    queryFn: () => fetchDepartmentsAPI(systemCompanyId),
+    enabled: !!systemCompanyId, // Only fetch if companyId exists
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    cacheTime: 15 * 60 * 1000, // 15 minutes
+  });
 
-  const fetchDepartments = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetchDepartmentsAPI(systemCompanyId);
-      console.log("Departments fetched successfully:", response);
-      setAllDepartments(response);
-    } catch (err) {
-      console.error("Failed to fetch Departments:", err);
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchDepartments();
-  }, [fetchDepartments]);
+  // Function to update departments (for optimistic updates)
+  const setAllDepartments = useCallback((newDepartments) => {
+    queryClient.setQueryData(['departments', systemCompanyId], newDepartments);
+  }, [queryClient, systemCompanyId]);
 
   return {
     allDepartments,
     setAllDepartments,
     loading,
     error,
-    refetch: fetchDepartments,
+    refetch,
   };
 };
-
 export const useAddDepartmentAPI = () => {
   const { systemCompanyId } = useAuthStore();
   const [loading, setLoading] = useState(false);
@@ -488,39 +457,33 @@ export const useDeleteDepartmentAPI = () => {
 //TEAMS
 export const useFetchTeamsAPI = () => {
   const { systemCompanyId } = useAuthStore();
-  const [allTeams, setAllTeams] = useState([]);
+  const queryClient = useQueryClient();
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const {
+    data: allTeams = [],
+    error,
+    isLoading: loading,
+    refetch,
+  } = useQuery({
+    queryKey: ['teams', systemCompanyId],
+    queryFn: () => fetchTeamsAPI(systemCompanyId),
+    enabled: !!systemCompanyId, // Only fetch if companyId exists
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    cacheTime: 15 * 60 * 1000, // 15 minutes
+  });
 
-  const fetchTeams = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetchTeamsAPI(systemCompanyId);
-      console.log("Teams fetched successfully:", response);
-      setAllTeams(response);
-    } catch (err) {
-      console.error("Failed to fetch offices:", err);
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchTeams();
-  }, [fetchTeams]);
+  const setAllTeams = useCallback((newTeams) => {
+    queryClient.setQueryData(['teams', systemCompanyId], newTeams);
+  }, [queryClient, systemCompanyId]);
 
   return {
     allTeams,
     setAllTeams,
     loading,
     error,
-    refetch: fetchTeams,
+    refetch,
   };
 };
-
 export const useAddTeamAPI = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -599,3 +562,6 @@ export const useEditTeamAPI = () => {
   };
   return { editTeam, loading, error };
 };
+
+
+export default useFetchCompanyDetailsAPI;

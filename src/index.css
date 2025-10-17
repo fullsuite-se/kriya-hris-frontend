@@ -308,3 +308,39 @@ input:-webkit-autofill:active {
     width: 0%;
   }
 }
+
+
+/* Smooth fading custom scrollbar */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.3s ease-in-out;
+  --scrollbar-opacity: 0; /* default hidden */
+}
+
+/* Firefox */
+.custom-scrollbar:hover {
+  scrollbar-color: rgba(156, 163, 175, 0.6) transparent;
+}
+
+/* WebKit browsers */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.6);
+  border-radius: 9999px;
+  opacity: var(--scrollbar-opacity);
+  transition: opacity 0.4s ease-in-out;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Show scrollbar when hovered or while scrolling */
+.custom-scrollbar:hover::-webkit-scrollbar-thumb,
+.custom-scrollbar.scrolling::-webkit-scrollbar-thumb {
+  opacity: 1;
+}

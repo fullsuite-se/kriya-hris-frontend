@@ -1,36 +1,46 @@
 
 import fetchAllShiftTemplatesAPI from "@/services/shiftTemplatesAPI";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 //all
 
-export const useFetchAllShiftTemplatesAPI = () => {
-  const [allShiftTemplates, setAllShiftTemplates] = useState([]);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
 
-  const fetchAllShiftTemplates = useCallback(async () => {
-    setLoading(true);
-    try {
+export const useFetchAllShiftTemplatesAPI = () => {
+  const queryClient = useQueryClient();
+
+  const {
+    data: allShiftTemplates = [],
+    isLoading: loading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["shiftTemplates"],
+    queryFn: async () => {
       const response = await fetchAllShiftTemplatesAPI();
       const sortedShiftTemplates = (response || []).sort((a, b) =>
         a.shift_name.localeCompare(b.shift_name)
       );
-      setAllShiftTemplates(sortedShiftTemplates);
-    } catch (err) {
-      console.error("Failed to fetch all shift templates:", err);
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+      return sortedShiftTemplates;
+    },
+    staleTime: 1000 * 60 * 10,
+    cacheTime: 1000 * 60 * 15,
+    refetchOnWindowFocus: false,
+  });
 
-  useEffect(() => {
-    fetchAllShiftTemplates();
-  }, [fetchAllShiftTemplates]);
+  const setAllShiftTemplates = (newTemplates) => {
+    queryClient.setQueryData(["shiftTemplates"], newTemplates);
+  };
 
-  return { allShiftTemplates, error, loading, refetch: fetchAllShiftTemplates, setAllShiftTemplates };
+  return {
+    allShiftTemplates,
+    loading,
+    error: isError ? error : null,
+    refetch,
+    setAllShiftTemplates,
+  };
 };
+
 
 
 export default useFetchAllShiftTemplatesAPI;

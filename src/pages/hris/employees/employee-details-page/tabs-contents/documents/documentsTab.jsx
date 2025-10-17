@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import useFetchCompanyDetailsAPI from "@/hooks/useCompanyAPI";
 import { Separator } from "@/components/ui/separator";
 
 // import { Edit3Icon } from "lucide-react";
@@ -27,8 +26,6 @@ import {
 import EditDocuUrlDialog from "./dialogs/EditDocuUrlDialog";
 
 export const EmployeeDocumentsTab = () => {
-  // const { companyDetails, refetch, error, loading } =
-  //   useFetchCompanyDetailsAPI();
 
   const [isListViewOptionClicked, setIsListViewOptionClicked] = useState(true);
   const [isGridViewOptionClicked, setIsGridViewOptionClicked] = useState(false);

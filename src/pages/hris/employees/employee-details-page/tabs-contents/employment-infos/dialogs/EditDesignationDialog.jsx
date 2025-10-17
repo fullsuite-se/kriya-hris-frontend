@@ -1,26 +1,16 @@
 import CustomDialog from "@/components/dialog/CustomDialog";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { EmployeeDetailsContext } from "@/context/EmployeeDetailsContext";
-
 import { useState, useContext, useEffect } from "react";
-import TextField from "@/components/forms/fields/TextField";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import DropdownField from "@/components/forms/fields/DropdownField";
-import DatepickerField from "@/components/forms/fields/DatePickerField";
 import { employeeDesignationFormSchema } from "@/components/forms/schemas/employeeSchema";
-import {
-  useEditEmployeeDesignationAPI,
-  useFetchEmployeeDetailsAPI,
-} from "@/hooks/useEmployeeAPI";
+import { useEditEmployeeDesignationAPI } from "@/hooks/useEmployeeAPI";
 import { glassToast } from "@/components/ui/glass-toast";
 import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
   InformationCircleIcon,
 } from "@heroicons/react/24/solid";
-import { sanitizeData } from "@/utils/parsers/sanitizeData";
 import OfficeSearchComboBox from "@/components/forms/fields/dynamic-fields/OfficeSearchComboBox";
 import DepartmentSearchComboBox from "@/components/forms/fields/dynamic-fields/DepartmentSearchComboBox";
 import DivisionSearchComboBox from "@/components/forms/fields/dynamic-fields/DivisionSearchComboBox";
@@ -31,10 +21,11 @@ import JobLevelSearchComboBox from "@/components/forms/fields/dynamic-fields/Job
 import EmployeeTypeSearchComboBox from "@/components/forms/fields/dynamic-fields/EmployeeTypeSearchComboBox";
 import ShiftTemplateSearchComboBox from "@/components/forms/fields/dynamic-fields/ShiftTemplateSearchComboBox";
 import EmployeeSearchComboBox from "@/components/forms/fields/dynamic-fields/EmployeeSearchComboBox";
+import CompanyEmployerSearchComboBox from "@/components/forms/fields/dynamic-fields/CompanyEmployerSearchComboBox";
 
 const EditDesignationDialog = ({ trigger }) => {
   const [open, setOpen] = useState(false);
-  const { designations, user, personalInfo, employmentInfo } = useContext(
+  const { designations, user, employmentInfo } = useContext(
     EmployeeDetailsContext
   );
 
@@ -47,6 +38,7 @@ const EditDesignationDialog = ({ trigger }) => {
     mode: "onChange",
     reValidateMode: "onChange",
     defaultValues: {
+      company_employer: "",
       office: "",
       division: "",
       department: "",
@@ -74,6 +66,7 @@ const EditDesignationDialog = ({ trigger }) => {
       });
       form.reset(
         {
+          company_employer: designations?.company_employer_id || "",
           office: designations?.office_id || "",
           division: designations?.division_id || "",
           department: designations?.department_id || "",
@@ -113,6 +106,7 @@ const EditDesignationDialog = ({ trigger }) => {
       };
 
       const fieldMap = {
+        company_employer_id: data.company_employer,
         office_id: data.office,
         division_id: data.division,
         department_id: data.department,
@@ -140,6 +134,7 @@ const EditDesignationDialog = ({ trigger }) => {
         if (normalize(cleaned) !== normalize(current)) {
           if (
             [
+              "company_employer_id",
               "office_id",
               "division_id",
               "department_id",
@@ -190,6 +185,7 @@ const EditDesignationDialog = ({ trigger }) => {
 
       form.reset(
         {
+          company_employer: updatedInfo.designation?.company_employer_id || "",
           office: updatedInfo.designation?.office_id || "",
           division: updatedInfo.designation?.division_id || "",
           department: updatedInfo.designation?.department_id || "",
@@ -264,34 +260,23 @@ const EditDesignationDialog = ({ trigger }) => {
         onConfirm={() => setConfirmSubmitOpen(true)}
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <OfficeSearchComboBox
-            name="office"
+          <CompanyEmployerSearchComboBox
+            name="company_employer"
             control={form.control}
-            initialValue={designations?.CompanyOffice?.office_id}
           />
+          <OfficeSearchComboBox name="office" control={form.control} />
           <DivisionSearchComboBox
             name="division"
             control={form.control}
-            initialValue={designations?.CompanyDivision?.division_id}
           />
-          <DepartmentSearchComboBox
-            name="department"
-            control={form.control}
-            // initialValue={designations?.CompanyDepartment?.department_id}
-          />
+          <DepartmentSearchComboBox name="department" control={form.control} />
           <TeamSearchComboBox
             name="team"
             control={form.control}
-            initialValue={designations?.CompanyTeam?.team_id}
           />
           <JobPositionSearchComboBox
             name="jobTitle"
             control={form.control}
-            // initialValue={(
-            //   designations?.job_title_id ??
-            //   designations?.CompanyJobTitle?.job_title_id ??
-            //   ""
-            // )?.toString()}
             required
           />
           <EmploymentStatusSearchComboBox

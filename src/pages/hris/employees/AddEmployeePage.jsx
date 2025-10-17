@@ -116,6 +116,8 @@ const AddEmployeePage = () => {
 
       currentCountry: toNullIfEmpty(cleanData.countryPresent),
       currentPostalCode: toNullIfEmpty(cleanData.postalCodePresent),
+      currentBuildingNum: toNullIfEmpty(cleanData.buildingNumPresent),
+      currentStreet: toNullIfEmpty(cleanData.streetPresent),
 
       // Permanent address (code and name)
       permanentBarangay: toNullIfEmpty(cleanData.barangayPermanent.name),
@@ -130,6 +132,8 @@ const AddEmployeePage = () => {
       permanentCountry: toNullIfEmpty(cleanData.countryPermanent),
       permanentPostalCode: toNullIfEmpty(cleanData.postalCodePermanent),
 
+      permanentBuildingNum: toNullIfEmpty(cleanData.buildingNumPermanent),
+      permanentStreet: toNullIfEmpty(cleanData.streetPermanent),
       government_ids,
       emergency_contacts,
     };

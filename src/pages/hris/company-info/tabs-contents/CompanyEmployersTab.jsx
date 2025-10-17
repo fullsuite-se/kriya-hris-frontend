@@ -1,6 +1,6 @@
 import CustomDialog from "@/components/dialog/CustomDialog";
 import LoadingAnimation from "@/components/Loading";
-import getOfficesColumns from "@/components/table/columns/OfficesColumns";
+import getCompanyEmployersColumns from "@/components/table/columns/CompanyEmployersColumns";
 import DataTable from "@/components/table/table-components/DataTable";
 import { Button } from "@/components/ui/button";
 import { glassToast } from "@/components/ui/glass-toast";
@@ -9,6 +9,7 @@ import {
   useAddOfficeAPI,
   useDeleteOfficeAPI,
   useEditOfficeAPI,
+  useFetchCompanyEmployersAPI,
   useFetchOfficesAPI,
 } from "@/hooks/useCompanyAPI";
 import {
@@ -18,26 +19,26 @@ import {
 } from "@heroicons/react/24/solid";
 import { use, useEffect, useState } from "react";
 
-export const OfficesTab = () => {
+export const CompanyEmployersTab = () => {
   const {
-    allOffices,
-    refetch: refetchAllOffices,
-    setAllOffices,
+    allCompanyEmployers,
+    refetch: refetchAllCompanyEmployers,
+    setAllCompanyEmployers,
     loading,
-  } = useFetchOfficesAPI();
+  } = useFetchCompanyEmployersAPI();
   const [officesDialogOpen, setOfficesDialogOpen] = useState(false);
   const { addOffice, loading: addOfficeLoading } = useAddOfficeAPI();
   const { deleteOffice, loading: deleteOfficeLoading } = useDeleteOfficeAPI();
   const { editOffice, loading: editOfficeLoading } = useEditOfficeAPI();
 
   const removeLocalOffice = (office_id) => {
-    const officeToRemove = allOffices.find((j) => j.office_id === office_id);
-    setAllOffices((prev) => prev.filter((j) => j.office_id !== office_id));
+    const officeToRemove = allCompanyEmployers.find((j) => j.office_id === office_id);
+    setAllCompanyEmployers((prev) => prev.filter((j) => j.office_id !== office_id));
     return officeToRemove; // store this for undo
   };
 
   const restoreLocalOffice = (office) => {
-    setAllOffices((prev) =>
+    setAllCompanyEmployers((prev) =>
       [...prev, office].sort((a, b) =>
         a.office_name.localeCompare(b.office_name)
       )
@@ -45,7 +46,7 @@ export const OfficesTab = () => {
   };
 
   const updateLocalOffice = (office_id, office_name, office_address) => {
-    setAllOffices((prevOffices) =>
+    setAllCompanyEmployers((prevOffices) =>
       prevOffices.map((office) =>
         office.office_id === office_id
           ? { ...office, office_name, office_address }
@@ -74,7 +75,7 @@ export const OfficesTab = () => {
         blur: 12,
         duration: 4000,
       });
-      refetchAllOffices();
+      refetchAllCompanyEmployers();
     } catch (error) {
       glassToast({
         message: `Failed to add office. Please try again.`,
@@ -135,7 +136,7 @@ export const OfficesTab = () => {
     if (isNameChanged && isAddressChanged) {
       toastMessage = (
         <>
-          Office <span style={{ color: "#008080" }}>{previousOfficeName}</span>{" "}
+          Employer <span style={{ color: "#008080" }}>{previousOfficeName}</span>{" "}
           and its address updated to{" "}
           <span style={{ color: "#008080" }}>{updatedOfficeName}</span>
         </>
@@ -143,7 +144,7 @@ export const OfficesTab = () => {
     } else if (isNameChanged) {
       toastMessage = (
         <>
-          Office <span style={{ color: "#008080" }}>{previousOfficeName}</span>{" "}
+          Employer <span style={{ color: "#008080" }}>{previousOfficeName}</span>{" "}
           updated to{" "}
           <span style={{ color: "#008080" }}>{updatedOfficeName}</span>
         </>
@@ -184,7 +185,7 @@ export const OfficesTab = () => {
 
       try {
         await editOffice(office_id, updatedOfficeName, updatedOfficeAddress);
-        refetchAllOffices();
+        refetchAllCompanyEmployers();
       } catch (err) {
         console.error("Failed to update office:", err);
         glassToast({
@@ -232,7 +233,7 @@ export const OfficesTab = () => {
 
       try {
         await deleteOffice(office_id);
-        refetchAllOffices();
+        refetchAllCompanyEmployers();
       } catch (err) {
         console.error("Failed to delete office:", err);
         glassToast({
@@ -249,7 +250,7 @@ export const OfficesTab = () => {
     }, 5000);
   };
 
-  const officesColumns = getOfficesColumns({
+  const companyEmployersColumns = getCompanyEmployersColumns({
     onEdit: handleEditOffice,
     onDelete: handleDeleteOffice,
     editLoading: editOfficeLoading,
@@ -269,7 +270,7 @@ export const OfficesTab = () => {
     <div className=" p-5">
       <div className="justify-between items-center flex mb-8">
         <div>
-          <h2 className="text-lg font-semibold">Offices</h2>
+          <h2 className="text-lg font-semibold">Employers</h2>
         </div>
         <CustomDialog
           trigger={
@@ -279,9 +280,9 @@ export const OfficesTab = () => {
           }
           height="md"
           loading={addOfficeLoading}
-          title="Add New Office"
-          confirmLabel="Save Office"
-          description="Enter the details for the new office"
+          title="Add New Employer"
+          confirmLabel="Save Employer"
+          description="Enter the details for the new employer"
           onConfirm={handleSaveOffice}
           open={officesDialogOpen}
           onOpenChange={setOfficesDialogOpen}
@@ -293,31 +294,22 @@ export const OfficesTab = () => {
                 className="text-xs font-medium block"
                 htmlFor="office_name"
               >
-                Office<span className="text-primary-color">*</span>
+                Employer<span className="text-primary-color">*</span>
               </label>
               <Input name="office_name" type="text" required />
             </div>
-            <div className="space-y-2">
-              <label
-                className="text-xs font-medium block"
-                htmlFor="office_name"
-              >
-                Address
-                <span className="text-primary-color">*</span>
-              </label>
-              <Input name="office_address" type="text" required />
-            </div>{" "}
+            
           </div>
         </CustomDialog>
       </div>
       <DataTable
-        columns={officesColumns}
-        data={allOffices}
-        searchKeys={["office_name", "office_address"]}
+        columns={companyEmployersColumns}
+        data={allCompanyEmployers}
+        searchKeys={["company_employer_name"]}
         cursorType="cursor-default"
       />
     </div>
   );
 };
 
-export default OfficesTab;
+export default CompanyEmployersTab;

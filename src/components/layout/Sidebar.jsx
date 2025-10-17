@@ -27,6 +27,11 @@ import BuildingIcon, { BuildingOutlineIcon } from "@/assets/icons/BuildingIcon";
 import UserGroupIcon, {
   UserGroupOutlineIcon,
 } from "@/assets/icons/UserGroupIcon";
+import Skeleton from "react-loading-skeleton";
+import useFetchLoggedInUserDetailsAPI from "@/hooks/useEmployeeAPI";
+import AnalyticsIcon, {
+  OutlineAnalyticsIcon,
+} from "@/assets/icons/AnalyticsIcon";
 
 const sidebarLinks = [
   {
@@ -76,6 +81,16 @@ const sidebarLinks = [
         icon: <UserGroupOutlineIcon className="group-hover:text-[#008080]" />,
         iconActive: <UserGroupIcon className="text-[#008080]" />,
       },
+
+      // {
+      //   feature: "Analytics",
+      //   label: "Analytics",
+      //   path: "/hris/analytics",
+      //   icon: <OutlineAnalyticsIcon className="group-hover:text-[#008080]" />,
+      //   iconActive: <AnalyticsIcon className="text-[#008080]" />,
+      // },
+
+      
     ],
   },
   {
@@ -102,10 +117,13 @@ const sidebarLinks = [
 ];
 
 const Sidebar = () => {
-  const { personalInfo, user, designations } = useContext(UserContext);
-  const { servicePermissions, accessPermissions } = useAuthStore();
+  const { personalInfo, user, designations, loading } = useContext(UserContext);
+  const { servicePermissions, accessPermissions, systemUserId } =
+    useAuthStore();
   const allowedServices = servicePermissions.map((s) => s.toLowerCase());
   const allowedFeatures = accessPermissions.map((f) => f.toLowerCase());
+
+  useFetchLoggedInUserDetailsAPI(systemUserId);
 
   const [openIndexes, setOpenIndexes] = useState(
     sidebarLinks.map((_, idx) => idx)
@@ -188,42 +206,62 @@ const Sidebar = () => {
         </div>
 
         {/* User Profile */}
-        <div
-          className={`flex items-center mb-10  ${collapsed && "self-center"}`}
-        >
+
+        {loading ? (
           <div
-            className={`${
-              collapsed ? "mt-1.5" : "h-11 w-11"
-            } h-11 w-11 rounded-full border-1 border-gray-300 overflow-hidden flex items-center justify-center bg-primary-color flex-shrink-0`}
+            className={`flex items-center mb-10 gap-3 ${
+              collapsed && "self-center"
+            }`}
           >
-            {personalInfo?.user_pic ? (
-              <img
-                src={personalInfo.user_pic}
-                alt="User Profile"
-                className="h-full w-full object-cover rounded-full"
-              />
-            ) : (
-              <span className="text-sm font-bold text-white">
-                {personalInfo?.first_name?.[0]?.toUpperCase()}
-                {personalInfo?.last_name?.[0]?.toUpperCase()}
-              </span>
+            <div className="animate-pulse rounded-full h-12 w-12 bg-gray-200" />
+
+            {!collapsed && (
+              <div className="animate-pulse flex flex-col gap-1">
+                <div className="bg-gray-200 w-[150px] h-4 rounded-full" />
+                <div className="bg-gray-200 w-[80px] h-3 rounded-full" />
+                <div className="bg-gray-200 w-[120px] h-2 rounded-full" />
+              </div>
             )}
           </div>
-
-          {!collapsed && personalInfo && (
-            <div className="overflow-hidden ml-3">
-              <h3 className="font-medium text-gray-900 truncate text-medium">
-                {personalInfo?.first_name} {personalInfo?.last_name}
-              </h3>
-              <p className="text-[#008080] truncate text-xs ">
-                {designations?.CompanyJobTitle?.job_title}
-              </p>
-              <p className="text-gray-400 truncate !text-[10px]  ">
-                {user.user_email}
-              </p>
+        ) : (
+          <div
+            className={`flex items-center mb-10  ${collapsed && "self-center"}`}
+          >
+            <div
+              className={`${
+                collapsed ? "mt-1.5" : "h-11 w-11"
+              } h-11 w-11 rounded-full border-1 border-gray-300 overflow-hidden flex items-center justify-center bg-primary-color flex-shrink-0`}
+            >
+              {personalInfo?.user_pic ? (
+                <img
+                  src={personalInfo.user_pic}
+                  alt="User Profile"
+                  className="h-full w-full object-cover rounded-full"
+                />
+              ) : (
+                <span className="text-sm font-bold text-white">
+                  {personalInfo?.first_name?.[0]?.toUpperCase()}
+                  {personalInfo?.last_name?.[0]?.toUpperCase()}
+                </span>
+              )}
             </div>
-          )}
-        </div>
+
+            {!collapsed && personalInfo && (
+              <div className="overflow-hidden ml-3">
+                <h3 className="font-medium text-gray-900 truncate text-medium">
+                  {personalInfo?.first_name} {personalInfo?.last_name}
+                </h3>
+                <p className="text-[#008080] truncate text-xs ">
+                  {designations?.CompanyJobTitle?.job_title}
+                </p>
+                <p className="text-gray-400 truncate !text-[10px]  ">
+                  {user.user_email}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
         {collapsed && <div className="pb-1.5"></div>}
         {/* Sidebar Menu Items */}
 

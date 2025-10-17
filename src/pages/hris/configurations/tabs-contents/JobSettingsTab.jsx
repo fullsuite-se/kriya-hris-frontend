@@ -25,24 +25,30 @@ import {
 import { useState } from "react";
 
 export const JobSettingsTab = () => {
-  //   const { systemCompanyId } = useAuthStore();
-
-  //   const { deleteJob, loading: deleteLoading } = useDeleteJobAPI();
-  //   const { editJob, loading: editLoading } = useEditJobAPI();
-
-  const { allEmploymentStatuses, refetch: refetchAllEmploymentStatuses, loading, error } =
-    useFetchEmploymentStatusAPI();
+  const {
+    allEmploymentStatuses,
+    refetch: refetchAllEmploymentStatuses,
+    loading,
+    error,
+  } = useFetchEmploymentStatusAPI();
   const [employmentStatusDialogOpen, setEmploymentStatusDialogOpen] =
     useState(false);
   const { addEmploymentStatus, loading: employmentStatusLoading } =
     useAddEmploymentStatusAPI();
 
-  const { allJobLevels, refetch: refetchAllJobLevels, loading: fetchJobLevelsLoading } = useFetchJobLevelsAPI();
+  const {
+    allJobLevels,
+    refetch: refetchAllJobLevels,
+    loading: fetchJobLevelsLoading,
+  } = useFetchJobLevelsAPI();
   const [jobLevelsDialogOpen, setJobLevelsDialogOpen] = useState(false);
   const { addJobLevel, loading: jobLevelLoading } = useAddJobLevelAPI();
 
-  const { allEmployeeTypes, refetch: refetchAllEmployeeTypes } =
-    useFetchEmployeeTypesAPI();
+  const {
+    allEmployeeTypes,
+    refetch: refetchAllEmployeeTypes,
+    loading: fetchJobTypesLoading,
+  } = useFetchEmployeeTypesAPI();
   const [employeeTypesDialogOpen, setEmployeeTypesDialogOpen] = useState(false);
   const { addEmployeeType, loading: employeeTypeLoading } =
     useAddEmployeeTypeAPI();
@@ -307,14 +313,8 @@ export const JobSettingsTab = () => {
     onDelete: handleDeleteSalaryType,
   });
 
-
- if (loading) {
-    return (
-      // <div className="flex items-center justify-center h-screen">
-      //   <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-primary-color"></div>
-      // </div>
-        <LoadingAnimation/>
-    );
+  if (loading || fetchJobLevelsLoading || fetchJobTypesLoading) {
+    return <LoadingAnimation />;
   }
 
   if (error) {
@@ -335,7 +335,8 @@ export const JobSettingsTab = () => {
           <CustomDialog
             trigger={
               <Button className="cursor-pointer !text-sm !text-white hover:!bg-[#008080ed] border-none">
-                +<span className=" hidden sm:inline text-xs">&nbsp;Add New</span>
+                +
+                <span className=" hidden sm:inline text-xs">&nbsp;Add New</span>
               </Button>
             }
             title="Add New Employment Status"
@@ -380,10 +381,12 @@ export const JobSettingsTab = () => {
           <CustomDialog
             trigger={
               <Button className="cursor-pointer !text-sm !text-white hover:!bg-[#008080ed] border-none">
-                +<span className=" hidden sm:inline text-xs">&nbsp;Add New</span>
+                +
+                <span className=" hidden sm:inline text-xs">&nbsp;Add New</span>
               </Button>
             }
             title="Add New Job Level"
+            height="md"
             confirmLabel="Save Job Level"
             description="Enter the details for the new job level"
             onConfirm={handleSaveJobLevel}
@@ -441,7 +444,8 @@ export const JobSettingsTab = () => {
           <CustomDialog
             trigger={
               <Button className="cursor-pointer !text-sm !text-white hover:!bg-[#008080ed] border-none">
-                +<span className=" hidden sm:inline text-xs">&nbsp;Add New</span>
+                +
+                <span className=" hidden sm:inline text-xs">&nbsp;Add New</span>
               </Button>
             }
             title="Add New Employee Type"
@@ -486,7 +490,8 @@ export const JobSettingsTab = () => {
           <CustomDialog
             trigger={
               <Button className="cursor-pointer !text-sm !text-white hover:!bg-[#008080ed] border-none">
-                +<span className=" hidden sm:inline text-xs">&nbsp;Add New</span>
+                +
+                <span className=" hidden sm:inline text-xs">&nbsp;Add New</span>
               </Button>
             }
             title="Add New Salary Type"

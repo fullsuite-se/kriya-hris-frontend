@@ -7,6 +7,9 @@ import fetchJobDetailsAPI, {
 } from "@/services/jobAPI";
 import { UserContext } from "@/context/UserContext";
 
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+
+
 export const useAddJobAPI = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -93,35 +96,41 @@ export const useFetchJobDetailsAPI = ({ company_id, job_title_id }) => {
 };
 
 
-
 export const useFetchAllJobsAPI = (company_id) => {
-  const [allJobs, setAllJobs] = useState([]);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
 
-  const fetchAllJobs = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await fetchAllJobsAPI(company_id);
-      const sortedJobs = (response || []).sort((a, b) =>
+  const {
+    data: allJobs = [],
+    error,
+    isLoading: loading,
+    refetch,
+  } = useQuery({
+    queryKey: ['jobs', company_id],
+    queryFn: () => fetchAllJobsAPI(company_id),
+    enabled: !!company_id, // Only fetch if company_id exists
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    cacheTime: 15 * 60 * 1000, // 15 minutes
+    select: (data) => {
+      // Sort the data after fetching
+      const sortedJobs = (data || []).sort((a, b) =>
         a.job_title.localeCompare(b.job_title)
       );
-      setAllJobs(sortedJobs);
-    } catch (err) {
-      console.error("Failed to fetch all jobs:", err);
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [company_id]);
+      return sortedJobs;
+    },
+  });
 
-  useEffect(() => {
-    fetchAllJobs();
-  }, [fetchAllJobs]);
+  const setAllJobs = useCallback((newJobs) => {
+    queryClient.setQueryData(['jobs', company_id], newJobs);
+  }, [queryClient, company_id]);
 
-  return { allJobs, error, loading, refetch: fetchAllJobs, setAllJobs };
+  return {
+    allJobs,
+    error,
+    loading,
+    refetch,
+    setAllJobs,
+  };
 };
-
 
 
 export default useFetchJobDetailsAPI;

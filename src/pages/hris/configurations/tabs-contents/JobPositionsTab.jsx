@@ -22,7 +22,8 @@ import { useNavigate } from "react-router-dom";
 
 export const JobPositionsTab = () => {
   const { systemCompanyId } = useAuthStore();
-  const { allJobs, refetch, setAllJobs, loading, error, } = useFetchAllJobsAPI(systemCompanyId);
+  const { allJobs, refetch, setAllJobs, loading, error } =
+    useFetchAllJobsAPI(systemCompanyId);
   const [dialogOpen, setDialogOpen] = useState(false);
   const { addJob, loading: addLoading } = useAddJobAPI();
   const { deleteJob, loading: deleteLoading } = useDeleteJobAPI();
@@ -31,7 +32,7 @@ export const JobPositionsTab = () => {
   const removeLocalJob = (job_title_id) => {
     const jobToRemove = allJobs.find((j) => j.job_title_id === job_title_id);
     setAllJobs((prev) => prev.filter((j) => j.job_title_id !== job_title_id));
-    return jobToRemove; 
+    return jobToRemove;
   };
 
   const restoreLocalJob = (job) => {
@@ -168,7 +169,8 @@ export const JobPositionsTab = () => {
     glassToast({
       message: (
         <>
-          Job <span style={{ color: "#008080" }}>{job_title}</span> deleted successfully!
+          Job <span style={{ color: "#008080" }}>{job_title}</span> deleted
+          successfully!
         </>
       ),
       icon: <CheckCircleIcon className="text-[#008080] w-5 h-5" />,
@@ -188,7 +190,7 @@ export const JobPositionsTab = () => {
 
       try {
         await deleteJob({ company_id: systemCompanyId, job_title_id });
-        refetch(); 
+        refetch();
       } catch (err) {
         console.error("Failed to delete job:", err);
         glassToast({
@@ -203,20 +205,17 @@ export const JobPositionsTab = () => {
         restoreLocalJob(deletedJob);
       }
     }, 5000);
-  }; 
+  };
 
   const jobColumns = getJobPositionColumns({
     onEdit: handleEdit,
     onDelete: handleDelete,
+    editLoading: editLoading,
+    deleteLoading: deleteLoading,
   });
 
- if (loading) {
-    return (
-      // <div className="flex items-center justify-center h-screen">
-      //   <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-primary-color"></div>
-      // </div>
-        <LoadingAnimation/>
-    );
+  if (loading) {
+    return <LoadingAnimation />;
   }
 
   if (error) {
@@ -234,11 +233,12 @@ export const JobPositionsTab = () => {
         </div>
         <CustomDialog
           trigger={
-                  <Button className="cursor-pointer !text-sm !text-white hover:!bg-[#008080ed] border-none">
-  +
-  <span className=" hidden sm:inline text-xs text-xs">&nbsp;Add New Job</span>
-</Button>
-
+            <Button className="cursor-pointer !text-sm !text-white hover:!bg-[#008080ed] border-none">
+              +
+              <span className=" hidden sm:inline text-xs text-xs">
+                &nbsp;Add New Job
+              </span>
+            </Button>
           }
           title="Add New Job Position"
           confirmLabel="Save Job"
@@ -252,12 +252,7 @@ export const JobPositionsTab = () => {
             <label className="text-xs font-medium block" htmlFor="job_title">
               Job Position
             </label>
-            <Input
-              name="job_title"
-              type="text"
-            //   className="border rounded px-2 py-1 w-full"
-              required
-            />
+            <Input name="job_title" type="text" required />
           </div>
         </CustomDialog>
       </div>

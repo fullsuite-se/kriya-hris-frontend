@@ -4,7 +4,12 @@ import CustomDialog from "@/components/dialog/CustomDialog";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 
-export const getJobPositionColumns = ({ onEdit, onDelete }) => [
+export const getJobPositionColumns = ({
+  onEdit,
+  onDelete,
+  editLoading,
+  deleteLoading,
+}) => [
   {
     accessorKey: "job_title",
     header: "Job Position",
@@ -33,14 +38,14 @@ export const getJobPositionColumns = ({ onEdit, onDelete }) => [
   },
   {
     id: "actions",
-    header: () => <div className="text-right mr-1 sm:mr-3">Actions</div>,
+    // header: () => <div className="text-right mr-1 sm:mr-3">Actions</div>,
     cell: ({ row }) => {
       const { job_title_id, job_title } = row.original;
 
       const [editDialogOpen, setEditDialogOpen] = useState(false);
 
       return (
-        <div className="flex justify-start w-full gap-2 sm:gap-5">
+        <div className="flex justify-end w-full gap-2 sm:gap-5">
           <CustomDialog
             open={editDialogOpen}
             onOpenChange={setEditDialogOpen}
@@ -53,6 +58,7 @@ export const getJobPositionColumns = ({ onEdit, onDelete }) => [
               </button>
             }
             title="Edit Job"
+            loading={editLoading}
             description={`Modify details for "${job_title}"`}
             confirmLabel="Save Changes"
             onConfirm={async (formData) => {
@@ -80,6 +86,7 @@ export const getJobPositionColumns = ({ onEdit, onDelete }) => [
               </button>
             }
             title="Confirm Delete"
+            loading={deleteLoading}
             description={`Delete "${job_title}"? Employees using this will have no job position.`}
             confirmLabel="Yes, delete"
             cancelLabel="Cancel"

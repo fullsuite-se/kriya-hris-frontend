@@ -30,7 +30,7 @@ export const getShiftTemplatesColumns = ({ onEdit, onDelete }) => [
       return <span className="text-xs">{formattedDate || "---"}</span>;
     },
   },
- {
+  {
     accessorKey: "break_start_time",
     header: "Break Start Time",
     cell: ({ row }) => {
@@ -38,7 +38,8 @@ export const getShiftTemplatesColumns = ({ onEdit, onDelete }) => [
       const formattedDate = formatDate(breakStartTime, "time12");
       return <span className="text-xs">{formattedDate || "---"}</span>;
     },
-  },{
+  },
+  {
     accessorKey: "break_end_time",
     header: "Break End Time",
     cell: ({ row }) => {
@@ -58,15 +59,14 @@ export const getShiftTemplatesColumns = ({ onEdit, onDelete }) => [
   },
   {
     id: "actions",
-    header: () => <div className="text-right mr-1 sm:mr-3">Actions</div>,
+    // header: () => <div className="text-right mr-1 sm:mr-3">Actions</div>,
     cell: ({ row }) => {
-      const { shift_template_id, shift_name, day_of_week } =
-        row.original;
+      const { shift_template_id, shift_name, day_of_week } = row.original;
 
       const [editDialogOpen, setEditDialogOpen] = useState(false);
 
       return (
-        <div className="flex justify-start w-full gap-2 sm:gap-5">
+        <div className="flex justify-end w-full gap-2 sm:gap-5">
           <CustomDialog
             open={editDialogOpen}
             onOpenChange={setEditDialogOpen}

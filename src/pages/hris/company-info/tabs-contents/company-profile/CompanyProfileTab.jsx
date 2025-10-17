@@ -1,8 +1,5 @@
 import { Button } from "@/components/ui/button";
-import useFetchCompanyDetailsAPI from "@/hooks/useCompanyAPI";
 import { Separator } from "@/components/ui/separator";
-
-// import { Edit3Icon } from "lucide-react";
 import {
   PencilIcon,
   BuildingOffice2Icon,
@@ -11,22 +8,16 @@ import {
   BriefcaseIcon,
   EnvelopeIcon,
 } from "@heroicons/react/24/solid";
-import { use, useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import EditCompanyProfileDialog from "./dialogs/EditCompanyProfileDialog";
+import { useContext } from "react";
 import { CompanyDetailsContext } from "@/context/CompanyDetailsContext";
-import LoadingAnimation from "@/components/Loading";
+import EditCompanyProfileDialog from "./dialogs/EditCompanyProfileDialog";
 
 export const CompanyProfileTab = () => {
-  const  {loading, error} = useFetchCompanyDetailsAPI();
   const {
     companyEmail,
-    companyId,
-    industryId,
     industryType,
     businessType,
     companyBrn,
-    companyInfoId,
     companyLogo,
     companyName,
     companyPhone,
@@ -34,20 +25,13 @@ export const CompanyProfileTab = () => {
     companyTradeName,
     companyAddress,
   } = useContext(CompanyDetailsContext);
-  const navigate = useNavigate();
 
-  if (loading) {
-     return (
-       // <div className="flex items-center justify-center h-screen">
-       //   <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-primary-color"></div>
-       // </div>
-         <LoadingAnimation/>
-     );
-   }
 
   return (
     <div className="px-5 pb-10">
-      <div className="justify-end items-center flex mb-4">
+      <div className="justify-end items-center flex gap-2 mb-4">
+        
+
         <EditCompanyProfileDialog
           trigger={
             <Button
@@ -61,9 +45,10 @@ export const CompanyProfileTab = () => {
         />
       </div>
 
+      {/* Rest of your component remains the same */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm p-10 border-1 border-gray-200 rounded-lg">
-        {/*  Company Identity */}
-        <div className="col-span-full flex items-center gap-2 text-[#008080]  text-xs font-semibold uppercase">
+        {/* Company Identity */}
+        <div className="col-span-full flex items-center gap-2 text-[#008080] text-xs font-semibold uppercase">
           <BuildingOffice2Icon className="h-4 w-4" />
           Company Identity
         </div>
@@ -150,14 +135,6 @@ export const CompanyProfileTab = () => {
           <Separator className="my-2" />
         </div>
 
-        {/* <div className="flex flex-col gap-1">
-          <p className="text-muted-foreground text-xs">Status</p>
-          <p className="text-gray-900 font-semibold break-words whitespace-normal">
-            {companyDetails.status || "---"}
-          </p>
-          <Separator className="my-2" />
-        </div> */}
-
         {/*  Address */}
         <div className="col-span-full flex items-center gap-2 text-[#008080] text-xs font-semibold uppercase mt-4">
           <MapPinIcon className="h-4 w-4" />
@@ -167,11 +144,9 @@ export const CompanyProfileTab = () => {
         <div className="flex flex-col gap-1 col-span-full">
           <p className="text-muted-foreground text-xs">Address</p>
           <p className="text-gray-900 font-semibold break-words whitespace-normal">
-            {companyAddress?.floor_bldg_street}{" "}
-            {companyAddress?.barangay},{" "}
+            {companyAddress?.floor_bldg_street} {companyAddress?.barangay},{" "}
             {companyAddress?.city_municipality},{" "}
-            {companyAddress?.province_region},{" "}
-            {companyAddress?.country}{" "}
+            {companyAddress?.province_region}, {companyAddress?.country}{" "}
             {companyAddress?.postal_code}
           </p>
           <Separator className="my-2" />

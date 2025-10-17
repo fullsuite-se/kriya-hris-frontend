@@ -101,12 +101,12 @@ const AddressFields = ({
                   <FormLabel className="!text-xs gap-0 !text-black">
                     {label}
                     {[
-                      "city",
-                      "postalcode",
-                      "province",
-                      "region",
-                      "country",
-                      "barangay",
+                      // "city",
+                      // "postalcode",
+                      // "province",
+                      // "region",
+                      // "country",
+                      // "barangay",
                     ].includes(key.toLowerCase()) && (
                       <span className="text-primary-color ml-0.5">*</span>
                     )}

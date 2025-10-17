@@ -30,10 +30,10 @@ export const DivisionsTab = () => {
     error,
   } = useFetchDivisionsAPI();
   const [divisionsDialogOpen, setDivisionsDialogOpen] = useState(false);
-  const { addDivision} = useAddDivisionAPI();
-  const { deleteDivision } =
+  const { addDivision, loading: addDivisionLoading } = useAddDivisionAPI();
+  const { deleteDivision, loading: deleteDivisionLoading } =
     useDeleteDivisionAPI();
-  const { editDivision } = useEditDivisionAPI();
+  const { editDivision, loading: editDivisionLoading } = useEditDivisionAPI();
 
   const removeLocalDivision = (division_id) => {
     const divisionToRemove = allDivisions.find(
@@ -219,15 +219,16 @@ export const DivisionsTab = () => {
   const divisionsColumns = getDivisionsColumns({
     onEdit: handleEditDivision,
     onDelete: handleDeleteDivision,
+    editLoading: editDivisionLoading,
+    deleteLoading: deleteDivisionLoading,
   });
 
-
-   if (loading) {
+  if (loading) {
     return (
       // <div className="flex items-center justify-center h-screen">
       //   <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-primary-color"></div>
       // </div>
-        <LoadingAnimation/>
+      <LoadingAnimation />
     );
   }
   return (
@@ -244,6 +245,7 @@ export const DivisionsTab = () => {
           }
           title="Add New Division"
           confirmLabel="Save Division"
+          loading={addDivisionLoading}
           description="Enter the details for the new division"
           onConfirm={handleSaveDivision}
           open={divisionsDialogOpen}

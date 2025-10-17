@@ -25,7 +25,7 @@ export const useAuthStore = create(
         }),
 
       logout: () => {
-        localStorage.removeItem("accessToken");
+        localStorage.removeItem("token");
         set({
           systemUserId: null,
           systemUserEmail: null,

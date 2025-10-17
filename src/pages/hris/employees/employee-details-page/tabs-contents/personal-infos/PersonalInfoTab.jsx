@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import useFetchCompanyDetailsAPI from "@/hooks/useCompanyAPI";
 import { Separator } from "@/components/ui/separator";
 
 // import { Edit3Icon } from "lucide-react";
@@ -27,9 +26,7 @@ import EditGovernmentRemittancesDialog from "./dialogs/EditGovermentRemittancesD
 import EditEmergencyContactsDialog from "./dialogs/EditEmergencyContactsDialog";
 
 export const PersonalInfoTab = () => {
-  // const { companyDetails, refetch, error, loading } =
-  //   useFetchCompanyDetailsAPI();
-
+ 
   const {
     personalInfo,
     user,

@@ -91,14 +91,9 @@ const EmployeeDetailsPage = () => {
     <div ref={topRef} className="relative bg-white shadow-xs rounded-lg p-5">
       <div className="flex flex-wrap justify-between gap-4 mb-10">
         <div className="flex flex-wrap gap-6 sm:gap-10 items-center flex-1 min-w-[200px]">
-          {/* <div className="h-30 w-30 sm:h-40 sm:w-40 rounded-full border-2 border-gray-300 overflow-hidden flex items-center justify-center bg-primary-color flex-shrink-0">
-            <span className="text-4xl sm:text-5xl font-bold text-white">
-              {personalInfo?.first_name?.[0]}
-              {personalInfo?.last_name?.[0]}
-            </span>
-          </div> */}
+     
 
-          <div className="relative h-30 w-30 sm:h-40 sm:w-40 rounded-full border-2 border-gray-300  bg-primary-color flex-shrink-0">
+          <div className="relative h-30 w-30 sm:h-40 sm:w-40 rounded-full border-1 border-gray-300  bg-primary-color flex-shrink-0">
             {personalInfo?.user_pic ? (
               <img
                 src={personalInfo.user_pic}
@@ -111,15 +106,13 @@ const EmployeeDetailsPage = () => {
                 {personalInfo?.last_name?.[0]?.toUpperCase()}
               </span>
             )}
-            {/* <div className="absolute bottom-1 right-1 sm:bottom-3 sm:right-3 bg-white p-1 rounded-full shadow-md">
-              <PencilIcon className="w-4 h-4 text-[#008080]" />
-            </div> */}
+           
           </div>
 
           <div className="flex flex-col gap-4 min-w-[200px]">
             <div>
               <div className="flex items-center gap-1 text-primary-color font-bold text-sm">
-                {/* <HashIcon size={14} /> */}
+                
                 <p>{user?.user_id}</p>
               </div>
               <h2 className="font-extrabold text-lg sm:text-2xl">

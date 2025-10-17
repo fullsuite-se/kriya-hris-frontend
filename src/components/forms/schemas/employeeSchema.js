@@ -35,22 +35,22 @@ export const employeeFormSchema = z.object({
   gender: z.string().optional().nullable(),
   birthdate: z.date("required"),
   birthplace: z.string().trim().optional().nullable(),
-  nationality: z.string().trim().min(1, "required"),
+  nationality: z.string().trim().optional(),
   civilStatus: z.string().trim().min(1, "required"),
   heightCm: z.number().optional().nullable(),
   weightKg: z.number().optional().nullable(),
   bloodType: z.string().trim().optional().nullable(),
 
   // Contact Info
-  personalEmail: z.string().trim().min(1, "required"),
-  phoneNumber: z.string().trim().min(1, "required"),
+  personalEmail: z.string().trim().optional(),
+  phoneNumber: z.string().trim().optional(),
   companyIssuedPhoneNumber: z.string().trim().optional().nullable(),
 
   // Emergency Contacts
   emergencyContacts: z
     .array(
       z.object({
-        name: z.string().trim().optional().nullable(),
+        fullname: z.string().trim().optional().nullable(),
         contactNumber: z.string().trim().optional().nullable(),
         relationship: z.string().trim().optional().nullable(),
       })
@@ -193,7 +193,7 @@ export const employeePersonalDetailsFormSchema = z.object({
   gender: z.string().optional(),
   birthdate: z.date("required"),
   birthplace: z.string().trim().optional(),
-  nationality: z.string().trim().min(1, "required"),
+  nationality: z.string().trim().optional(),
   civilStatus: z.string().trim().min(1, "required"),
   heightCm: z.number().optional(),
   weightKg: z.number().optional(),
@@ -202,8 +202,8 @@ export const employeePersonalDetailsFormSchema = z.object({
 
 export const employeeContactInfoFormSchema = z.object({
   // Contact Info
-  personalEmail: z.string().trim().min(1, "required"),
-  phoneNumber: z.string().trim().min(1, "required"),
+  personalEmail: z.string().trim().optional(),
+  phoneNumber: z.string().trim().optional(),
   companyIssuedPhoneNumber: z.string().trim().optional(),
 
   workEmail: z
@@ -321,6 +321,7 @@ export const employeeDocuURLFormSchema = z.object({
 //designation
 
 export const employeeDesignationFormSchema = z.object({
+  company_employer: z.string().trim().optional().nullable(),
   office: z.string().trim().optional().nullable(),
   division: z.string().trim().optional().nullable(),
   department: z.string().trim().optional().nullable(),
@@ -355,140 +356,3 @@ export const employeeTimelineFormSchema = z.object({
   date_offboarding: z.date().nullable().optional(),
   date_separated: z.date().nullable().optional(),
 });
-
-// ALL FIELDS NOT REQUIRED FOR FAST TESTINGG ito
-
-// import { z } from "zod";
-
-// export const employeeFormSchema = z.object({
-//   // User account
-//   password: z.string().optional(),
-//   confirmPassword: z.string().optional(),
-
-//   // Personal Info
-//   firstName: z.string().optional(),
-//   middleName: z.string().optional(),
-//   lastName: z.string().optional(),
-//   nickname: z.string().optional(),
-//   extensionName: z.string().optional(),
-//   sex: z.string().optional(),
-//   gender: z.string().optional(),
-//   birthdate: z.date().optional(),
-//   birthplace: z.string().optional(),
-//   nationality: z.string().optional(),
-//   civilStatus: z.string().optional(),
-//   heightCm: z.number().optional(),
-//   weightKg: z.number().optional(),
-//   bloodType: z.string().optional(),
-
-//   // Contact Info
-//   personalEmail: z.string().optional(),
-//   phoneNumber: z.string().optional(),
-
-//   // Emergency Contacts
-//   emergencyContacts: z
-//     .array(
-//       z.object({
-//         name: z.string().optional(),
-//         contactNumber: z.string().optional(),
-//         relationship: z.string().optional(),
-//       })
-//     )
-//     .optional(),
-
-//   // Permanent Address
-//   buildingNumPermanent: z.string().optional(),
-//   streetPermanent: z.string().optional(),
-//   postalCodePermanent: z.string().optional(),
-//   countryPermanent: z.string().optional(),
-//   regionPermanent: z
-//     .object({
-//       code: z.string().optional(),
-//       name: z.string().optional(),
-//     })
-//     .optional(),
-//   provincePermanent: z
-//     .object({
-//       code: z.string().optional(),
-//       name: z.string().optional(),
-//     })
-//     .optional(),
-//   cityPermanent: z
-//     .object({
-//       code: z.string().optional(),
-//       name: z.string().optional(),
-//     })
-//     .optional(),
-//   barangayPermanent: z
-//     .object({
-//       code: z.string().optional(),
-//       name: z.string().optional(),
-//     })
-//     .optional(),
-
-//   // Present Address
-//   buildingNumPresent: z.string().optional(),
-//   streetPresent: z.string().optional(),
-//   postalCodePresent: z.string().optional(),
-//   countryPresent: z.string().optional(),
-//   regionPresent: z
-//     .object({
-//       code: z.string().optional(),
-//       name: z.string().optional(),
-//     })
-//     .optional(),
-//   provincePresent: z
-//     .object({
-//       code: z.string().optional(),
-//       name: z.string().optional(),
-//     })
-//     .optional(),
-//   cityPresent: z
-//     .object({
-//       code: z.string().optional(),
-//       name: z.string().optional(),
-//     })
-//     .optional(),
-//   barangayPresent: z
-//     .object({
-//       code: z.string().optional(),
-//       name: z.string().optional(),
-//     })
-//     .optional(),
-
-//   // Government Remittances
-//   governmentRemittances: z
-//     .array(
-//       z.object({
-//         gov_type_id: z.string().optional(),
-//         type: z.string().optional(),
-//         acc_number: z.string().optional(),
-//       })
-//     )
-//     .optional(),
-
-//   // Employee Info
-//   employeeId: z.string().optional(),
-//   workEmail: z.string().optional(),
-//   companyIssuedPhoneNumber: z.string().optional(),
-//   office: z.string().optional(),
-//   division: z.string().optional(),
-//   department: z.string().optional(),
-//   team: z.string().optional(),
-//   jobTitle: z.string().optional(),
-//   employmentStatus: z.string().optional(),
-//   jobLevel: z.string().optional(),
-//   employeeType: z.string().optional(),
-//   shift: z.string().optional(),
-//   supervisor: z.string().optional(),
-
-//   salaryBasePay: z.number().optional(),
-//   salaryType: z.string().optional(),
-//   docuEmploymentLink: z.string().optional(),
-
-//   // Employment Timeline
-//   dateHired: z.date().optional(),
-//   dateRegularized: z.date().optional(),
-//   dateOffboarded: z.date().optional(),
-//   dateSeparated: z.date().optional(),
-// });

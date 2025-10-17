@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import loadingKriya from "@/assets/images/loading-1.svg";
 
-const LoadingAnimation = () => {
+export default function LoadingAnimation({ size = 80, withText = false }) {
   const [currentPhrase, setCurrentPhrase] = useState(0);
   const [fade, setFade] = useState(true);
 
@@ -26,7 +26,6 @@ const LoadingAnimation = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setFade(false);
-
       setTimeout(() => {
         setCurrentPhrase((prev) => (prev + 1) % loadingPhrases.length);
         setFade(true);
@@ -34,23 +33,28 @@ const LoadingAnimation = () => {
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [loadingPhrases.length]);
+  }, []);
 
   return (
-    <div className="flex flex-col items-center gap-1 justify-center h-screen -mt-30 text-[#008080]">
+    <div className="flex flex-col items-center justify-center h-screen gap-1 text-[#008080] -mt-30">
       <img
         src={loadingKriya}
         alt="loading"
-        width={80}
-        height={80}
-        className="rotate-90"
+        width={size}
+        height={size}
+        className={`transition-opacity duration-500 rotate-90 ${
+          fade ? "opacity-100" : "opacity-0"
+        }`}
       />
-
-      <p className="text-sm font-regular italic">
-        {loadingPhrases[currentPhrase]}
-      </p>
+      {withText && (
+        <p
+          className={`text-sm italic font-normal transition-opacity duration-500 ${
+            fade ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          {loadingPhrases[currentPhrase]}
+        </p>
+      )}
     </div>
   );
-};
-
-export default LoadingAnimation;
+}

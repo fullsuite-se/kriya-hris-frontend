@@ -1,15 +1,16 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import ShowEyeIcon, { HideEyeIcon } from "@/assets/icons/EyeIcon";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/solid";
 import { glassToast } from "@/components/ui/glass-toast";
 import { jwtDecode } from "jwt-decode";
 import { useAuthStore } from "@/stores/useAuthStore";
-
+import { UserContext } from "@/context/UserContext";
 import { useNavigate } from "react-router-dom";
 import { useLoginUserAPI } from "@/hooks/useAuthAPI";
+import useFetchLoggedInUserDetailsAPI from "@/hooks/useEmployeeAPI";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -17,8 +18,13 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const setAuth = useAuthStore((state) => state.setAuth);
+  const { clearUserCache } = useContext(UserContext);
 
   const { loginUser, loading } = useLoginUserAPI();
+
+  useEffect(() => {
+    clearUserCache();
+  }, []); 
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -48,7 +54,6 @@ const LoginPage = () => {
       const accessPermissionNames = decoded.accessPermissions.map(
         (p) => p.feature_name
       );
-
       setAuth({
         systemUserId: decoded.system_user_id,
         systemCompanyId: decoded.system_company_id,
@@ -73,10 +78,9 @@ const LoginPage = () => {
     }
   };
 
-
-    useEffect(() => {
-      document.title = "Log in";
-    }, []);
+  useEffect(() => {
+    document.title = "Log in";
+  }, []);
 
   return (
     <div className="dark flex p-10 items-center justify-center h-screen bg-gradient-to-tl from-[#008080] to-[#CC5500]">
@@ -140,7 +144,10 @@ const LoginPage = () => {
           </div>
 
           <div className="flex justify-end mb-10">
-            <a href="/reset-password" className="text-xs text-white hover:underline">
+            <a
+              href="/reset-password"
+              className="text-xs text-white hover:underline"
+            >
               Forgot password?
             </a>
           </div>

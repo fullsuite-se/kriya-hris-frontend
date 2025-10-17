@@ -24,6 +24,7 @@ import {
 import AccessControlPage from "@/pages/hris/access-control/AccessControlPage";
 import ResetPasswordPage from "@/pages/hris/auth/reset-password/ResetPasswordPage";
 import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
+import AnalyticsPage from "@/pages/hris/analytics/AnalyticsPage";
 
 const AppRoutes = () => {
   return (
@@ -135,6 +136,11 @@ const AppRoutes = () => {
             element={<ProtectedRoute service="HRIS" feature="Access Control" />}
           >
             <Route path="hris/access-control" element={<AccessControlPage />} />
+          </Route>
+          <Route
+            element={<ProtectedRoute service="HRIS" feature="Analytics" />}
+          >
+            <Route path="hris/analytics" element={<AnalyticsPage />} />
           </Route>
         </Route>
         <Route

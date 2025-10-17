@@ -69,7 +69,7 @@ const EmployeeForm = ({ onSubmit, onCancel }) => {
       // Emergency Contacts
       emergencyContacts: [
         {
-          name: "",
+          fullname: "",
           contactNumber: "",
           relationship: "",
         },
@@ -168,7 +168,6 @@ const EmployeeForm = ({ onSubmit, onCancel }) => {
     useCheckEmployeeIdAvailabilityAPI();
 
   const {
-    handleSubmit,
     formState: { isSubmitting },
   } = form;
 
@@ -267,7 +266,6 @@ const EmployeeForm = ({ onSubmit, onCancel }) => {
             name="nationality"
             label="Nationality"
             control={form.control}
-            required
           />
           <DropdownField
             name="bloodType"
@@ -301,7 +299,6 @@ const EmployeeForm = ({ onSubmit, onCancel }) => {
             control={form.control}
             type="email"
             placeholder="you@gmail.com"
-            required
           />
           <TextField
             name="phoneNumber"
@@ -309,7 +306,6 @@ const EmployeeForm = ({ onSubmit, onCancel }) => {
             control={form.control}
             type="tel"
             placeholder="09XXXXXXXXX"
-            required
           />
         </div>
       </div>

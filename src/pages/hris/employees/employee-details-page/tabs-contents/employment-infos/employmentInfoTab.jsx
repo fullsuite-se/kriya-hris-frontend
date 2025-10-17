@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import useFetchCompanyDetailsAPI from "@/hooks/useCompanyAPI";
 import { Separator } from "@/components/ui/separator";
 
 // import { Edit3Icon } from "lucide-react";
@@ -17,26 +16,50 @@ import DriveFolderEmbed from "../../drive-folder/DriveFolderEmbed";
 import EditDesignationDialog from "./dialogs/EditDesignationDialog";
 import EditSalaryDialog from "./dialogs/EditSalaryDialog";
 import EditEmploymentTimelineDialog from "./dialogs/EditEmploymentTimelineDialog";
-
+import {
+  differenceInDays,
+  differenceInHours,
+  differenceInMonths,
+  isToday,
+  isPast,
+  parseISO,
+  startOfDay,
+} from "date-fns";
 export const EmploymentInfoTab = () => {
-  // const { companyDetails, refetch, error, loading } =
-  //   useFetchCompanyDetailsAPI();
+  const { designations, employmentInfo, salaryInfo } = useContext(
+    EmployeeDetailsContext
+  );
 
-  const {
-    designations,
-    employmentInfo,
-    salaryInfo,
-  } = useContext(EmployeeDetailsContext);
+  const dateString = employmentInfo?.date_regularization;
 
-  const navigate = useNavigate();
+  const renderCountdown = (date) => {
+    if (!date) return "";
 
-  // useEffect(() => {
-  //   console.log("designations: ", designations);
-  // }, [designations]);
+    const targetDate = parseISO(date);
+    const now = new Date();
 
-  // if (loading) {
-  //   return null;
-  // }
+    if (isPast(targetDate) && !isToday(targetDate)) return "";
+
+    if (isToday(targetDate)) return "(Today)";
+
+    const daysDiff = differenceInDays(startOfDay(targetDate), startOfDay(now));
+
+    if (daysDiff >= 30) {
+      const monthsDiff = differenceInMonths(targetDate, now);
+      return `(${monthsDiff} month${monthsDiff > 1 ? "s" : ""} left)`;
+    }
+
+    if (daysDiff >= 1) {
+      return `(${daysDiff} day${daysDiff > 1 ? "s" : ""} left)`;
+    }
+
+    const hoursDiff = differenceInHours(targetDate, now);
+    if (hoursDiff > 0) {
+      return `(${hoursDiff} hour${hoursDiff > 1 ? "s" : ""} left)`;
+    }
+
+    return ""; 
+  };
 
   return (
     <div className="px-5 pb-10">
@@ -60,7 +83,13 @@ export const EmploymentInfoTab = () => {
             }
           />
         </div>
-
+        <div className="flex flex-col gap-1">
+          <p className="text-muted-foreground text-xs">Employer</p>
+          <p className="text-gray-900 font-semibold break-words whitespace-normal">
+            {designations?.CompanyEmployer?.company_employer_name ?? "---"}
+          </p>
+          <Separator className="my-2" />
+        </div>{" "}
         <div className="flex flex-col gap-1">
           <p className="text-muted-foreground text-xs">Office</p>
           <p className="text-gray-900 font-semibold break-words whitespace-normal">
@@ -68,7 +97,6 @@ export const EmploymentInfoTab = () => {
           </p>
           <Separator className="my-2" />
         </div>
-
         <div className="flex flex-col gap-1">
           <p className="text-muted-foreground text-xs">Division</p>
           <p className="text-gray-900 font-semibold break-words whitespace-normal">
@@ -76,7 +104,6 @@ export const EmploymentInfoTab = () => {
           </p>
           <Separator className="my-2" />
         </div>
-
         <div className="flex flex-col gap-1">
           <p className="text-muted-foreground text-xs">Department</p>
           <p className="text-gray-900 font-semibold break-words whitespace-normal">
@@ -84,7 +111,6 @@ export const EmploymentInfoTab = () => {
           </p>
           <Separator className="my-2" />
         </div>
-
         <div className="flex flex-col gap-1">
           <p className="text-muted-foreground text-xs">Team</p>
           <p className="text-gray-900 font-semibold break-words whitespace-normal">
@@ -92,7 +118,6 @@ export const EmploymentInfoTab = () => {
           </p>
           <Separator className="my-2" />
         </div>
-
         <div className="flex flex-col gap-1">
           <p className="text-muted-foreground text-xs">Job Position</p>
           <p className="text-gray-900 font-semibold break-words whitespace-normal">
@@ -100,7 +125,6 @@ export const EmploymentInfoTab = () => {
           </p>
           <Separator className="my-2" />
         </div>
-
         <div className="flex flex-col gap-1">
           <p className="text-muted-foreground text-xs">Job Level</p>
           <p className="text-gray-900 font-semibold break-words whitespace-normal">
@@ -108,7 +132,6 @@ export const EmploymentInfoTab = () => {
           </p>
           <Separator className="my-2" />
         </div>
-
         <div className="flex flex-col gap-1">
           <p className="text-muted-foreground text-xs">Employee Type</p>
           <p className="text-gray-900 font-semibold break-words whitespace-normal">
@@ -116,7 +139,6 @@ export const EmploymentInfoTab = () => {
           </p>
           <Separator className="my-2" />
         </div>
-
         <div className="flex flex-col gap-1">
           <p className="text-muted-foreground text-xs">Shift</p>
           <p className="text-gray-900 font-semibold break-words whitespace-normal">
@@ -132,7 +154,6 @@ export const EmploymentInfoTab = () => {
           </p>
           <Separator className="my-2" />
         </div>
-
         <div className="flex flex-col gap-1">
           <p className="text-muted-foreground text-xs">Immediate Supervisor</p>
 
@@ -149,9 +170,8 @@ export const EmploymentInfoTab = () => {
 
           <Separator className="my-2" />
         </div>
-
         {/* salary */}
-        <div className="col-span-full flex justify-between items-center text-[#008080] text-xs font-semibold uppercase">
+        <div className="col-span-full flex justify-between items-center text-[#008080] text-xs font-semibold uppercase mt-10">
           <div className="flex items-center gap-2">
             <BanknotesIcon className="h-4 w-4 hidden sm:inline" />
             Salary Information
@@ -169,7 +189,6 @@ export const EmploymentInfoTab = () => {
             }
           />
         </div>
-
         <div className="flex flex-col gap-1">
           <p className="text-muted-foreground text-xs">Base Pay (PHP)</p>
           <p className="text-gray-900 font-semibold break-words whitespace-normal">
@@ -182,7 +201,6 @@ export const EmploymentInfoTab = () => {
           </p>
           <Separator className="my-2" />
         </div>
-
         <div className="flex flex-col gap-1">
           <p className="text-muted-foreground text-xs">Type</p>
           <p className="text-gray-900 font-semibold break-words whitespace-normal">
@@ -191,9 +209,8 @@ export const EmploymentInfoTab = () => {
           </p>
           <Separator className="my-2" />
         </div>
-
         {/* Employment timeline */}
-         <div className="col-span-full flex justify-between items-center text-[#008080] text-xs font-semibold uppercase">
+        <div className="col-span-full flex justify-between items-center text-[#008080] text-xs font-semibold uppercase mt-10">
           <div className="flex items-center gap-2">
             <CalendarDateRangeIcon className="h-4 w-4 hidden sm:inline" />
             Employment Timeline
@@ -211,7 +228,6 @@ export const EmploymentInfoTab = () => {
             }
           />
         </div>
-
         <div className="flex flex-col gap-1">
           <p className="text-muted-foreground text-xs">Date Hired</p>
           <p className="text-gray-900 font-semibold break-words whitespace-normal">
@@ -219,17 +235,22 @@ export const EmploymentInfoTab = () => {
           </p>
           <Separator className="my-2" />
         </div>
-
         <div className="flex flex-col gap-1">
           <p className="text-muted-foreground text-xs">Date Regularized</p>
           <p className="text-gray-900 font-semibold break-words whitespace-normal">
-            {employmentInfo?.date_regularization
-              ? formatDate(employmentInfo?.date_regularization, "fullMonth")
-              : "---"}
+            {dateString ? (
+              <>
+                {formatDate(dateString, "fullMonth")}{" "}
+                <span className="text-xs text-muted-foreground font-medium italic">
+                  {renderCountdown(dateString)}
+                </span>
+              </>
+            ) : (
+              "---"
+            )}
           </p>
           <Separator className="my-2" />
         </div>
-
         <div className="flex flex-col gap-1">
           <p className="text-muted-foreground text-xs">Date Offboarded</p>
           <p className="text-gray-900 font-semibold break-words whitespace-normal">
@@ -239,7 +260,6 @@ export const EmploymentInfoTab = () => {
           </p>
           <Separator className="my-2" />
         </div>
-
         <div className="flex flex-col gap-1">
           <p className="text-muted-foreground text-xs">Date Separated</p>
           <p className="text-gray-900 font-semibold break-words whitespace-normal">
