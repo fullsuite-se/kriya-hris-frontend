@@ -53,12 +53,10 @@ export const employeeCols = [
               <span className="text-xs font-bold text-white">{initials}</span>
             )}
           </div>
-
+          {/* removed truncate */}
           <div className="flex flex-col max-w-[120px]">
-            <span className="text-xs font-medium truncate">{fullName}</span>
-            <span className="text-[10px] text-gray-400 truncate">
-              {employee.email}
-            </span>
+            <span className="text-xs font-medium">{fullName}</span>
+            <span className="text-[10px] text-gray-400">{employee.email}</span>
           </div>
         </div>
       );

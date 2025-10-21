@@ -35,7 +35,6 @@ export const getAccessControlColumns = (refetch) => [
       return (
         <div className="flex items-center gap-2 mr-10">
           <div className="h-10 w-10 rounded-full border-1 border-gray-300 overflow-hidden flex items-center justify-center bg-primary-color flex-shrink-0">
-            
             {user_pic ? (
               <img
                 src={user_pic}
@@ -46,10 +45,10 @@ export const getAccessControlColumns = (refetch) => [
               <span className="text-xs font-bold text-white">{initials}</span>
             )}
           </div>
-
+          {/* remove truncate */}
           <div className="flex flex-col max-w-[120px]">
-            <span className="text-xs font-medium truncate">{fullName}</span>
-            <span className="text-[10px] text-gray-400 truncate">
+            <span className="text-xs font-medium">{fullName}</span>
+            <span className="text-[10px] text-gray-400">
               {user.user_email}
             </span>
           </div>
