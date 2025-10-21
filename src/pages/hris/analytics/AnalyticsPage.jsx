@@ -7,7 +7,7 @@ export default function AnalyticsPage() {
   useEffect(() => {
     setHeaderConfig({
       title: "Analytics",
-      description: "insights heree",
+      description: "insights here",
     });
   }, []);
 

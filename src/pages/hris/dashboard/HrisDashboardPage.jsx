@@ -48,7 +48,7 @@ const HrisDashboardPage = () => {
   useEffect(() => {
     setHeaderConfig({
       title: "HRIS Dashboard",
-      description: "Summary or analytics heree",
+      description: "Summary or analytics here",
       rightContent: <DashboardDateTime />,
     });
   }, []);
@@ -68,10 +68,7 @@ const HrisDashboardPage = () => {
     );
   }
 
- const {
-    activeCount,
-    countsByStatus = [],
-  } = employeeCounts || {};
+  const { activeCount, countsByStatus = [] } = employeeCounts || {};
 
   const statusWithNew = countsByStatus.sort((a, b) =>
     a.employment_status.localeCompare(b.employment_status)
@@ -117,48 +114,47 @@ const HrisDashboardPage = () => {
 
   return (
     <div className="flex flex-col min-h-screen gap-5">
-
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 auto-rows-[minmax(100px,auto)]">
         <div className="col-span-1">
           {/* <Link to="/hris/employees" className="col-span-1"> */}
-            <div className="bg-[#008080] rounded-2xl shadow-sm p-5 hover:shadow-md transition-shadow">
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="text-lg font-semibold text-white">
-                  Active Employees
-                </h3>
-                <UserGroupIcon width={20} className="text-white" />
-              </div>
-              <p className="text-6xl font-bold text-white">{activeCount}</p>
+          <div className="bg-[#008080] rounded-2xl shadow-sm p-5 hover:shadow-md transition-shadow">
+            <div className="flex justify-between items-start mb-2">
+              <h3 className="text-lg font-semibold text-white">
+                Active Employees
+              </h3>
+              <UserGroupIcon width={20} className="text-white" />
             </div>
+            <p className="text-6xl font-bold text-white">{activeCount}</p>
+          </div>
           {/* </Link> */}
         </div>
 
-      {statusWithNew.map((status) => (
+        {statusWithNew.map((status) => (
           <div key={status.employment_status_id} className="col-span-1">
             {/* <Link to="/hris/employees" key={status.employment_status_id} className="col-span-1"> */}
-              <div className="bg-white rounded-2xl shadow-sm p-5 hover:shadow-md transition-shadow">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-lg font-semibold text-gray-800">
-                    {status.employment_status}
-                  </h3>
-                  {statusIcons[status.employment_status] || (
-                    <UserGroupIcon width={20} className="text-[#008080]" />
-                  )}
-                </div>
-                <p className="text-3xl font-bold text-[#008080]">
-                  {status.count}
-                </p>
-                <span className="text-sm text-gray-500 mt-2">
-                  +{status.newThisMonth} this month
-                </span>
+            <div className="bg-white rounded-2xl shadow-sm p-5 hover:shadow-md transition-shadow">
+              <div className="flex justify-between items-start mb-2">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  {status.employment_status}
+                </h3>
+                {statusIcons[status.employment_status] || (
+                  <UserGroupIcon width={20} className="text-[#008080]" />
+                )}
               </div>
+              <p className="text-3xl font-bold text-[#008080]">
+                {status.count}
+              </p>
+              <span className="text-sm text-gray-500 mt-2">
+                +{status.newThisMonth} this month
+              </span>
+            </div>
             {/* </Link> */}
           </div>
         ))}
 
         <div className="bg-white rounded-2xl shadow-sm p-5 col-span-1 lg:col-span-2 lg:row-span-2">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">Summary</h3>
-          <div className="text-gray-500">Contents heree</div>
+          <div className="text-gray-500">Contents here</div>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm p-5 col-span-1 lg:col-span-2 lg:row-span-4">

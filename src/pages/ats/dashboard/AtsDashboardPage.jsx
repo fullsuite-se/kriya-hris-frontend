@@ -8,15 +8,11 @@ const AtsDashboardPage = () => {
   useEffect(() => {
     setHeaderConfig({
       title: "ATS Dashboard",
-      description: "Summary or analytcis heree",
+      description: "Summary or analytcis here",
     });
   }, []);
 
-  return (
-    <div className="hidden ">
-    
-    </div>
-  );
+  return <div className="hidden "></div>;
 };
 
 export default AtsDashboardPage;

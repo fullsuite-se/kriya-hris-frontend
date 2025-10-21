@@ -8,15 +8,11 @@ const AllApplicantsPage = () => {
   useEffect(() => {
     setHeaderConfig({
       title: "Applicants",
-      description: "list heree",
+      description: "list here",
     });
   }, []);
 
-  return (
-    <div className="hidden ">
-    
-    </div>
-  );
+  return <div className="hidden "></div>;
 };
 
 export default AllApplicantsPage;
