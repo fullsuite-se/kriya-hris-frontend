@@ -116,7 +116,8 @@ const sidebarLinks = [
 
 const Sidebar = () => {
   const navigate = useNavigate();
-  const { personalInfo, user, designations, loading } = useContext(UserContext);
+  const { personalInfo, user, designations, loading, employmentInfo } =
+    useContext(UserContext);
   const { servicePermissions, accessPermissions, systemUserId } =
     useAuthStore();
   const allowedServices = servicePermissions.map((s) => s.toLowerCase());
@@ -236,9 +237,17 @@ const Sidebar = () => {
             }
           >
             <div
-              className={`${
-                collapsed ? "mt-1.5" : "h-11 w-11"
-              } h-11 w-11 rounded-full border-1 border-gray-300 overflow-hidden flex items-center justify-center bg-primary-color flex-shrink-0`}
+              className={`
+    rounded-full overflow-hidden flex items-center justify-center flex-shrink-0
+    ${collapsed ? "mt-1.5 h-11 w-11" : "h-11 w-11"}
+    border border-gray-300
+    ${
+      employmentInfo?.HrisUserEmploymentStatus?.employment_status?.toLowerCase() ===
+      "separated"
+        ? "bg-gray-300"
+        : "bg-primary-color"
+    }
+  `}
             >
               {personalInfo?.user_pic ? (
                 <img
