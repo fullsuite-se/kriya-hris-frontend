@@ -166,7 +166,7 @@ const EmployeeDetailsPage = () => {
               normalized === "r"
                 ? "text-green-700 bg-green-700/10"
                 : normalized === "p"
-                ? "text-amber-700 bg-amber-700/10"
+                ? "text-cyan-700 bg-cyan-700/10"
                 : normalized === "s"
                 ? "text-red-700 bg-red-700/10"
                 : "text-gray-700 bg-gray-700/10";
