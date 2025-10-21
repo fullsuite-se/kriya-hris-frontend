@@ -10,6 +10,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { UserContext } from "@/context/UserContext";
 import { useNavigate } from "react-router-dom";
 import { useLoginUserAPI } from "@/hooks/useAuthAPI";
+import loginBg from "@/assets/images/login-bg-1.svg";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -23,7 +24,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     clearUserCache();
-  }, []); 
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -82,8 +83,19 @@ const LoginPage = () => {
   }, []);
 
   return (
-    <div className="dark flex p-10 items-center justify-center h-screen bg-gradient-to-tl from-[#008080] to-[#CC5500]">
-      <div className="w-full max-w-md space-y-6 p-8 rounded-2xl shadow-xl border border-white/20 bg-white/10 backdrop-blur-md">
+    <div
+      className="dark flex p-10 items-center justify-center h-screen bg-gradient-to-tl from-[#008080] to-[#CC5500]"
+      style={{
+        backgroundImage: `url(${loginBg})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        animation: "breathingBg 12s ease-in-out infinite",
+      }}
+    >
+      <div className="absolute inset-0 bg-black/60" />
+
+      <div className="w-full max-w-md space-y-6 p-8 rounded-2xl shadow-xl border border-white/20 bg-white/10 backdrop-blur-sm">
         <div className="flex justify-center">
           <img
             src="/kriya.svg"
