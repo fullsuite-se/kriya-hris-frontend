@@ -5,11 +5,9 @@ import {
   UserGroupIcon,
   XCircleIcon,
 } from "@heroicons/react/24/outline";
-import React, { useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 import DashboardDateTime from "./components/DashboardDateTime";
-import { ExclamationCircleIcon, HeartIcon } from "@heroicons/react/24/solid";
-import Skeleton from "react-loading-skeleton";
+import { ExclamationCircleIcon } from "@heroicons/react/24/solid";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -24,6 +22,11 @@ import {
 import { Line } from "react-chartjs-2";
 import LoadingAnimation from "@/components/Loading";
 import { useFetchEmployeeCountsAPI } from "@/hooks/useEmployeeAPI";
+import {
+  useFetchAvailableYearsAPI,
+  useFetchMonthlyTrendsAPI,
+} from "@/hooks/useAnalyticsAPI";
+import LineChartSkeleton from "./components/LineChartSkeleton";
 
 ChartJS.register(
   CategoryScale,
@@ -43,6 +46,15 @@ const statusIcons = {
 };
 
 const HrisDashboardPage = () => {
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const {
+    data: monthlyTrends,
+    loading: trendsLoading,
+    error: trendsError,
+  } = useFetchMonthlyTrendsAPI(selectedYear);
+  const { years: availableYears, loading: yearsLoading } =
+    useFetchAvailableYearsAPI();
+
   const { setHeaderConfig } = useHeader();
 
   useEffect(() => {
@@ -73,44 +85,6 @@ const HrisDashboardPage = () => {
   const statusWithNew = countsByStatus.sort((a, b) =>
     a.employment_status.localeCompare(b.employment_status)
   );
-  const monthlyTrendsChartData = {
-    labels: [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ],
-    datasets: [
-      {
-        label: "New Employees",
-        data: [5, 12, 8, 15, 20, 18, 25, 22, 30, 28, 35, 40],
-        borderColor: "#008080",
-        backgroundColor: "rgba(0,128,128,0.2)",
-        pointBackgroundColor: "#008080",
-        pointBorderColor: "#fff",
-        pointRadius: 5,
-        fill: true,
-      },
-      {
-        label: "Resigned Employees",
-        data: [2, 3, 1, 4, 6, 5, 3, 4, 6, 7, 5, 6],
-        borderColor: "#cc5500",
-        backgroundColor: "rgba(204,85,0,0.2)",
-        pointBackgroundColor: "#cc5500",
-        pointBorderColor: "#fff",
-        pointRadius: 5,
-        fill: true,
-      },
-    ],
-  };
 
   return (
     <div className="flex flex-col min-h-screen gap-5">
@@ -168,20 +142,40 @@ const HrisDashboardPage = () => {
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm p-5 col-span-1 lg:col-span-2 lg:row-span-2">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">
-            Analytics
-          </h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-800">Analytics</h3>
+            {!yearsLoading && (
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#008080]"
+              >
+                {availableYears.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
           <div className="p-4 md:p-6">
-            {loading ? (
-              <div className="w-full h-[300px] flex items-center justify-center">
-                <Skeleton className="h-full w-full rounded-lg" />
+            {trendsLoading ? (
+            
+             <LineChartSkeleton/>
+             
+            ) : 
+            
+            trendsError ? (
+              <div className="flex items-center justify-center h-[300px] text-red-500">
+                Failed to load analytics: {trendsError}
               </div>
-            ) : (
+            ) : monthlyTrends ? (
               <div className="h-[400px]">
                 <Line
-                  data={monthlyTrendsChartData}
+                  data={monthlyTrends}
                   options={{
                     responsive: true,
+                    
                     maintainAspectRatio: false,
                     plugins: {
                       legend: {
@@ -229,7 +223,7 @@ const HrisDashboardPage = () => {
                   }}
                 />
               </div>
-            )}
+            ) : null}
           </div>
         </div>
       </div>

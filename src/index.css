@@ -309,7 +309,6 @@ input:-webkit-autofill:active {
   }
 }
 
-
 /* Smooth fading custom scrollbar */
 .custom-scrollbar {
   scrollbar-width: thin;
@@ -343,4 +342,20 @@ input:-webkit-autofill:active {
 .custom-scrollbar:hover::-webkit-scrollbar-thumb,
 .custom-scrollbar.scrolling::-webkit-scrollbar-thumb {
   opacity: 1;
+}
+
+@keyframes loadingPulse {
+  0% {
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0.45;
+  }
+}
+
+.animate-loadingPulse {
+  animation: loadingPulse 1.8s ease-in-out infinite;
 }
