@@ -114,6 +114,49 @@ export const fetchCompanyEmployersAPI = async () => {
   }
 };
 
+export const addCompanyEmployerAPI = async (company_employer_name) => {
+  try {
+    const response = await api.post(`/api/companies/employers`, {
+      company_employer_name,
+    });
+    console.log("Company Employer added successfully:", response.data.company_employer);
+    return response.data.company_employer;
+  } catch (error) {
+    console.error("Failed to add Company Employer:", error);
+    throw error;
+  }
+};
+
+export const editCompanyEmployerAPI = async (
+  company_employer_id,
+  company_employer_name
+) => {
+  try {
+    const response = await api.patch(
+      `/api/companies/employers/${company_employer_id}`,
+      { company_employer_name }
+    );
+    console.log("Company Employer updated successfully:", response.data.company_employer);
+    return response.data.company_employer;
+  } catch (error) {
+    console.error("Failed to update Company Employer:", error);
+    throw error;
+  }
+}
+
+export const deleteCompanyEmployerAPI = async (company_employer_id) => {
+  try {
+    const response = await api.delete(
+      `/api/companies/employers/${company_employer_id}`
+    );
+    console.log("Company Employer deleted successfully:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Failed to delete Company Employer:", error);
+    throw error;
+  }
+}
+
 //divisions
 
 export const fetchDivisionsAPI = async (company_id) => {

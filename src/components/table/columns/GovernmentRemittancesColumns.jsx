@@ -4,7 +4,7 @@ import CustomDialog from "@/components/dialog/CustomDialog";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 
-export const getGovernmentRemittancesColumns = ({ onEdit, onDelete }) => [
+export const getGovernmentRemittancesColumns = ({ onEdit, onDelete, editLoading, deleteLoading }) => [
   {
     accessorKey: "government_id_type_id",
     header: "Government Remittance",
@@ -52,6 +52,7 @@ export const getGovernmentRemittancesColumns = ({ onEdit, onDelete }) => [
                 <Pencil size={16} />
               </button>
             }
+            loading={editLoading}
             title="Edit Government Remittance"
             description={`Modify details for "${government_id_name}"`}
             confirmLabel="Save Changes"
@@ -81,6 +82,7 @@ export const getGovernmentRemittancesColumns = ({ onEdit, onDelete }) => [
                 <Trash2 size={16} />
               </button>
             }
+            loading={deleteLoading}
             title="Confirm Delete"
             description={`Delete "${government_id_name}"? Employees using this will have no employee type.`}
             confirmLabel="Yes, delete"

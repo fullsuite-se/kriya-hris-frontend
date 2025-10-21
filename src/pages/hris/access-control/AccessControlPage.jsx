@@ -15,7 +15,6 @@ export default function AccessControlPage() {
   const [localSearchInput, setLocalSearchInput] = useState("");
   const [selectedCardKey, setSelectedCardKey] = useState("allCount");
 
-  // Service IDs mapping - memoized
   const serviceIdsMap = useMemo(
     () => ({
       suiteliferCount: [import.meta.env.VITE_SUITELIFER_ID],
@@ -64,13 +63,11 @@ export default function AccessControlPage() {
     await originalRefetch();
   }, [updateFilters, handlePageChange, originalRefetch]);
 
-  // Memoized columns - only recreate if wrappedRefetch changes
   const accessControlColumns = useMemo(
     () => getAccessControlColumns(wrappedRefetch),
     [wrappedRefetch]
   );
 
-  // Header configuration - use ref to prevent recreation
   const headerSet = useRef(false);
 
   useEffect(() => {
@@ -92,7 +89,6 @@ export default function AccessControlPage() {
     }
   }, [setHeaderConfig, wrappedRefetch]);
 
-  // Optimized card click handler with bailout
   const handleCardClick = useCallback(
     (key) => {
       if (key === selectedCardKey) return;
@@ -102,8 +98,9 @@ export default function AccessControlPage() {
       const isAll = key === "allCount";
       const newServiceIds = isAll ? [] : serviceIdsMap[key] || [];
 
-      // Only update if filters actually changed
-      if (JSON.stringify(filters.serviceIds) !== JSON.stringify(newServiceIds)) {
+      if (
+        JSON.stringify(filters.serviceIds) !== JSON.stringify(newServiceIds)
+      ) {
         updateFilters({
           ...filters,
           serviceIds: newServiceIds,
@@ -114,7 +111,6 @@ export default function AccessControlPage() {
     [selectedCardKey, filters, serviceIdsMap, updateFilters, handlePageChange]
   );
 
-  // Memoized cards data
   const cardsData = useMemo(
     () =>
       Object.entries(counts || {})
@@ -124,7 +120,7 @@ export default function AccessControlPage() {
           const isSelected = key === selectedCardKey;
           const title = isAll
             ? "All Users"
-            : key.replace("Count", "").replace(/^\w/, (c) => c.toUpperCase());
+            : key.replace("Count", "").toUpperCase();
 
           return {
             key,
@@ -137,7 +133,6 @@ export default function AccessControlPage() {
     [counts, selectedCardKey]
   );
 
-  // Optimized debounced search effect
   useEffect(() => {
     if (localSearchInput === searchFilter) return;
 

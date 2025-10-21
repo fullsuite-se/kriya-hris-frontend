@@ -1,14 +1,17 @@
 import { useCallback, useContext, useEffect, useState } from "react";
 import {
+  addCompanyEmployerAPI,
   addDepartmentAPI,
   addDivisionAPI,
   addOfficeAPI,
   addTeamAPI,
+  deleteCompanyEmployerAPI,
   deleteDepartmentAPI,
   deleteDivisionAPI,
   deleteOfficeAPI,
   deleteTeamAPI,
   editCompanyDetailsAPI,
+  editCompanyEmployerAPI,
   editDepartmentAPI,
   editDivisionAPI,
   editOfficeAPI,
@@ -243,6 +246,73 @@ export const useFetchCompanyEmployersAPI = () => {
   };
 };
 
+export const useAddCompanyEmployerAPI = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const addCompanyEmployer = async (company_employer_name) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await addCompanyEmployerAPI(company_employer_name);
+      console.log("Company Employer added successfully:", response);
+      return response;
+    } catch (err) {
+      console.error("Failed to add Company Employer:", err);
+      setError(err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { addCompanyEmployer, loading, error };
+}
+
+export const useEditCompanyEmployerAPI = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const editCompanyEmployer = async (company_employer_id, company_employer_name) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await editCompanyEmployerAPI(
+        company_employer_id,
+        company_employer_name
+      );
+      console.log("Company Employer updated successfully:", response);
+      return response;
+    } catch (err) {
+      console.error("Failed to update Company Employer:", err);
+      setError(err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+  return { editCompanyEmployer, loading, error };
+}
+
+export const useDeleteCompanyEmployerAPI = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const deleteCompanyEmployer = async (company_employer_id) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await deleteCompanyEmployerAPI(company_employer_id);
+      console.log("Company Employer deleted successfully:", response);
+      return response;
+    } catch (err) {
+      console.error("Failed to delete Company Employer:", err);
+      setError(err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+  return { deleteCompanyEmployer, loading, error };
+}
 
 //DIVISIONS
 export const useFetchDivisionsAPI = () => {

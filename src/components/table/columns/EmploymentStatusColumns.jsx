@@ -3,8 +3,13 @@ import formatDate from "@/utils/formatters/dateFormatter";
 import CustomDialog from "@/components/dialog/CustomDialog";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-
-export const getEmploymentStatusColumns = ({ onEdit, onDelete }) => [
+ 
+export const getEmploymentStatusColumns = ({
+  onEdit,
+  onDelete,
+  editLoading,
+  deleteLoading,
+}) => [
   {
     accessorKey: "employment_status",
     header: "Employment Status",
@@ -52,6 +57,7 @@ export const getEmploymentStatusColumns = ({ onEdit, onDelete }) => [
                 <Pencil size={16} />
               </button>
             }
+            loading={editLoading}
             title="Edit Employment Status"
             description={`Modify details for "${employment_status}"`}
             confirmLabel="Save Changes"
@@ -81,6 +87,7 @@ export const getEmploymentStatusColumns = ({ onEdit, onDelete }) => [
                 <Trash2 size={16} />
               </button>
             }
+            loading={deleteLoading}
             title="Confirm Delete"
             description={`Delete "${employment_status}"? Employees using this will have no employment status.`}
             confirmLabel="Yes, delete"

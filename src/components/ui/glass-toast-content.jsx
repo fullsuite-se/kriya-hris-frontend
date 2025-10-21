@@ -28,6 +28,10 @@ export const GlassToastContent = ({
     toast.dismiss(t.id);
   };
 
+  const handleClose = () => {
+    toast.dismiss(t.id);
+  };
+
   return (
     <div
       className="relative rounded-2xl p-4 min-sm:w-85 shadow-md overflow-hidden"
@@ -39,6 +43,13 @@ export const GlassToastContent = ({
         color: textColor,
       }}
     >
+      <button
+        onClick={handleClose}
+        className="absolute top-2 right-2 text-xs opacity-70 hover:opacity-100 cursor-pointer"
+      >
+        ✕
+      </button>
+
       {duration && onUndo && (
         <div
           className="absolute bottom-0 left-0 h-1 bg-teal-600"

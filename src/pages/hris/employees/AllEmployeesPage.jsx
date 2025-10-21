@@ -24,8 +24,14 @@ import { Input } from "@/components/ui/input";
 const AllEmployeesPage = () => {
   const navigate = useNavigate();
   const { setHeaderConfig } = useHeader();
-  const { filters, setFilters, localFilters, setLocalFilters } =
-    useEmployeesFilter();
+  const {
+    filters,
+    setFilters,
+    localFilters,
+    setLocalFilters,
+    openSections,
+    setOpenSections,
+  } = useEmployeesFilter();
 
   const {
     allEmployees,
@@ -147,7 +153,13 @@ const AllEmployeesPage = () => {
       }
 
       // Handle single-value filters
-      ["department", "job_position", "supervisor", "office", "employer"].forEach((key) => {
+      [
+        "department",
+        "job_position",
+        "supervisor",
+        "office",
+        "employer",
+      ].forEach((key) => {
         if (appliedFilters[key] && appliedFilters[key].length > 0) {
           formattedFilters[key] = appliedFilters[key];
         }
@@ -250,6 +262,8 @@ const AllEmployeesPage = () => {
               setLocalFilters={setLocalFilters}
               handleReset={handleReset}
               hasActiveFilters={hasActiveFilters}
+            openSections={openSections}
+            setOpenSections={setOpenSections}
             />
           </div>
         )}
@@ -319,6 +333,8 @@ const AllEmployeesPage = () => {
             setLocalFilters={setLocalFilters}
             handleReset={handleReset}
             hasActiveFilters={hasActiveFilters}
+            openSections={openSections}
+            setOpenSections={setOpenSections}
           />
         </div>
       </div>

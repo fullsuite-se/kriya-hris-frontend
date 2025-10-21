@@ -10,7 +10,6 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { UserContext } from "@/context/UserContext";
 import { useNavigate } from "react-router-dom";
 import { useLoginUserAPI } from "@/hooks/useAuthAPI";
-import useFetchLoggedInUserDetailsAPI from "@/hooks/useEmployeeAPI";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);

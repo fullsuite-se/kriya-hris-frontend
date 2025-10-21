@@ -112,7 +112,7 @@ const EditEmploymentTimelineDialog = ({ trigger }) => {
         form.reset();
         return;
       }
-      const cleanData = sanitizeData(changedFields);
+      const cleanData = sanitizeData(fieldMap);
       const updatedEmploymentTimeline = await editEmployeeTimeline(
         user_id,
         cleanData

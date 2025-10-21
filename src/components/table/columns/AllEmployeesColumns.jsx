@@ -1,5 +1,10 @@
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/solid";
-
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 export const employeeCols = [
   {
     accessorKey: "employee_id",
@@ -68,13 +73,40 @@ export const employeeCols = [
     },
   },
   {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      const status = row.original.status;
-      return <span className="text-xs">{status || "---"}</span>;
-    },
+  accessorKey: "status",
+  header: "Status",
+  cell: ({ row }) => {
+    const status = row.original.status || "---";
+    const firstLetter = status.charAt(0);
+    const normalized = firstLetter.toLowerCase();
+
+    const colorClass =
+      normalized === "r"
+        ? "text-green-700 bg-green-700/10"
+        : normalized === "p"
+        ? "text-amber-700 bg-amber-700/10"
+        : normalized === "s"
+        ? "text-red-700 bg-red-700/10"
+        : "text-gray-700 bg-gray-700/10";
+
+    return (
+      <TooltipProvider delayDuration={200}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span
+              className={`text-xs px-2 py-1 rounded-md font-medium cursor-default ${colorClass}`}
+            >
+              {firstLetter}
+            </span>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="text-xs capitalize">{status}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
   },
+},
   {
     accessorKey: "regularization_date",
     header: "Regularization",

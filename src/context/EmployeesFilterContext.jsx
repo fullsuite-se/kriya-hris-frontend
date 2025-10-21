@@ -6,6 +6,7 @@ export const EmployeesFilterProvider = ({ children }) => {
   const [filters, setFilters] = useState({});
   const [localFilters, setLocalFilters] = useState({});
   const [searchInputLocal, setSearchInputLocal] = useState("");
+  const [openSections, setOpenSections] = useState({});
 
   return (
     <EmployeesFilterContext.Provider
@@ -16,6 +17,8 @@ export const EmployeesFilterProvider = ({ children }) => {
         setLocalFilters,
         searchInputLocal,
         setSearchInputLocal,
+        openSections,
+        setOpenSections,
       }}
     >
       {children}

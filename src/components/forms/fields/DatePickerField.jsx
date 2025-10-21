@@ -61,11 +61,16 @@ const DatepickerField = ({
           <Calendar
             mode="single"
             selected={field.value instanceof Date ? field.value : undefined}
+            defaultMonth={
+              field.value instanceof Date ? field.value : new Date()
+            }
             onSelect={(selectedDate) => {
               field.onChange(selectedDate ?? null);
               setOpen(false);
             }}
             captionLayout="dropdown"
+            fromYear={1900}
+            toYear={new Date().getFullYear() + 2}
             disabled={isDateDisabled}
           />
         </PopoverContent>

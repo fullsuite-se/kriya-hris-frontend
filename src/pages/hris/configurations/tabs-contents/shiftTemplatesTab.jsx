@@ -5,13 +5,11 @@ import DataTable from "@/components/table/table-components/DataTable";
 import { Button } from "@/components/ui/button";
 import { glassToast } from "@/components/ui/glass-toast";
 import { Input } from "@/components/ui/input";
-import {
-  useAddJobAPI,
-  useDeleteJobAPI,
-  useEditJobAPI,
-} from "@/hooks/useJobAPI";
-import useFetchAllShiftTemplatesAPI from "@/hooks/useShiftTemplatesAPI";
-import { useAuthStore } from "@/stores/useAuthStore";
+import useFetchAllShiftTemplatesAPI, {
+  useAddShiftTemplateAPI,
+  useEditShiftTemplateAPI,
+  useDeleteShiftTemplateAPI,
+} from "@/hooks/useShiftTemplatesAPI";
 import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
@@ -20,15 +18,15 @@ import {
 import { useState } from "react";
 
 export const ShiftTemplatesTab = () => {
-  const { systemCompanyId } = useAuthStore();
   const { allShiftTemplates, refetch, setAllShiftTemplates, loading, error } =
     useFetchAllShiftTemplatesAPI();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const { addJob, loading: addLoading } = useAddJobAPI();
-  const { deleteJob, loading: deleteLoading } = useDeleteJobAPI();
-  const { editJob, loading: editLoading } = useEditJobAPI();
+  const { addShiftTemplate, loading: addLoading } = useAddShiftTemplateAPI();
+  const { editShiftTemplate, loading: editLoading } = useEditShiftTemplateAPI();
+  const { deleteShiftTemplate, loading: deleteLoading } =
+    useDeleteShiftTemplateAPI();
 
-  const removeLocalJob = (shift_template_id) => {
+  const removeLocalShiftTemplate = (shift_template_id) => {
     const shiftTemplateToRemove = allShiftTemplates.find(
       (j) => j.shift_template_id === shift_template_id
     );
@@ -38,32 +36,47 @@ export const ShiftTemplatesTab = () => {
     return shiftTemplateToRemove;
   };
 
-  const restoreLocalJob = (job) => {
+  const restoreLocalShiftTemplate = (shiftTemplate) => {
     setAllShiftTemplates((prev) =>
-      [...prev, job].sort((a, b) => a.shift_name.localeCompare(b.shift_name))
+      [...prev, shiftTemplate].sort((a, b) =>
+        a.shift_name.localeCompare(b.shift_name)
+      )
     );
   };
 
-  const updateLocalJobTitle = (shift_template_id, newTitle) => {
-    setAllShiftTemplates((prevJobs) =>
-      prevJobs.map((job) =>
-        job.shift_template_id === shift_template_id
-          ? { ...job, shift_name: newTitle }
-          : job
+  const updateLocalShiftTemplate = (shift_template_id, newData) => {
+    setAllShiftTemplates((prevShiftTemplates) =>
+      prevShiftTemplates.map((shiftTemplate) =>
+        shiftTemplate.shift_template_id === shift_template_id
+          ? { ...shiftTemplate, ...newData }
+          : shiftTemplate
       )
     );
   };
 
   const handleSave = async (formData) => {
-    const jobTitle = formData.get("shift_name");
-
+    const {
+      shift_name,
+      start_time,
+      end_time,
+      break_start_time,
+      break_end_time,
+      day_of_week,
+    } = Object.fromEntries(formData.entries());
     try {
-      await addJob({ company_id: systemCompanyId, shift_name: jobTitle });
+      await addShiftTemplate({
+        shift_name,
+        start_time,
+        end_time,
+        break_start_time,
+        break_end_time,
+        day_of_week,
+      });
       setDialogOpen(false);
       glassToast({
         message: (
           <>
-            <span style={{ color: "#008080" }}>{jobTitle}</span> added
+            <span style={{ color: "#008080" }}>{shift_name}</span> added
             successfully!
           </>
         ),
@@ -76,7 +89,7 @@ export const ShiftTemplatesTab = () => {
       refetch();
     } catch (error) {
       glassToast({
-        message: `Failed to add job. Please try again.`,
+        message: `Failed to add shift template. Please try again.`,
         icon: <ExclamationTriangleIcon className="text-[#CC5500] w-5 h-5" />,
         textColor: "black",
         bgColor: "rgba(255, 255, 255, 0.2)",
@@ -86,19 +99,70 @@ export const ShiftTemplatesTab = () => {
     }
   };
 
-  const handleEdit = async (formData, shift_template_id, shift_name) => {
-    const updatedTitle = formData.get("shift_name")?.trim();
-    const previousTitle = shift_name?.trim();
+  const handleEdit = async (
+    formData,
+    shift_template_id,
+    shift_name,
+    start_time,
+    end_time,
+    break_start_time,
+    break_end_time,
+    day_of_week
+  ) => {
+    const {
+      shift_name: updatedShiftName,
+      start_time: updatedStartTime,
+      end_time: updatedEndTime,
+      break_start_time: updatedBreakStartTime,
+      break_end_time: updatedBreakEndTime,
+      day_of_week: updatedDayOfWeek,
+    } = Object.fromEntries(formData.entries());
 
-    if (
-      !updatedTitle ||
-      updatedTitle.toLowerCase() === previousTitle.toLowerCase()
-    ) {
+    const normalizeTime = (timeString) => {
+      if (!timeString) return "";
+      if (timeString.includes(":")) {
+        const parts = timeString.split(":");
+        return `${parts[0].padStart(2, "0")}:${parts[1].padStart(2, "0")}`;
+      }
+      return timeString;
+    };
+    const previousData = {
+      shift_name: shift_name?.trim(),
+      start_time: normalizeTime(start_time),
+      end_time: normalizeTime(end_time),
+      break_start_time: normalizeTime(break_start_time),
+      break_end_time: normalizeTime(break_end_time),
+      day_of_week: day_of_week?.toString().trim(),
+    };
+
+    const newData = {
+      shift_name: updatedShiftName?.trim(),
+      start_time: normalizeTime(updatedStartTime),
+      end_time: normalizeTime(updatedEndTime),
+      break_start_time: normalizeTime(updatedBreakStartTime),
+      break_end_time: normalizeTime(updatedBreakEndTime),
+      day_of_week: updatedDayOfWeek?.toString().trim(),
+    };
+
+    console.log("Previous Data:", previousData);
+    console.log("New Data:", newData);
+
+    const hasChanges =
+      newData.shift_name !== previousData.shift_name ||
+      newData.start_time !== previousData.start_time ||
+      newData.end_time !== previousData.end_time ||
+      newData.break_start_time !== previousData.break_start_time ||
+      newData.break_end_time !== previousData.break_end_time ||
+      newData.day_of_week !== previousData.day_of_week;
+
+    console.log("Has changes:", hasChanges);
+
+    if (!hasChanges) {
       glassToast({
         message: (
           <>
             No changes made to{" "}
-            <span style={{ color: "#008080" }}>{previousTitle}</span>.
+            <span style={{ color: "#008080" }}>{shift_name}</span>.
           </>
         ),
         icon: (
@@ -112,7 +176,7 @@ export const ShiftTemplatesTab = () => {
       return;
     }
 
-    updateLocalJobTitle(shift_template_id, updatedTitle);
+    updateLocalShiftTemplate(shift_template_id, newData);
 
     let undoCalled = false;
     let saveTimeout;
@@ -120,9 +184,14 @@ export const ShiftTemplatesTab = () => {
     glassToast({
       message: (
         <>
-          Shift Template{" "}
-          <span style={{ color: "#008080" }}>{previousTitle}</span> updated to{" "}
-          <span style={{ color: "#008080" }}>{updatedTitle}</span>
+          <span style={{ color: "#008080" }}>{shift_name}</span> updated
+          {updatedShiftName !== shift_name && (
+            <>
+              {" "}
+              to <span style={{ color: "#008080" }}>{updatedShiftName}</span>
+            </>
+          )}{" "}
+          successfully!
         </>
       ),
       icon: <CheckCircleIcon className="text-[#008080] w-5 h-5 mt-0.5" />,
@@ -133,7 +202,7 @@ export const ShiftTemplatesTab = () => {
       progressDuration: 5000,
       onUndo: () => {
         undoCalled = true;
-        updateLocalJobTitle(shift_template_id, previousTitle);
+        updateLocalShiftTemplate(shift_template_id, previousData);
       },
     });
 
@@ -141,16 +210,15 @@ export const ShiftTemplatesTab = () => {
       if (undoCalled) return;
 
       try {
-        await editJob({
-          company_id: systemCompanyId,
+        await editShiftTemplate({
           shift_template_id,
-          new_shift_name: updatedTitle,
+          ...newData,
         });
         refetch();
       } catch (err) {
-        console.error("Failed to update job:", err);
+        console.error("Failed to update shift template:", err);
         glassToast({
-          message: `Failed to update job title.`,
+          message: `Failed to update shift template.`,
           icon: (
             <ExclamationTriangleIcon className="text-[#CC5500] w-5 h-5 mt-0.5" />
           ),
@@ -160,13 +228,13 @@ export const ShiftTemplatesTab = () => {
           duration: 4000,
         });
 
-        updateLocalJobTitle(shift_template_id, previousTitle);
+        updateLocalShiftTemplate(shift_template_id, previousData);
       }
     }, 5000);
   };
 
   const handleDelete = async (shift_template_id, shift_name) => {
-    const deletedJob = removeLocalJob(shift_template_id);
+    const deletedShiftTemplate = removeLocalShiftTemplate(shift_template_id);
 
     let undoCalled = false;
 
@@ -185,7 +253,7 @@ export const ShiftTemplatesTab = () => {
       progressDuration: 5000,
       onUndo: () => {
         undoCalled = true;
-        restoreLocalJob(deletedJob);
+        restoreLocalShiftTemplate(deletedShiftTemplate);
       },
     });
 
@@ -193,12 +261,12 @@ export const ShiftTemplatesTab = () => {
       if (undoCalled) return;
 
       try {
-        await deleteJob({ company_id: systemCompanyId, shift_template_id });
+        await deleteShiftTemplate(shift_template_id);
         refetch();
       } catch (err) {
-        console.error("Failed to delete job:", err);
+        console.error("Failed to delete shift template:", err);
         glassToast({
-          message: `Failed to delete job "${shift_name}".`,
+          message: `Failed to delete shift template "${shift_name}".`,
           icon: <ExclamationTriangleIcon className="text-[#CC5500] w-5 h-5" />,
           textColor: "black",
           bgColor: "rgba(255, 255, 255, 0.2)",
@@ -206,7 +274,7 @@ export const ShiftTemplatesTab = () => {
           duration: 4000,
         });
 
-        restoreLocalJob(deletedJob);
+        restoreLocalShiftTemplate(deletedShiftTemplate);
       }
     }, 5000);
   };
@@ -214,15 +282,12 @@ export const ShiftTemplatesTab = () => {
   const shiftTemplatesColumns = getShiftTemplatesColumns({
     onEdit: handleEdit,
     onDelete: handleDelete,
+    editLoading: editLoading,
+    deleteLoading: deleteLoading,
   });
 
- if (loading) {
-    return (
-      // <div className="flex items-center justify-center h-screen">
-      //   <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-primary-color"></div>
-      // </div>
-        <LoadingAnimation/>
-    );
+  if (loading) {
+    return <LoadingAnimation />;
   }
 
   if (error) {
@@ -232,6 +297,7 @@ export const ShiftTemplatesTab = () => {
       </div>
     );
   }
+
   return (
     <div className=" bg-white shadow-xs rounded-lg p-5">
       <div className="justify-between items-center flex mb-8">
@@ -257,16 +323,54 @@ export const ShiftTemplatesTab = () => {
           open={dialogOpen}
           onOpenChange={setDialogOpen}
         >
-          <div className="space-y-2">
-            <label className="text-xs font-medium block" htmlFor="shift_name">
-              Shift Template
-            </label>
-            <Input
-              name="shift_name"
-              type="text"
-              //   className="border rounded px-2 py-1 w-full"
-              required
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+            <div className="space-y-2">
+              <label className="text-xs font-medium block" htmlFor="shift_name">
+                Shift Name
+              </label>
+              <Input name="shift_name" type="text" required />
+            </div>
+            <div className="space-y-2">
+              <label
+                className="text-xs font-medium block"
+                htmlFor="day_of_week"
+              >
+                Day of Week
+              </label>
+              <Input name="day_of_week" type="number" required />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-medium block" htmlFor="start_time">
+                Start Time
+              </label>
+              <Input name="start_time" type="time" step="60" required />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-medium block" htmlFor="end_time">
+                End Time
+              </label>
+              <Input name="end_time" type="time" step="60" required />
+            </div>
+            <div className="space-y-2">
+              <label
+                className="text-xs font-medium block"
+                htmlFor="break_start_time"
+              >
+                Break Start Time
+              </label>
+              <Input name="break_start_time" type="time" step="60" required />
+            </div>
+
+            <div className="space-y-2">
+              <label
+                className="text-xs font-medium block"
+                htmlFor="break_end_time"
+              >
+                Break End Time
+              </label>
+              <Input name="break_end_time" type="time" step="60" required />
+            </div>
           </div>
         </CustomDialog>
       </div>

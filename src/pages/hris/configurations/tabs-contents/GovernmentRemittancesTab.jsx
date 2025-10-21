@@ -1,28 +1,70 @@
 import CustomDialog from "@/components/dialog/CustomDialog";
 import LoadingAnimation from "@/components/Loading";
 import getGovernmentRemittancesColumns from "@/components/table/columns/GovernmentRemittancesColumns";
-
 import DataTable from "@/components/table/table-components/DataTable";
 import { Button } from "@/components/ui/button";
 import { glassToast } from "@/components/ui/glass-toast";
 import { Input } from "@/components/ui/input";
 import {
   useAddGovernmentRemittanceAPI,
+  useDeleteGovernmentRemittanceAPI,
+  useEditGovernmentRemittanceAPI,
   useFetchGovernmentRemittancesAPI,
 } from "@/hooks/useGovernmentRemittancesAPI";
 import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
+  InformationCircleIcon,
 } from "@heroicons/react/24/solid";
-import {  useState } from "react";
+import { useState } from "react";
 
 export const GovernmentRemittanceTab = () => {
-  const { allGovernmentRemittances, refetch: refetchAllGovernmentRemittances, loading, error } =
-    useFetchGovernmentRemittancesAPI();
+  const {
+    allGovernmentRemittances,
+    refetch: refetchAllGovernmentRemittances,
+    setAllGovernmentRemittances,
+    loading,
+    error,
+  } = useFetchGovernmentRemittancesAPI();
+
   const [governmentRemittancesDialogOpen, setGovernmentRemittancesDialogOpen] =
     useState(false);
+
   const { addGovernmentRemittance, loading: governmentRemittancesLoading } =
     useAddGovernmentRemittanceAPI();
+  const { editGovernmentRemittance, loading: editLoading } =
+    useEditGovernmentRemittanceAPI();
+  const { deleteGovernmentRemittance, loading: deleteLoading } =
+    useDeleteGovernmentRemittanceAPI();
+
+  // Local state management functions
+  const removeLocalGovernmentRemittance = (government_id_type_id) => {
+    const remittanceToRemove = allGovernmentRemittances.find(
+      (r) => r.government_id_type_id === government_id_type_id
+    );
+    setAllGovernmentRemittances((prev) =>
+      prev.filter((r) => r.government_id_type_id !== government_id_type_id)
+    );
+    return remittanceToRemove;
+  };
+
+  const restoreLocalGovernmentRemittance = (remittance) => {
+    setAllGovernmentRemittances((prev) =>
+      [...prev, remittance].sort((a, b) =>
+        a.government_id_name.localeCompare(b.government_id_name)
+      )
+    );
+  };
+
+  const updateLocalGovernmentRemittance = (government_id_type_id, newName) => {
+    setAllGovernmentRemittances((prev) =>
+      prev.map((remittance) =>
+        remittance.government_id_type_id === government_id_type_id
+          ? { ...remittance, government_id_name: newName }
+          : remittance
+      )
+    );
+  };
 
   const handleSaveGovernmentRemittances = async (formData) => {
     const governmentRemittance = formData.get("government_id_name");
@@ -55,22 +97,150 @@ export const GovernmentRemittanceTab = () => {
     }
   };
 
-  const handleEditGovernmentRemittances = async () => {};
+  const handleEditGovernmentRemittances = async (
+    formData,
+    government_id_type_id,
+    government_id_name
+  ) => {
+    const updatedTitle = formData.get("government_id_name")?.trim();
+    const previousTitle = government_id_name?.trim();
 
-  const handleDeleteGovernmentRemittances = async () => {};
+    if (
+      !updatedTitle ||
+      updatedTitle.toLowerCase() === previousTitle.toLowerCase()
+    ) {
+      glassToast({
+        message: (
+          <>
+            No changes made to{" "}
+            <span style={{ color: "#008080" }}>{previousTitle}</span>.
+          </>
+        ),
+        icon: (
+          <InformationCircleIcon className="text-[#636363] w-5 h-5 mt-0.5" />
+        ),
+        textColor: "black",
+        bgColor: "rgba(255, 255, 255, 0.2)",
+        blur: 12,
+        duration: 3000,
+      });
+      return;
+    }
+
+    updateLocalGovernmentRemittance(government_id_type_id, updatedTitle);
+
+    let undoCalled = false;
+    let saveTimeout;
+
+    glassToast({
+      message: (
+        <>
+          Government Remittance{" "}
+          <span style={{ color: "#008080" }}>{previousTitle}</span> updated to{" "}
+          <span style={{ color: "#008080" }}>{updatedTitle}</span>
+        </>
+      ),
+      icon: <CheckCircleIcon className="text-[#008080] w-5 h-5 mt-0.5" />,
+      textColor: "black",
+      bgColor: "rgba(255, 255, 255, 0.2)",
+      blur: 12,
+      duration: 5000,
+      progressDuration: 5000,
+      onUndo: () => {
+        undoCalled = true;
+        updateLocalGovernmentRemittance(government_id_type_id, previousTitle);
+      },
+    });
+
+    saveTimeout = setTimeout(async () => {
+      if (undoCalled) return;
+
+      try {
+        console.log("gov idddddd typee nameee : ", updatedTitle);
+        await editGovernmentRemittance({
+          government_id_type_id,
+          government_id_name: updatedTitle,
+        });
+        refetchAllGovernmentRemittances();
+      } catch (err) {
+        console.error("Failed to update government remittance:", err);
+        glassToast({
+          message: `Failed to update government remittance.`,
+          icon: (
+            <ExclamationTriangleIcon className="text-[#CC5500] w-5 h-5 mt-0.5" />
+          ),
+          textColor: "black",
+          bgColor: "rgba(255, 255, 255, 0.2)",
+          blur: 12,
+          duration: 4000,
+        });
+
+        updateLocalGovernmentRemittance(government_id_type_id, previousTitle);
+      }
+    }, 5000);
+  };
+
+  const handleDeleteGovernmentRemittances = async (
+    government_id_type_id,
+    government_id_name
+  ) => {
+    const deletedRemittance = removeLocalGovernmentRemittance(
+      government_id_type_id
+    );
+
+    let undoCalled = false;
+
+    glassToast({
+      message: (
+        <>
+          Government Remittance{" "}
+          <span style={{ color: "#008080" }}>{government_id_name}</span> deleted
+          successfully!
+        </>
+      ),
+      icon: <CheckCircleIcon className="text-[#008080] w-5 h-5" />,
+      textColor: "black",
+      bgColor: "rgba(255, 255, 255, 0.2)",
+      blur: 12,
+      duration: 5000,
+      progressDuration: 5000,
+      onUndo: () => {
+        undoCalled = true;
+        restoreLocalGovernmentRemittance(deletedRemittance);
+      },
+    });
+
+    setTimeout(async () => {
+      if (undoCalled) return;
+
+      try {
+        await deleteGovernmentRemittance(government_id_type_id);
+        refetchAllGovernmentRemittances();
+      } catch (err) {
+        console.error("Failed to delete government remittance:", err);
+        glassToast({
+          message: `Failed to delete government remittance "${government_id_name}".`,
+          icon: <ExclamationTriangleIcon className="text-[#CC5500] w-5 h-5" />,
+          textColor: "black",
+          bgColor: "rgba(255, 255, 255, 0.2)",
+          blur: 12,
+          duration: 4000,
+        });
+
+        restoreLocalGovernmentRemittance(deletedRemittance);
+      }
+    }, 5000);
+  };
 
   const governmentRemittancesColumns = getGovernmentRemittancesColumns({
     onEdit: handleEditGovernmentRemittances,
     onDelete: handleDeleteGovernmentRemittances,
+    editLoading: editLoading,
+    deleteLoading: deleteLoading,
   });
 
- if (loading) {
-    return (
-      // <div className="flex items-center justify-center h-screen">
-      //   <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-primary-color"></div>
-      // </div>
-        <LoadingAnimation/>
-    );
+  if (loading) {
+    return <LoadingAnimation />;
   }
 
   if (error) {
@@ -80,6 +250,7 @@ export const GovernmentRemittanceTab = () => {
       </div>
     );
   }
+
   return (
     <div className=" bg-white shadow-xs rounded-lg p-5">
       <div className="justify-between items-center flex mb-8">
@@ -107,12 +278,7 @@ export const GovernmentRemittanceTab = () => {
             >
               Government Remittance
             </label>
-            <Input
-              name="government_id_name"
-              type="text"
-              // className="border rounded px-2 py-1 w-full"
-              required
-            />
+            <Input name="government_id_name" type="text" required />
           </div>
         </CustomDialog>
       </div>

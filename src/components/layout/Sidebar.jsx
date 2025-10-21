@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useLocation, Link, matchPath } from "react-router-dom";
+import { useLocation, Link, matchPath, useNavigate } from "react-router-dom";
 
 import {
   ConfigurationsIcon,
@@ -89,34 +89,33 @@ const sidebarLinks = [
       //   icon: <OutlineAnalyticsIcon className="group-hover:text-[#008080]" />,
       //   iconActive: <AnalyticsIcon className="text-[#008080]" />,
       // },
-
-      
     ],
   },
-  {
-    service: "ATS",
-    tabs: [
-      {
-        feature: "ATS Dashboard",
-        label: "Dashboard",
-        path: "/ats",
-        icon: <DashboardOutlineIcon className="group-hover:text-[#008080]" />,
-        iconActive: <DashboardIcon className="text-[#008080]" />,
-      },
-      {
-        feature: "ATS Configurations",
-        label: "Configurations",
-        path: "/ats/applicants",
-        icon: (
-          <ConfigurationsOutlineIcon className="group-hover:text-[#008080]" />
-        ),
-        iconActive: <ConfigurationsIcon className="text-[#008080]" />,
-      },
-    ],
-  },
+  // {
+  //   service: "ATS",
+  //   tabs: [
+  //     {
+  //       feature: "ATS Dashboard",
+  //       label: "Dashboard",
+  //       path: "/ats",
+  //       icon: <DashboardOutlineIcon className="group-hover:text-[#008080]" />,
+  //       iconActive: <DashboardIcon className="text-[#008080]" />,
+  //     },
+  //     {
+  //       feature: "ATS Configurations",
+  //       label: "Configurations",
+  //       path: "/ats/applicants",
+  //       icon: (
+  //         <ConfigurationsOutlineIcon className="group-hover:text-[#008080]" />
+  //       ),
+  //       iconActive: <ConfigurationsIcon className="text-[#008080]" />,
+  //     },
+  //   ],
+  // },
 ];
 
 const Sidebar = () => {
+  const navigate = useNavigate();
   const { personalInfo, user, designations, loading } = useContext(UserContext);
   const { servicePermissions, accessPermissions, systemUserId } =
     useAuthStore();
@@ -225,7 +224,16 @@ const Sidebar = () => {
           </div>
         ) : (
           <div
-            className={`flex items-center mb-10  ${collapsed && "self-center"}`}
+            className={`flex items-center mb-10  ${
+              collapsed && "self-center"
+            } cursor-pointer `}
+            onClick={() =>
+              navigate(
+                user?.user_id
+                  ? `/hris/employees/${user.user_id}`
+                  : `/hris/employees`
+              )
+            }
           >
             <div
               className={`${

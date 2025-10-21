@@ -9,6 +9,8 @@ export default function FilterSidebar({
   localFilters,
   setLocalFilters,
   hasActiveFilters,
+  openSections,
+  setOpenSections,
 }) {
   const debounceRef = useRef(null);
   const [isApplying, setIsApplying] = useState(false);
@@ -56,7 +58,7 @@ export default function FilterSidebar({
 
   return (
     <div className="w-full p-3 !pt-0 lg:flex-1 lg:max-w-xs">
-      <div className="flex items-center justify-end lg:justify-between mb-4 text-primary-color">
+      <div className="flex items-center justify-end lg:justify-between mb-7 text-primary-color">
         <div className="gap-1 items-center flex">
           <FilterIcon className="hidden lg:block" />
           <h3 className="text-sm font-semibold hidden lg:block">Filters</h3>
@@ -79,6 +81,13 @@ export default function FilterSidebar({
             filter={filter}
             values={localFilters[filter.key] || filter.defaultValue || []}
             onChange={(newVal) => handleFilterChange(filter.key, newVal)}
+            isOpen={openSections[filter.key] || false}
+            toggleOpen={() =>
+              setOpenSections((prev) => ({
+                ...prev,
+                [filter.key]: !prev[filter.key],
+              }))
+            }
           />
         ))}
       </div>

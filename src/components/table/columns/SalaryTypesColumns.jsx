@@ -4,7 +4,9 @@ import CustomDialog from "@/components/dialog/CustomDialog";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 
-export const getSalaryTypesColumns = ({ onEdit, onDelete }) => [
+export const getSalaryTypesColumns = ({ onEdit, onDelete,
+  editLoading,
+  deleteLoading, }) => [
   {
     accessorKey: "salary_adjustment_type",
     header: "Salary Type",
@@ -53,6 +55,7 @@ export const getSalaryTypesColumns = ({ onEdit, onDelete }) => [
                 <Pencil size={16} />
               </button>
             }
+            loading={editLoading}
             title="Edit Salary Type"
             description={`Modify details for "${salary_adjustment_type}"`}
             confirmLabel="Save Changes"
@@ -84,6 +87,7 @@ export const getSalaryTypesColumns = ({ onEdit, onDelete }) => [
                 <Trash2 size={16} />
               </button>
             }
+            loading={deleteLoading}
             title="Confirm Delete"
             description={`Delete "${salary_adjustment_type}"? Employees using this will have no salary type.`}
             confirmLabel="Yes, delete"

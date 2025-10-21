@@ -16,10 +16,21 @@ import EmployeeSearchComboBox from "../forms/fields/dynamic-fields/EmployeeSearc
 import JobPositionSearchComboBox from "../forms/fields/dynamic-fields/JobPositionSearchComboBox";
 import OfficeSearchComboBox from "../forms/fields/dynamic-fields/OfficeSearchComboBox";
 import CompanyEmployerSearchComboBox from "../forms/fields/dynamic-fields/CompanyEmployerSearchComboBox";
+import { MagnifyingGlassCircleIcon } from "@heroicons/react/24/solid";
+export function FilterSection({
+  filter,
+  values,
+  onChange,
+  isOpen,
+  toggleOpen,
+}) {
+  const hasActiveFilter = (() => {
+    if (Array.isArray(values)) {
+      return values.some((v) => v !== null && v !== "" && v !== undefined);
+    }
 
-export function FilterSection({ filter, values, onChange }) {
-  const [isOpen, setIsOpen] = useState(true);
-  const toggleOpen = () => setIsOpen((prev) => !prev);
+    return values !== null && values !== "" && values !== undefined;
+  })();
 
   return (
     <div
@@ -31,11 +42,17 @@ export function FilterSection({ filter, values, onChange }) {
         className="flex items-center justify-between cursor-pointer"
         onClick={toggleOpen}
       >
-        <h4
-          className={`text-xs font-semibold ${isOpen ? "text-[#008080]" : ""}`}
+        <div
+          className={`flex items-center gap-2 text-xs font-semibold ${
+            hasActiveFilter ? "text-primary-color" : "text-black"
+          }`}
         >
-          {filter.label}
-        </h4>
+          {filter.label}{" "}
+          <span className={`${hasActiveFilter ? "block" : "hidden"}`}>
+            <MagnifyingGlassCircleIcon className="w-4 h-4 text-primary-color" />
+          </span>
+        </div>
+
         {isOpen ? (
           <ChevronUp className="w-4 h-4" />
         ) : (

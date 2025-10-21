@@ -4,7 +4,12 @@ import CustomDialog from "@/components/dialog/CustomDialog";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 
-export const getJobLevelsColumns = ({ onEdit, onDelete }) => [
+export const getJobLevelsColumns = ({
+  onEdit,
+  onDelete,
+  editLoading,
+  deleteLoading,
+}) => [
   {
     accessorKey: "job_level_name",
     header: "Job Level",
@@ -61,12 +66,13 @@ export const getJobLevelsColumns = ({ onEdit, onDelete }) => [
                 <Pencil size={16} />
               </button>
             }
+            loading={editLoading}
             title="Edit Job Level"
             height="md"
             description={`Modify details for "${job_level_name}"`}
             confirmLabel="Save Changes"
             onConfirm={async (formData) => {
-              await onEdit(formData, job_level_id, job_level_name);
+              await onEdit(formData, job_level_id, job_level_name, job_level_description);
               setEditDialogOpen(false);
             }}
           >
@@ -101,6 +107,7 @@ export const getJobLevelsColumns = ({ onEdit, onDelete }) => [
                 <Trash2 size={16} />
               </button>
             }
+            loading={deleteLoading}
             title="Confirm Delete"
             description={`Delete "${job_level_name}"? Employees using this will have no job level.`}
             confirmLabel="Yes, delete"

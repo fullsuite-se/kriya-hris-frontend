@@ -54,6 +54,7 @@ export default function EmploymentStatusSearchComboBox({
         getSearchable={(t) => t.name.toLowerCase()}
         getOptionLabel={(t) => t.name}
         getOptionSubLabel={() => ""}
+        disabled={loading}
         placeholder={loading ? "Loading..." : "Select"}
         error={error?.message}
       />

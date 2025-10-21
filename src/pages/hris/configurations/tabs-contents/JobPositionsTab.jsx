@@ -18,7 +18,6 @@ import {
   InformationCircleIcon,
 } from "@heroicons/react/24/solid";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 export const JobPositionsTab = () => {
   const { systemCompanyId } = useAuthStore();

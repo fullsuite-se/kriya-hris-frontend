@@ -6,8 +6,11 @@ import { Button } from "@/components/ui/button";
 import { glassToast } from "@/components/ui/glass-toast";
 import { Input } from "@/components/ui/input";
 import {
+  useAddCompanyEmployerAPI,
   useAddOfficeAPI,
+  useDeleteCompanyEmployerAPI,
   useDeleteOfficeAPI,
+  useEditCompanyEmployerAPI,
   useEditOfficeAPI,
   useFetchCompanyEmployersAPI,
   useFetchOfficesAPI,
@@ -26,47 +29,55 @@ export const CompanyEmployersTab = () => {
     setAllCompanyEmployers,
     loading,
   } = useFetchCompanyEmployersAPI();
-  const [officesDialogOpen, setOfficesDialogOpen] = useState(false);
-  const { addOffice, loading: addOfficeLoading } = useAddOfficeAPI();
-  const { deleteOffice, loading: deleteOfficeLoading } = useDeleteOfficeAPI();
-  const { editOffice, loading: editOfficeLoading } = useEditOfficeAPI();
+  const [employersDialogOpen, setEmployersDialogOpen] = useState(false);
+  const { addCompanyEmployer, loading: addCompanyEmployerLoading } =
+    useAddCompanyEmployerAPI();
+  const { deleteCompanyEmployer, loading: deleteCompanyEmployerLoading } =
+    useDeleteCompanyEmployerAPI();
+  const { editCompanyEmployer, loading: editCompanyEmployerLoading } =
+    useEditCompanyEmployerAPI();
 
-  const removeLocalOffice = (office_id) => {
-    const officeToRemove = allCompanyEmployers.find((j) => j.office_id === office_id);
-    setAllCompanyEmployers((prev) => prev.filter((j) => j.office_id !== office_id));
-    return officeToRemove; // store this for undo
-  };
-
-  const restoreLocalOffice = (office) => {
+  const removeLocalCompanyEmployer = (company_employer_id) => {
+    const companyEmployerToRemove = allCompanyEmployers.find(
+      (j) => j.company_employer_id === company_employer_id
+    );
     setAllCompanyEmployers((prev) =>
-      [...prev, office].sort((a, b) =>
-        a.office_name.localeCompare(b.office_name)
+      prev.filter((j) => j.company_employer_id !== company_employer_id)
+    );
+    return companyEmployerToRemove; // store this for undo
+  };
+
+  const restoreLocalCompanyEmployer = (companyEmployer) => {
+    setAllCompanyEmployers((prev) =>
+      [...prev, companyEmployer].sort((a, b) =>
+        a.company_employer_name.localeCompare(b.company_employer_name)
       )
     );
   };
 
-  const updateLocalOffice = (office_id, office_name, office_address) => {
-    setAllCompanyEmployers((prevOffices) =>
-      prevOffices.map((office) =>
-        office.office_id === office_id
-          ? { ...office, office_name, office_address }
-          : office
+  const updateLocalCompanyEmployer = (
+    company_employer_id,
+    company_employer_name
+  ) => {
+    setAllCompanyEmployers((prevCompanyEmployers) =>
+      prevCompanyEmployers.map((companyEmployer) =>
+        companyEmployer.company_employer_id === company_employer_id
+          ? { ...companyEmployer, company_employer_name }
+          : companyEmployer
       )
     );
   };
 
-  const handleSaveOffice = async (formData) => {
-    const { office_name, office_address } = Object.fromEntries(
-      formData.entries()
-    );
+  const handleSaveCompanyEmployer = async (formData) => {
+    const { company_employer_name } = Object.fromEntries(formData.entries());
     try {
-      await addOffice({ office_name, office_address });
-      setOfficesDialogOpen(false);
+      await addCompanyEmployer(company_employer_name);
+      setEmployersDialogOpen(false);
       glassToast({
         message: (
           <>
-            <span style={{ color: "#008080" }}>{office_name}</span> added
-            successfully!
+            <span style={{ color: "#008080" }}>{company_employer_name}</span>{" "}
+            added successfully!
           </>
         ),
         icon: <CheckCircleIcon className="text-[#008080] w-5 h-5" />,
@@ -78,7 +89,7 @@ export const CompanyEmployersTab = () => {
       refetchAllCompanyEmployers();
     } catch (error) {
       glassToast({
-        message: `Failed to add office. Please try again.`,
+        message: `Failed to add company employer. Please try again.`,
         icon: <ExclamationTriangleIcon className="text-[#CC5500] w-5 h-5" />,
         textColor: "black",
         bgColor: "rgba(255, 255, 255, 0.2)",
@@ -88,31 +99,30 @@ export const CompanyEmployersTab = () => {
     }
   };
 
-  const handleEditOffice = async (
+  const handleEditCompanyEmployer = async (
     formData,
-    office_id,
-    office_name,
-    office_address
+    company_employer_id,
+    company_employer_name
   ) => {
-    const updatedOfficeName = formData.get("office_name")?.trim();
-    const previousOfficeName = office_name?.trim();
-    const updatedOfficeAddress = formData.get("office_address")?.trim();
-    const previousOfficeAddress = office_address?.trim();
+    const updatedCompanyEmployerName = formData
+      .get("company_employer_name")
+      ?.trim();
+    const previousCompanyEmployerName = company_employer_name?.trim();
 
     const isNameChanged =
-      updatedOfficeName &&
-      updatedOfficeName.toLowerCase() !== previousOfficeName?.toLowerCase();
-    const isAddressChanged =
-      updatedOfficeAddress &&
-      updatedOfficeAddress.toLowerCase() !==
-        previousOfficeAddress?.toLowerCase();
+      updatedCompanyEmployerName &&
+      updatedCompanyEmployerName.toLowerCase() !==
+        previousCompanyEmployerName?.toLowerCase();
 
-    if (!isNameChanged && !isAddressChanged) {
+    if (!isNameChanged) {
       glassToast({
         message: (
           <>
             No changes made to{" "}
-            <span style={{ color: "#008080" }}>{previousOfficeName}</span>.
+            <span style={{ color: "#008080" }}>
+              {previousCompanyEmployerName}
+            </span>
+            .
           </>
         ),
         icon: (
@@ -126,70 +136,48 @@ export const CompanyEmployersTab = () => {
       return;
     }
 
-    updateLocalOffice(office_id, updatedOfficeName, updatedOfficeAddress);
+    updateLocalCompanyEmployer(company_employer_id, updatedCompanyEmployerName);
 
     let undoCalled = false;
     let saveTimeout;
-
-    let toastMessage;
-
-    if (isNameChanged && isAddressChanged) {
-      toastMessage = (
+    glassToast({
+      message: (
         <>
-          Employer <span style={{ color: "#008080" }}>{previousOfficeName}</span>{" "}
-          and its address updated to{" "}
-          <span style={{ color: "#008080" }}>{updatedOfficeName}</span>
-        </>
-      );
-    } else if (isNameChanged) {
-      toastMessage = (
-        <>
-          Employer <span style={{ color: "#008080" }}>{previousOfficeName}</span>{" "}
+          <span style={{ color: "#008080" }}>
+            {previousCompanyEmployerName}
+          </span>{" "}
           updated to{" "}
-          <span style={{ color: "#008080" }}>{updatedOfficeName}</span>
+          <span style={{ color: "#008080" }}>{updatedCompanyEmployerName}</span>
         </>
-      );
-    } else if (isAddressChanged) {
-      toastMessage = (
-        <>
-          Address of{" "}
-          <span style={{ color: "#008080" }}>{previousOfficeName}</span> updated
-        </>
-      );
-    } else {
-      toastMessage = "Please try again.";
-    }
-
-    if (toastMessage) {
-      glassToast({
-        message: toastMessage,
-        icon: <CheckCircleIcon className="text-[#008080] w-5 h-5 mt-0.5" />,
-        textColor: "black",
-        bgColor: "rgba(255, 255, 255, 0.2)",
-        blur: 12,
-        duration: 5000,
-        progressDuration: 5000,
-        onUndo: () => {
-          undoCalled = true;
-          updateLocalOffice(
-            office_id,
-            previousOfficeName,
-            previousOfficeAddress
-          );
-        },
-      });
-    }
+      ),
+      icon: <CheckCircleIcon className="text-[#008080] w-5 h-5 mt-0.5" />,
+      textColor: "black",
+      bgColor: "rgba(255, 255, 255, 0.2)",
+      blur: 12,
+      duration: 5000,
+      progressDuration: 5000,
+      onUndo: () => {
+        undoCalled = true;
+        updateLocalCompanyEmployer(
+          company_employer_id,
+          previousCompanyEmployerName
+        );
+      },
+    });
 
     saveTimeout = setTimeout(async () => {
       if (undoCalled) return;
 
       try {
-        await editOffice(office_id, updatedOfficeName, updatedOfficeAddress);
+        await editCompanyEmployer(
+          company_employer_id,
+          updatedCompanyEmployerName
+        );
         refetchAllCompanyEmployers();
       } catch (err) {
-        console.error("Failed to update office:", err);
+        console.error("Failed to update company employer:", err);
         glassToast({
-          message: `Failed to update office.`,
+          message: `Failed to update company employer.`,
           icon: (
             <ExclamationTriangleIcon className="text-[#CC5500] w-5 h-5 mt-0.5" />
           ),
@@ -199,21 +187,28 @@ export const CompanyEmployersTab = () => {
           duration: 4000,
         });
 
-        updateLocalOffice(office_id, previousOfficeName, previousOfficeAddress);
+        updateLocalCompanyEmployer(
+          company_employer_id,
+          previousCompanyEmployerName
+        );
       }
     }, 5000);
   };
 
-  const handleDeleteOffice = async (office_id, office_name) => {
-    const deletedOffice = removeLocalOffice(office_id);
+  const handleDeleteCompanyEmployer = async (
+    company_employer_id,
+    company_employer_name
+  ) => {
+    const deletedCompanyEmployer =
+      removeLocalCompanyEmployer(company_employer_id);
 
     let undoCalled = false;
 
     glassToast({
       message: (
         <>
-          <span style={{ color: "#008080" }}>{office_name}</span> deleted
-          successfully!
+          <span style={{ color: "#008080" }}>{company_employer_name}</span>{" "}
+          deleted successfully!
         </>
       ),
       icon: <CheckCircleIcon className="text-[#008080] w-5 h-5" />,
@@ -224,7 +219,7 @@ export const CompanyEmployersTab = () => {
       progressDuration: 5000,
       onUndo: () => {
         undoCalled = true;
-        restoreLocalOffice(deletedOffice);
+        restoreLocalCompanyEmployer(deletedCompanyEmployer);
       },
     });
 
@@ -232,12 +227,12 @@ export const CompanyEmployersTab = () => {
       if (undoCalled) return;
 
       try {
-        await deleteOffice(office_id);
+        await deleteCompanyEmployer(company_employer_id);
         refetchAllCompanyEmployers();
       } catch (err) {
-        console.error("Failed to delete office:", err);
+        console.error("Failed to delete company employer:", err);
         glassToast({
-          message: `Failed to delete office "${office_name}".`,
+          message: `Failed to delete companyEmployer "${company_employer_name}".`,
           icon: <ExclamationTriangleIcon className="text-[#CC5500] w-5 h-5" />,
           textColor: "black",
           bgColor: "rgba(255, 255, 255, 0.2)",
@@ -245,25 +240,20 @@ export const CompanyEmployersTab = () => {
           duration: 4000,
         });
 
-        restoreLocalOffice(deletedOffice);
+        restoreLocalCompanyEmployer(deletedCompanyEmployer);
       }
     }, 5000);
   };
 
   const companyEmployersColumns = getCompanyEmployersColumns({
-    onEdit: handleEditOffice,
-    onDelete: handleDeleteOffice,
-    editLoading: editOfficeLoading,
-    deleteLoading: deleteOfficeLoading,
+    onEdit: handleEditCompanyEmployer,
+    onDelete: handleDeleteCompanyEmployer,
+    editLoading: editCompanyEmployerLoading,
+    deleteLoading: deleteCompanyEmployerLoading,
   });
 
   if (loading) {
-    return (
-      // <div className="flex items-center justify-center h-screen">
-      //   <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-primary-color"></div>
-      // </div>
-      <LoadingAnimation />
-    );
+    return <LoadingAnimation />;
   }
 
   return (
@@ -279,26 +269,25 @@ export const CompanyEmployersTab = () => {
             </Button>
           }
           height="md"
-          loading={addOfficeLoading}
+          loading={addCompanyEmployerLoading}
           title="Add New Employer"
           confirmLabel="Save Employer"
           description="Enter the details for the new employer"
-          onConfirm={handleSaveOffice}
-          open={officesDialogOpen}
-          onOpenChange={setOfficesDialogOpen}
+          onConfirm={handleSaveCompanyEmployer}
+          open={employersDialogOpen}
+          onOpenChange={setEmployersDialogOpen}
         >
           {" "}
           <div className="flex flex-col gap-4">
             <div className="space-y-2">
               <label
                 className="text-xs font-medium block"
-                htmlFor="office_name"
+                htmlFor="company_employer_name"
               >
                 Employer<span className="text-primary-color">*</span>
               </label>
-              <Input name="office_name" type="text" required />
+              <Input name="company_employer_name" type="text" required />
             </div>
-            
           </div>
         </CustomDialog>
       </div>

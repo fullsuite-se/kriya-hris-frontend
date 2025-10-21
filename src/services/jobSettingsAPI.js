@@ -41,6 +41,18 @@ export const editEmploymentStatusAPI = async ({ employment_status_id, employment
     throw error;
   }
 };
+ 
+
+export const deleteEmploymentStatusAPI = async (employment_status_id) => {
+  try {
+    const response = await api.delete(`/api/hris-user-accounts/employment-info/employment-statuses/${employment_status_id}`);
+    console.log("Employment Status deleted successfully:", response.data.status);
+    return response.data.status;
+  } catch (error) {
+    console.error("Failed to delete Employment Status:", error);
+    throw error;
+  }
+}
 
 //job levels
 
@@ -73,6 +85,28 @@ export const fetchJobLevelsAPI = async () => {
     return null;
   }
 };
+
+export const editJobLevelAPI = async ({ job_level_id, job_level_name, job_level_description }) => {
+  try {
+    const response = await api.patch(`/api/hris-user-accounts/employment-info/job-levels/${job_level_id}`, { job_level_name, job_level_description });
+    console.log("Job Level updated successfully:", response.data.level);
+    return response.data.level;
+  } catch (error) {
+    console.error("Failed to update Job Level:", error);
+    throw error;
+  }
+}
+
+export const deleteJobLevelAPI = async (job_level_id) => {
+  try {
+    const response = await api.delete(`/api/hris-user-accounts/employment-info/job-levels/${job_level_id}`);
+    console.log("Job Level deleted successfully:", response.data.level);
+    return response.data.level;
+  } catch (error) {
+    console.error("Failed to delete Job Level:", error);
+    throw error;
+  }
+}
 
 //employee typs
 export const fetchEmployeeTypesAPI = async () => {
@@ -107,6 +141,28 @@ export const addEmployeeTypeAPI = async (employment_type) => {
     throw error;
   }
 };
+
+export const editEmployeeTypeAPI = async ({ employment_type_id, employment_type }) => {
+  try {
+    const response = await api.patch(`/api/hris-user-accounts/employment-info/employment-types/${employment_type_id}`, { employment_type });
+    console.log("Employee Type updated successfully:", response.data.employmentType);
+    return response.data.employmentType;
+  } catch (error) {
+    console.error("Failed to update Employee Type:", error);
+    throw error;
+  }
+}
+
+export const deleteEmployeeTypeAPI = async (employment_type_id) => {
+  try {
+    const response = await api.delete(`/api/hris-user-accounts/employment-info/employment-types/${employment_type_id}`);
+    console.log("Employee Type deleted successfully:", response.data.employmentType);
+    return response.data.employmentType;
+  } catch (error) {
+    console.error("Failed to delete Employee Type:", error);
+    throw error;
+  }
+}
 
 //salary type
 
@@ -144,3 +200,24 @@ export const addSalaryTypeAPI = async (salary_adjustment_type) => {
     throw error;
   }
 };
+
+export const editSalaryTypeAPI = async ({ salary_adjustment_type_id, salary_adjustment_type }) => {
+  try {
+    const response = await api.patch(`/api/hris-user-accounts/salaries/adjustment-types/${salary_adjustment_type_id}`, { salary_adjustment_type });
+    console.log("Salary Type updated successfully:", response.data.adjustment);
+    return response.data.adjustment;
+  } catch (error) {
+    console.error("Failed to update Salary Type:", error);
+    throw error;
+  }
+};
+export const deleteSalaryTypeAPI = async (salary_adjustment_type_id) => {
+  try {
+    const response = await api.delete(`/api/hris-user-accounts/salaries/adjustment-types/${salary_adjustment_type_id}`);
+    console.log("Salary Type deleted successfully:", response.data.adjustment);
+    return response.data.adjustment;
+  } catch (error) {
+    console.error("Failed to delete Salary Type:", error);
+    throw error;
+  }
+}
