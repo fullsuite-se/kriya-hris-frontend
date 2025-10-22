@@ -15,7 +15,7 @@ import fetchEmployeeDetailsAPI, {
   fetchEmployeesForDropdownAPI,
   fetchLatestEmployeeIdAPI,
 } from "@/services/employeeAPI";
-import { use, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useMemo, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { UserContext } from "../context/UserContext";
 import { EmployeeDetailsContext } from "@/context/EmployeeDetailsContext";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -74,7 +74,10 @@ export const useFetchAllEmployeesAPI = (initialFilters = {}) => {
   const [searchInput, setSearchInput] = useState('');
   const queryClient = useQueryClient();
 
-  const queryKey = ['employees', { ...filters, page, pageSize }];
+  const queryKey = useMemo(() =>
+    ['employees', { ...filters, page, pageSize }],
+    [filters, page, pageSize]
+  );
 
   const {
     data: employeesData,
@@ -86,23 +89,21 @@ export const useFetchAllEmployeesAPI = (initialFilters = {}) => {
     queryFn: () => fetchAllEmployeesAPI({
       ...filters,
       page,
-      limit: pageSize,
+      pageSize,
     }),
-    staleTime: 1000 * 60 * 20, // 20 minutes
-    cacheTime: 1000 * 60 * 30, // 25 minutes
+    staleTime: 1000 * 60 * 20,
+    cacheTime: 1000 * 60 * 30,
     keepPreviousData: true,
     refetchOnWindowFocus: false,
   });
 
   const debounceTimerRef = useRef(null);
 
-  // Function to update filters and reset to page 1
   const updateFilters = (newFilters) => {
     setFilters(newFilters);
     setPage(1);
   };
 
-  // Function to handle search input change with debouncing
   const handleSearchInputChange = (value) => {
     setSearchInput(value);
 
@@ -123,7 +124,6 @@ export const useFetchAllEmployeesAPI = (initialFilters = {}) => {
     }, 500);
   };
 
-  // Function to clear search
   const clearSearch = () => {
     setSearchInput('');
 
@@ -136,7 +136,11 @@ export const useFetchAllEmployeesAPI = (initialFilters = {}) => {
     updateFilters(newFilters);
   };
 
-  // Prefetch next page
+  const handlePageSizeChange = useCallback((newPageSize) => {
+    setPageSize(newPageSize);
+    setPage(1);
+  }, []);
+
   useEffect(() => {
     if (employeesData?.totalPages && page < employeesData.totalPages) {
       const nextPageFilters = { ...filters, page: page + 1, pageSize };
@@ -147,7 +151,6 @@ export const useFetchAllEmployeesAPI = (initialFilters = {}) => {
     }
   }, [page, filters, pageSize, employeesData?.totalPages, queryClient]);
 
-  // Cleanup
   useEffect(() => {
     return () => {
       if (debounceTimerRef.current) {
@@ -163,7 +166,7 @@ export const useFetchAllEmployeesAPI = (initialFilters = {}) => {
     totalPages: employeesData?.totalPages || 1,
     pageSize,
     setPage,
-    setPageSize,
+    handlePageSizeChange,
     error,
     loading,
     searchLoading,
@@ -181,7 +184,6 @@ export const useFetchAllEmployeesAPI = (initialFilters = {}) => {
 export const useEmployeeDropdownAPI = () => {
   const [searchInput, setSearchInput] = useState("");
 
-  // Query that fetches employees based on searchInput
   const {
     data: allEmployees = [],
     error,
@@ -193,27 +195,23 @@ export const useEmployeeDropdownAPI = () => {
       const employees = await fetchEmployeesForDropdownAPI(searchInput);
       return employees || [];
     },
-    staleTime: 5 * 60 * 1000, // cache for 5 min
-    keepPreviousData: true, // keep showing old data while fetching new
+    staleTime: 5 * 60 * 1000,
+    keepPreviousData: true,
   });
 
-  // Handle search input change (controlled by user)
   const handleSearchInputChange = (value) => {
     setSearchInput(value);
   };
 
-  // Manual search trigger (when user clicks "Search" button)
   const performSearch = () => {
     refetch();
   };
 
-  // Clear search and reset data
   const clearSearch = () => {
     setSearchInput("");
     refetch();
   };
 
-  // Real-time search (optional)
   const handleImmediateSearch = (value) => {
     setSearchInput(value);
     refetch();
@@ -277,20 +275,16 @@ export const useFetchLoggedInUserDetailsAPI = (userId) => {
   const hasFetchedRef = useRef(false);
   const isInitialMount = useRef(true);
 
-  // Initial fetch effect - runs only once if needed
   useEffect(() => {
     const fetchUser = async () => {
-      // Skip if no userId
       if (!userId) {
         return;
       }
 
-      // If cache is already loaded and user exists, skip fetch
       if (isCacheLoaded && user) {
         return;
       }
 
-      // Prevent duplicate fetches
       if (hasFetchedRef.current) {
         return;
       }
@@ -318,20 +312,18 @@ export const useFetchLoggedInUserDetailsAPI = (userId) => {
         }
       } catch (error) {
         console.error(" Failed to fetch user details:", error);
-        hasFetchedRef.current = false; // Allow retry on error
+        hasFetchedRef.current = false; 
       } finally {
         setLoading(false);
       }
     };
 
-    // Only fetch on initial mount
     if (isInitialMount.current) {
       isInitialMount.current = false;
       fetchUser();
     }
-  }, [userId]); // Minimal dependencies - only userId matters for initial fetch
+  }, [userId]);
 
-  // Memoized refresh function - prevents recreation on every render
   const refreshUserData = useCallback(async () => {
     if (!userId) {
       return;
@@ -346,7 +338,6 @@ export const useFetchLoggedInUserDetailsAPI = (userId) => {
       if (data?.user) {
         const userData = data.user;
 
-        // Batch all state updates
         setUser(userData);
         setPersonalInfo(userData.HrisUserInfo);
         setDesignations(userData.HrisUserDesignations?.[0] || {});

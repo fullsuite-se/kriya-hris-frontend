@@ -39,7 +39,9 @@ export const employeeCols = [
     h-10 w-10 rounded-full border border-gray-300 overflow-hidden 
     flex items-center justify-center flex-shrink-0
     ${
-      status?.toLowerCase() === "separated" ? "bg-gray-400" : "bg-primary-color"
+      status?.toLowerCase() === "separated"
+        ? "bg-secondary-color"
+        : "bg-primary-color"
     }
   `}
           >

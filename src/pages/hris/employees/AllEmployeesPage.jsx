@@ -16,7 +16,7 @@ import { useFetchAllEmployeesAPI } from "@/hooks/useEmployeeAPI";
 import transformUsers from "@/utils/parsers/transformData";
 import { useFetchEmploymentStatusAPI } from "@/hooks/useJobSettingsAPI";
 import { useEmployeesFilter } from "@/context/EmployeesFilterContext";
-import { InformationCircleIcon } from "@heroicons/react/24/solid";
+import {  MagnifyingGlassCircleIcon } from "@heroicons/react/24/solid";
 import LoadingAnimation from "@/components/Loading";
 import { X, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -40,7 +40,7 @@ const AllEmployeesPage = () => {
     totalPages,
     pageSize,
     setPage,
-    setPageSize,
+    handlePageSizeChange,
     error,
     loading,
     searchLoading,
@@ -262,8 +262,8 @@ const AllEmployeesPage = () => {
               setLocalFilters={setLocalFilters}
               handleReset={handleReset}
               hasActiveFilters={hasActiveFilters}
-            openSections={openSections}
-            setOpenSections={setOpenSections}
+              openSections={openSections}
+              setOpenSections={setOpenSections}
             />
           </div>
         )}
@@ -275,7 +275,7 @@ const AllEmployeesPage = () => {
               hasActiveFilters ? "block" : "hidden"
             } flex justify-end align-middle text-right italic text-xs mb-3 text-[#008080]/70 select-none`}
           >
-            <InformationCircleIcon width={15} className="mr-1" />{" "}
+            <MagnifyingGlassCircleIcon width={15} className="mr-1" />{" "}
             <p>Search/Filters Applied</p>
           </div>
 
@@ -301,7 +301,6 @@ const AllEmployeesPage = () => {
             </div>
           </div>
 
-          {/* Show subtle loading indicator in table area for both search and filter changes */}
           <div className="relative">
             {(searchLoading || loading) && (
               <div className="absolute inset-0 bg-white/70 z-10 flex items-center justify-center rounded-lg">
@@ -319,7 +318,7 @@ const AllEmployeesPage = () => {
               totalPages={totalPages}
               pageSize={pageSize}
               setPage={setPage}
-              setPageSize={setPageSize}
+              setPageSize={handlePageSizeChange}
             />
           </div>
         </div>

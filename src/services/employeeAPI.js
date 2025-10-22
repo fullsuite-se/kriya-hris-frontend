@@ -39,68 +39,8 @@ export const fetchEmployeeDetailsAPI = async ({ user_id }) => {
   }
 };
 
-
-//all
-/*
-using these, create me 
-
-*/
-//prod
-// export const fetchAllEmployeesAPI = async (filters = {}) => {
-//   try {
-//     const params = new URLSearchParams(filters).toString();
-
-//     const response = await api.get(
-//       `/api/hris-user-accounts${params ? `?${params}` : ""}`
-//     );
-//     console.log(
-//       "URL REQUEEEST:",
-//       `/api/hris-user-accounts${params ? `?${params}` : ""}`
-//     );
-
-//     console.log("Employees fetched successfully:", response.data);
-//     return response.data.users;
-//   } catch (error) {
-//     console.error("Failed to fetch employees:", error);
-//     return null;
-//   }
-// };
-//pagiantion
-
-// export const fetchAllEmployeesAPI = async (filters = {}) => {
-//   try {
-//     const params = new URLSearchParams(filters).toString();
-
-//     const response = await api.get(
-//       `/api/hris-user-accounts${params ? `?${params}` : ""}`
-//     );
-//     console.log("URL REQUEST:", `/api/hris-user-accounts${params ? `?${params}` : ""}`);
-//     console.log("Employees fetched successfully:", response.data);
-
-//     // Return the full pagination object, not just users
-//     return {
-//       users: response.data.users || [],
-//       total: response.data.total || 0,
-//       page: response.data.page || 1,
-//       totalPages: response.data.totalPages || 1,
-//     };
-//   } catch (error) {
-//     console.error("Failed to fetch employees:", error);
-//     return {
-//       users: [],
-//       total: 0,
-//       page: 1,
-//       totalPages: 1,
-//       error,
-//     };
-//   }
-// };
-
-//page w search
-
 export const fetchAllEmployeesAPI = async (filters = {}) => {
   try {
-    // Convert filters object to URLSearchParams, handling nested objects
     const params = new URLSearchParams();
 
     Object.entries(filters).forEach(([key, value]) => {
