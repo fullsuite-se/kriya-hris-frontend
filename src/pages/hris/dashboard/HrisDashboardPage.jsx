@@ -27,6 +27,7 @@ import {
   useFetchMonthlyTrendsAPI,
 } from "@/hooks/useAnalyticsAPI";
 import LineChartSkeleton from "./components/LineChartSkeleton";
+import underConstructionImg from "@/assets/images/under-construction.jpg";
 
 ChartJS.register(
   CategoryScale,
@@ -127,21 +128,6 @@ const HrisDashboardPage = () => {
         ))}
 
         <div className="bg-white rounded-2xl shadow-sm p-5 col-span-1 lg:col-span-2 lg:row-span-2">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Summary</h3>
-          <div className="text-gray-500">Contents here</div>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-sm p-5 col-span-1 lg:col-span-2 lg:row-span-4">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Updates</h3>
-          <ul className="space-y-3 text-sm text-gray-600">
-            <li className="border-b pb-2 flex">
-              <ExclamationCircleIcon className="w-4 text-[#008080] mr-2" /> An
-              update here
-            </li>
-          </ul>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-sm p-5 col-span-1 lg:col-span-2 lg:row-span-2">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-gray-800">Analytics</h3>
             {!yearsLoading && (
@@ -160,12 +146,8 @@ const HrisDashboardPage = () => {
           </div>
           <div className="p-4 md:p-6">
             {trendsLoading ? (
-            
-             <LineChartSkeleton/>
-             
-            ) : 
-            
-            trendsError ? (
+              <LineChartSkeleton />
+            ) : trendsError ? (
               <div className="flex items-center justify-center h-[300px] text-red-500">
                 Failed to load analytics: {trendsError}
               </div>
@@ -175,14 +157,14 @@ const HrisDashboardPage = () => {
                   data={monthlyTrends}
                   options={{
                     responsive: true,
-                    
+
                     maintainAspectRatio: false,
                     plugins: {
                       legend: {
-                        position: "top",
+                        position: "bottom",
                         labels: {
                           usePointStyle: true,
-                          padding: 20,
+                          padding: 30,
                           color: "#4B5563",
                         },
                       },
@@ -225,6 +207,24 @@ const HrisDashboardPage = () => {
               </div>
             ) : null}
           </div>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-sm p-5 col-span-1 lg:col-span-2 lg:row-span-4">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Updates</h3>
+          <ul className="space-y-3 text-sm text-gray-600">
+            <li className="border-b pb-2 flex">
+              <ExclamationCircleIcon className="w-4 text-[#008080] mr-2" /> An
+              update here
+            </li>
+          </ul>
+          {/* <img src={underConstructionImg} alt="under construction" className="grayscale" /> */}
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-sm p-5 col-span-1 lg:col-span-2 lg:row-span-2">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Summary</h3>
+          <div className="text-gray-500">Contents here</div>
+
+          {/* <img src={underConstructionImg} alt="under construction" className="grayscale" /> */}
         </div>
       </div>
     </div>
