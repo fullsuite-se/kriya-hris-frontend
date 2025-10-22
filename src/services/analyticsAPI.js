@@ -27,3 +27,47 @@ export const fetchMonthlyTrendsAPI = async (params) => {
         };
     }
 };
+
+
+export const fetchAttritionRateAPI = async (params) => {
+    try {
+        const response = await api.get(`/api/analytics/attrition-rate`, { params });
+        console.log("Attrition rate fetched successfully:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Failed to fetch Attrition rate:", error);
+        return {
+            success: false,
+            message: error.response?.data?.message || error.message || 'Failed to fetch Attrition rate'
+        };
+    }
+};
+
+
+
+export const fetchSexDistributionAPI = async () => {
+    try {
+        const response = await api.get(`/api/analytics/sex-distribution`);
+        console.log("Sex distribution fetched successfully:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Failed to fetch Sex distribution:", error);
+        return {
+            success: false,
+            message: error.response?.data?.message || error.message || 'Failed to fetch Sex distribution'
+        };
+    }
+};
+export const fetchAgeDistributionAPI = async () => {
+    try {
+        const response = await api.get(`/api/analytics/age-distribution`);
+        console.log("Age distribution fetched successfully:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Failed to fetch Age distribution:", error);
+        return {
+            success: false,
+            message: error.response?.data?.message || error.message || 'Failed to fetch Age distribution'
+        };
+    }
+};

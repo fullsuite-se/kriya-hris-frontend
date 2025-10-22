@@ -74,7 +74,7 @@ export default function AccessControlPage() {
     if (!headerSet.current) {
       setHeaderConfig({
         title: "Access Control",
-        description: "Manage access control here",
+        description: "Assign roles, manage permissions, and keep your HR system safe and organized",
         button: (
           <ViewUserAccessDialog
             trigger={<Button title="Grant Access">+ Grant Access</Button>}

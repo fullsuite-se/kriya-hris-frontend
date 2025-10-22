@@ -75,20 +75,19 @@ const sidebarLinks = [
       },
 
       {
+        feature: "Analytics",
+        label: "Analytics",
+        path: "/hris/analytics",
+        icon: <OutlineAnalyticsIcon className="group-hover:text-[#008080]" />,
+        iconActive: <AnalyticsIcon className="text-[#008080]" />,
+      },
+      {
         feature: "Access Control",
         label: "Access Control",
         path: "/hris/access-control",
         icon: <UserGroupOutlineIcon className="group-hover:text-[#008080]" />,
         iconActive: <UserGroupIcon className="text-[#008080]" />,
       },
-
-      // {
-      //   feature: "Analytics",
-      //   label: "Analytics",
-      //   path: "/hris/analytics",
-      //   icon: <OutlineAnalyticsIcon className="group-hover:text-[#008080]" />,
-      //   iconActive: <AnalyticsIcon className="text-[#008080]" />,
-      // },
     ],
   },
   // {

@@ -2,30 +2,22 @@ import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
-  Filler,
+  BarElement,
 } from "chart.js";
-import { Line } from "react-chartjs-2";
+import { Bar } from "react-chartjs-2";
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Filler);
+ChartJS.register(CategoryScale, LinearScale, BarElement);
 
-export default function LineChartSkeleton() {
+export default function BarChartSkeleton() {
   const data = {
-    labels: ["", "", "", "", "", "", ""], // blank labels
+    labels: ["", "", "", "", "", "", ""],
     datasets: [
       {
         label: "Loading",
-        data: [30, 50, 40, 60, 45, 70, 55], // placeholder curve
-        borderColor: "rgba(156, 163, 175, 0.9)", // gray-400
-        backgroundColor: "rgba(229, 231, 235, 0.5)", // gray-200
-        borderWidth: 2,
-        tension: 0.4,
-        fill: true,
-        pointRadius: 3,
-        pointBackgroundColor: "rgba(156, 163, 175, 0.9)", // gray-400
-        pointBorderColor: "rgba(156, 163, 175, 1)",
-        pointHoverRadius: 0,
+        data: [30, 50, 40, 60, 45, 70, 55], 
+        backgroundColor: "rgba(209, 213, 219, 0.8)",
+        borderRadius: 6,
+        barThickness: 22,
       },
     ],
   };
@@ -54,7 +46,7 @@ export default function LineChartSkeleton() {
   return (
     <div className="relative w-full h-[400px] flex items-center justify-center">
       <div className="w-[92%] h-[85%] animate-loadingPulse pointer-events-none opacity-80">
-        <Line data={data} options={options} />
+        <Bar data={data} options={options} />
       </div>
     </div>
   );

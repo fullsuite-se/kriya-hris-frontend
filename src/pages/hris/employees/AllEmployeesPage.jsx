@@ -209,7 +209,7 @@ const AllEmployeesPage = () => {
   useEffect(() => {
     setHeaderConfig({
       title: "All Employees",
-      description: "Manage all employees",
+      description: "View, manage, and track your entire workforce in one place",
       button: (
         <CanAccess feature={"Add Employee"}>
           <Button

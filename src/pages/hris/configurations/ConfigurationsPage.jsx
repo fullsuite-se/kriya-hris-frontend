@@ -12,7 +12,7 @@ const ConfigurationsPage = () => {
     setHeaderConfig({
       title: "HRIS Configurations",
       description:
-        "Manage job positions, settings, shifts, and remittances",
+        "Set up jobs, shifts, remittances, and system settings efficiently",
     });
   }, []);
 
