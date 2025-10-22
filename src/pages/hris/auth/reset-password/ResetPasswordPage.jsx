@@ -11,7 +11,7 @@ import {
 import { glassToast } from "@/components/ui/glass-toast";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/solid";
 import Step4 from "./steps/Step4";
-import loginBg from "@/assets/images/login-bg-1.svg";
+import authBg from "@/assets/images/auth-bg.png";
 
 const ResetPasswordPage = () => {
   const [step, setStep] = useState(1);
@@ -124,16 +124,14 @@ const ResetPasswordPage = () => {
     <div
       className="dark flex p-10 items-center justify-center h-screen bg-gradient-to-tl from-[#008080] to-[#CC5500]"
       style={{
-        backgroundImage: `url(${loginBg})`,
+        backgroundImage: `url(${authBg})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
-        animation: "breathingBg 12s ease-in-out infinite",
       }}
     >
-      <div className="absolute inset-0 bg-black/60" />
 
-      <div className="w-full max-w-md space-y-6 p-8 rounded-2xl shadow-xl border border-white/20 bg-white/10 backdrop-blur-sm">
+      <div className="w-full max-w-md space-y-6 p-8 rounded-2xl shadow-xl border border-white/20 bg-white/10 backdrop-blur-md">
         {step !== 4 && (
           <div className="flex justify-center">
             <img

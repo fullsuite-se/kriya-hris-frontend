@@ -359,15 +359,3 @@ input:-webkit-autofill:active {
 .animate-loadingPulse {
   animation: loadingPulse 1.8s ease-in-out infinite;
 }
-
-@keyframes breathingBg {
-  0% {
-    background-size: 100%;
-  }
-  50% {
-    background-size: 103%;
-  }
-  100% {
-    background-size: 100%;
-  }
-}
