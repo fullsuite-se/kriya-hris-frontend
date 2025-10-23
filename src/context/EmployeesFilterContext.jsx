@@ -2,9 +2,9 @@ import { createContext, useContext, useState } from "react";
 
 const EmployeesFilterContext = createContext();
 
-export const EmployeesFilterProvider = ({ children }) => {
-  const [filters, setFilters] = useState({});
-  const [localFilters, setLocalFilters] = useState({});
+export const EmployeesFilterProvider = ({ children, initialFilters = {} }) => {
+  const [filters, setFilters] = useState(initialFilters);
+  const [localFilters, setLocalFilters] = useState(initialFilters);
   const [searchInputLocal, setSearchInputLocal] = useState("");
   const [openSections, setOpenSections] = useState({});
 

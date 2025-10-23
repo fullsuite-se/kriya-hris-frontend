@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { employeeCols } from "@/components/table/columns/AllEmployeesColumns";
 import DataTable from "@/components/table/table-components/DataTable";
 import { FILTER_TYPES } from "@/components/filters/types";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import FilterIcon from "@/assets/icons/FilterIcon";
 import {
   ArrowHeadDownIcon,
@@ -16,12 +16,13 @@ import { useFetchAllEmployeesAPI } from "@/hooks/useEmployeeAPI";
 import transformUsers from "@/utils/parsers/transformData";
 import { useFetchEmploymentStatusAPI } from "@/hooks/useJobSettingsAPI";
 import { useEmployeesFilter } from "@/context/EmployeesFilterContext";
-import {  MagnifyingGlassCircleIcon } from "@heroicons/react/24/solid";
+import { MagnifyingGlassCircleIcon } from "@heroicons/react/24/solid";
 import LoadingAnimation from "@/components/Loading";
 import { X, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 const AllEmployeesPage = () => {
+  const location = useLocation();
   const navigate = useNavigate();
   const { setHeaderConfig } = useHeader();
   const {
@@ -64,6 +65,30 @@ const AllEmployeesPage = () => {
         })),
     [allEmploymentStatuses]
   );
+
+  useEffect(() => {
+    if (location.state?.statusFilter) {
+      const statusFilterArray = location.state.statusFilter;
+
+      const initialFilterState = {
+        status: statusFilterArray,
+      };
+
+      setLocalFilters((prev) => ({
+        ...prev,
+        ...initialFilterState,
+      }));
+
+      const apiFilters = {
+        status: statusFilterArray.join(","),
+      };
+
+      setFilters(apiFilters);
+      setAPIFilters(apiFilters);
+
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state]);
 
   const filterFields = useMemo(
     () => [
@@ -132,7 +157,6 @@ const AllEmployeesPage = () => {
     (appliedFilters) => {
       const formattedFilters = {};
 
-      // Handle date range
       if (appliedFilters.date_range && appliedFilters.date_range.length === 2) {
         const [start, end] = appliedFilters.date_range;
         if (start) {
@@ -147,12 +171,10 @@ const AllEmployeesPage = () => {
         }
       }
 
-      // Handle status (convert array to comma-separated string)
       if (appliedFilters.status && appliedFilters.status.length > 0) {
         formattedFilters.status = appliedFilters.status.join(",");
       }
 
-      // Handle single-value filters
       [
         "department",
         "job_position",
@@ -165,12 +187,10 @@ const AllEmployeesPage = () => {
         }
       });
 
-      // Include current search input with applied filters
       if (searchInput.trim() !== "") {
         formattedFilters.search = searchInput.trim();
       }
 
-      // Only update if filters actually changed to prevent loops
       const currentFiltersString = JSON.stringify(filters);
       const newFiltersString = JSON.stringify(formattedFilters);
 
@@ -226,11 +246,6 @@ const AllEmployeesPage = () => {
   useEffect(() => {
     document.title = "All Employees";
   }, []);
-
-  // Only show full page loading on initial load
-  // if (loading && !searchLoading && page === 1) {
-  //   return <LoadingAnimation />;
-  // }
 
   if (error) {
     return (
