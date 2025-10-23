@@ -4,21 +4,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, CheckCircle, XCircle } from "lucide-react";
 
-export default function EmployeeIdTextField({
-  name = "employeeId",
+export default function WorkEmailTextField({
   control,
-  label = "Employee ID",
-  placeholder = "Enter employee ID (e.g., TEE-0239)",
+  name = "workEmail",
+  label = "Work Email",
+  placeholder = "you@getfullsuite.com",
   required = false,
   availabilityState,
   onAvailabilityCheck,
-  pattern = /^[A-Za-z]+-\d+$/,
-  patternMessage = "Must be in format: PREFIX-NUMBERS (e.g., OCCI-0239)",
 }) {
   const [typedValue, setTypedValue] = useState("");
 
   useEffect(() => {
-    if (!typedValue || !pattern.test(typedValue)) return;
+    if (!typedValue) return;
 
     const timer = setTimeout(() => {
       onAvailabilityCheck?.(typedValue);
@@ -31,15 +29,13 @@ export default function EmployeeIdTextField({
     <Controller
       name={name}
       control={control}
-      defaultValue=""
       rules={{
-        required: required ? "Employee ID is required" : false,
-        pattern: { value: pattern, message: patternMessage },
+        required: required ? "Work email is required" : false,
       }}
       render={({ field, fieldState }) => (
         <div className="space-y-1">
           {label && (
-            <Label htmlFor={name} className="text-xs font-medium gap-0">
+            <Label htmlFor={name} className="text-xs font-medium">
               {label}
               {required && <span className="text-primary-color">*</span>}
             </Label>
@@ -47,11 +43,12 @@ export default function EmployeeIdTextField({
 
           <Input
             id={name}
+            type="email"
             placeholder={placeholder}
             value={field.value ?? ""}
             onChange={(e) => {
               field.onChange(e.target.value);
-              setTypedValue(e.target.value.trim());
+              setTypedValue(e.target.value);
             }}
             className={
               fieldState.error || availabilityState?.available === false
@@ -68,11 +65,10 @@ export default function EmployeeIdTextField({
             <div className="flex items-center gap-1 text-xs mt-1">
               {availabilityState.loading && (
                 <>
-                  <Loader2 className="animate-spin w-3 h-3 text-gray-500" />
+                  <Loader2 className="animate-spin w-3 h-3" />
                   <span>Checking...</span>
                 </>
               )}
-
               {!availabilityState.loading &&
                 availabilityState.available === true && (
                   <>
@@ -80,7 +76,6 @@ export default function EmployeeIdTextField({
                     <span className="text-[#008080]">Available</span>
                   </>
                 )}
-
               {!availabilityState.loading &&
                 availabilityState.available === false && (
                   <>

@@ -16,6 +16,22 @@ export const checkEmployeeIdAvailabilityAPI = async (user_id) => {
   }
 };
 
+export const checkEmployeeEmailAvailabilityAPI = async (user_email) => {
+  try {
+    const response = await api.get(
+      `/api/hris-user-accounts/check-email/${user_email}`
+    );
+    console.log(
+      "Successfully check employee email availability:",
+      response.data.available
+    );
+    return response.data.available;
+  } catch (error) {
+    console.error("Failed to check employee email if taken:", error);
+    return 404;
+  }
+};
+
 export const fetchLatestEmployeeIdAPI = async () => {
   try {
     const response = await api.get(`/api/hris-user-accounts/latest-id/get`);

@@ -24,11 +24,13 @@ import ShiftTemplateSearchComboBox from "./fields/dynamic-fields/ShiftTemplateSe
 import PasswordField from "./fields/PasswordField";
 import { useFetchGovernmentRemittancesAPI } from "@/hooks/useGovernmentRemittancesAPI";
 import {
+  useCheckEmployeeEmailAvailabilityAPI,
   useCheckEmployeeIdAvailabilityAPI,
   useFetchLatestEmployeeIdAPI,
 } from "@/hooks/useEmployeeAPI";
 import EmployeeIdTextField from "./fields/EmployeeIdTextField";
 import GeneratePasswordButton from "./buttons/GeneratePassword";
+import WorkEmailTextField from "./fields/WorkEmailTextField";
 
 const EmployeeForm = ({ onSubmit, onCancel }) => {
   const { allGovernmentRemittances, loading } =
@@ -170,6 +172,34 @@ const EmployeeForm = ({ onSubmit, onCancel }) => {
   const {
     formState: { isSubmitting },
   } = form;
+  const {
+    isEmpEmailAvailable,
+    isEmpEmailAvailableLoading,
+    checkEmailAvailability,
+  } = useCheckEmployeeEmailAvailabilityAPI();
+
+  const generateWorkEmail = (first = "", last = "") => {
+    if (!first || !last) return "";
+    const firstWord = first.trim().split(" ")[0].toLowerCase();
+    const cleanLast = last.replace(/\s+/g, "").toLowerCase();
+    return `${firstWord}.${cleanLast}@getfullsuite.com`;
+  };
+
+  const firstNameValue = form.watch("firstName");
+  const lastNameValue = form.watch("lastName");
+  const employeeIdValue = form.watch("employeeId");
+
+  useEffect(() => {
+      checkAvailability(employeeIdValue);
+  }, [employeeIdValue]);
+
+  useEffect(() => {
+    if (firstNameValue && lastNameValue) {
+      const email = generateWorkEmail(firstNameValue, lastNameValue);
+      form.setValue("workEmail", email, { shouldValidate: true });
+      checkEmailAvailability(email);
+    }
+  }, [firstNameValue, lastNameValue]);
 
   return (
     <FormLayout form={form} onSubmit={onSubmit}>
@@ -345,48 +375,28 @@ const EmployeeForm = ({ onSubmit, onCancel }) => {
       <div>
         <h2 className="text-sm font-semibold mb-4">Employee Information</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Controller
+          <EmployeeIdTextField
             name="employeeId"
             control={form.control}
-            rules={{
-              required: "Employee ID is required",
-              // pattern: {
-              //   value: /^OCCI-\d+$/,
-              //   message: "Must start with OCCI- followed by numbers",
-              // },
+            label="Employee ID"
+            placeholder="Enter employee ID"
+            required
+            onAvailabilityCheck={(value) => {
+                checkAvailability(value);
             }}
-            render={({ field, fieldState }) => {
-              useEffect(() => {
-                if (field.value) checkAvailability(field.value);
-              }, [field.value]);
-              return (
-                <EmployeeIdTextField
-                  {...field}
-                  label="Employee ID"
-                  control={form.control}
-                  placeholder="Enter employee ID"
-                  error={fieldState.error}
-                  onAvailabilityCheck={(value) => {
-                    if (/^OCCI-\d+$/.test(value)) {
-                      checkAvailability(value);
-                    }
-                  }}
-                  availabilityState={{
-                    loading: isEmpIdAvailableLoading,
-                    available: isEmpIdAvailable,
-                  }}
-                  required
-                />
-              );
+            availabilityState={{
+              loading: isEmpIdAvailableLoading,
+              available: isEmpIdAvailable,
             }}
           />
-          <TextField
-            name="workEmail"
-            label="Work Email"
+          <WorkEmailTextField
             control={form.control}
-            type="email"
-            placeholder="you@getfullsuite.com"
             required
+            availabilityState={{
+              loading: isEmpEmailAvailableLoading,
+              available: isEmpEmailAvailable,
+            }}
+            onAvailabilityCheck={checkEmailAvailability}
           />
           <TextField
             name="companyIssuedPhoneNumber"

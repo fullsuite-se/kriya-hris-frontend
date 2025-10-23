@@ -78,6 +78,9 @@ export default function PasswordField({
           className={`pr-10 ${
             isError ? errorTheme.border : ""
           } ${inputClassName}`}
+          onPaste={(e) => e.preventDefault()}
+          onCopy={(e) => e.preventDefault()}
+          onCut={(e) => e.preventDefault()}
         />
 
         <button

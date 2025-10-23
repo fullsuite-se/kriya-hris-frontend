@@ -136,6 +136,9 @@ const LoginPage = () => {
                 className="bg-white/20 text-white !placeholder-white/30 border-white/30 pr-10"
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="login-password"
+                onPaste={(e) => e.preventDefault()}
+                onCopy={(e) => e.preventDefault()}
+                onCut={(e) => e.preventDefault()}
               />
               <button
                 type="button"

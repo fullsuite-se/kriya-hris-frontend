@@ -1,5 +1,6 @@
 import fetchEmployeeDetailsAPI, {
   addEmployeeAPI,
+  checkEmployeeEmailAvailabilityAPI,
   checkEmployeeIdAvailabilityAPI,
   editEmployeeAddressesAPI,
   editEmployeeContactInfoAPI,
@@ -39,6 +40,27 @@ export const useCheckEmployeeIdAvailabilityAPI = () => {
     isEmpIdAvailable: data,
     isEmpIdAvailableLoading: isPending,
     checkAvailability,
+    error,
+  };
+};
+
+//check email availability
+
+
+export const useCheckEmployeeEmailAvailabilityAPI = () => {
+  const { mutateAsync, data, isPending, error } = useMutation({
+    mutationFn: checkEmployeeEmailAvailabilityAPI,
+  });
+
+  const checkEmailAvailability = async (user_email) => {
+    if (!user_email) return null;
+    return await mutateAsync(user_email);
+  };
+
+  return {
+    isEmpEmailAvailable: data,
+    isEmpEmailAvailableLoading: isPending,
+    checkEmailAvailability,
     error,
   };
 };
