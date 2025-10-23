@@ -4,6 +4,7 @@ import MonthlyTrendsHiresResigneesAnalytics from "@/components/analytics/Monthly
 import AttritionRateAnalytics from "@/components/analytics/AttritionRateAnalytics";
 import SexDistributionAnalytics from "@/components/analytics/SexDistributionAnalytics";
 import AgeDistributionAnalytics from "@/components/analytics/AgeDistributionAnalytics";
+import EmploymentStatusAnalytics from "@/components/analytics/EmploymentStatusAnalytics";
 
 export default function AnalyticsPage() {
   const { setHeaderConfig } = useHeader();
@@ -11,9 +12,10 @@ export default function AnalyticsPage() {
   useEffect(() => {
     setHeaderConfig({
       title: "Analytics",
-      description: "Discover trends, spot issues, and make data-backed HR decisions",
+      description:
+        "Discover trends, spot issues, and make data-backed HR decisions",
     });
-      document.title = "Analytics";
+    document.title = "Analytics";
   }, []);
 
   return (
@@ -43,14 +45,15 @@ export default function AnalyticsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-     
         <div className="bg-white rounded-2xl shadow-sm p-5 ">
-         <SexDistributionAnalytics/>
-        </div>   
-        <div className="bg-white rounded-2xl shadow-sm p-5 ">
-         <AgeDistributionAnalytics/>
+          <SexDistributionAnalytics />
         </div>
-       
+        <div className="bg-white rounded-2xl shadow-sm p-5 ">
+          <AgeDistributionAnalytics />
+        </div>
+        <div className="bg-white rounded-2xl shadow-sm p-5 ">
+          <EmploymentStatusAnalytics />
+        </div>
       </div>
     </div>
   );

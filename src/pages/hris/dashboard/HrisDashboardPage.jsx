@@ -5,12 +5,12 @@ import {
   UserGroupIcon,
   XCircleIcon,
 } from "@heroicons/react/24/outline";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import DashboardDateTime from "./components/DashboardDateTime";
 import { ExclamationCircleIcon } from "@heroicons/react/24/solid";
 import LoadingAnimation from "@/components/Loading";
 import { useFetchEmployeeCountsAPI } from "@/hooks/useEmployeeAPI";
-import MonthlyTrendsHiresResigneesAnalytics from "../../../components/analytics/MonthlyTrendsHiresResigneesAnalytics";
+import MonthlyTrendsHiresResigneesAnalytics from "@/components/analytics/MonthlyTrendsHiresResigneesAnalytics";
 import AttritionRateAnalytics from "@/components/analytics/AttritionRateAnalytics";
 
 const statusIcons = {
@@ -25,37 +25,52 @@ const HrisDashboardPage = () => {
   useEffect(() => {
     setHeaderConfig({
       title: "HRIS Dashboard",
-      description: "Monitor performance, track trends, and stay on top of HR operations",
+      description:
+        "Monitor performance, track trends, and stay on top of HR operations",
       rightContent: <DashboardDateTime />,
     });
-  }, []);
-
-  const { employeeCounts, loading, error } = useFetchEmployeeCountsAPI();
-
-  useEffect(() => {
     document.title = "Dashboard";
   }, []);
 
-  if (loading) return <LoadingAnimation />;
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-screen italic text-muted-foreground">
-        Failed to load this page. Try again later.
-      </div>
-    );
-  }
+  const {
+    countsByStatus = [],
+    activeCount = 0,
+    loading,
+    error,
+  } = useFetchEmployeeCountsAPI();
 
-  const { activeCount, countsByStatus = [] } = employeeCounts || {};
+  // Fallback array if countsByStatus is empty
+  const fallbackStatuses = [
+    {
+      employment_status_id: "es1",
+      employment_status: "Probationary",
+      count: 0,
+      newThisMonth: 0,
+    },
+    {
+      employment_status_id: "es2",
+      employment_status: "Regular",
+      count: 0,
+      newThisMonth: 0,
+    },
+    {
+      employment_status_id: "es3",
+      employment_status: "Separated",
+      count: 0,
+      newThisMonth: 0,
+    },
+  ];
 
-  const statusWithNew = countsByStatus.sort((a, b) =>
-    a.employment_status.localeCompare(b.employment_status)
-  );
+  const statusWithNew = countsByStatus.length
+    ? countsByStatus
+    : fallbackStatuses;
 
   return (
     <div className="flex flex-col min-h-screen gap-5">
+      {loading && <LoadingAnimation />}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 auto-rows-[minmax(100px,auto)]">
+        {/* Active Employees */}
         <div className="col-span-1">
-          {/* <Link to="/hris/employees" className="col-span-1"> */}
           <div className="bg-[#008080] rounded-2xl shadow-sm p-5 hover:shadow-md transition-shadow">
             <div className="flex justify-between items-start mb-2">
               <h3 className="text-lg font-semibold text-white">
@@ -65,12 +80,11 @@ const HrisDashboardPage = () => {
             </div>
             <p className="text-6xl font-bold text-white">{activeCount}</p>
           </div>
-          {/* </Link> */}
         </div>
 
+        {/* Status Boxes */}
         {statusWithNew.map((status) => (
           <div key={status.employment_status_id} className="col-span-1">
-            {/* <Link to="/hris/employees" key={status.employment_status_id} className="col-span-1"> */}
             <div className="bg-white rounded-2xl shadow-sm p-5 hover:shadow-md transition-shadow">
               <div className="flex justify-between items-start mb-2">
                 <h3 className="text-lg font-semibold text-gray-800">
@@ -87,12 +101,15 @@ const HrisDashboardPage = () => {
                 +{status.newThisMonth} this month
               </span>
             </div>
-            {/* </Link> */}
           </div>
         ))}
+
+        {/* Monthly Trends */}
         <div className="bg-white rounded-2xl shadow-sm p-5 col-span-1 lg:col-span-2 lg:row-span-2">
           <MonthlyTrendsHiresResigneesAnalytics />
         </div>
+
+        {/* Updates */}
         <div className="bg-white rounded-2xl shadow-sm p-5 col-span-1 lg:col-span-2 lg:row-span-4">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">Updates</h3>
           <ul className="space-y-3 text-sm text-gray-600">
@@ -101,20 +118,20 @@ const HrisDashboardPage = () => {
               update here
             </li>
           </ul>
-          {/* <img src={underConstructionImg} alt="under construction" className="grayscale" /> */}
         </div>
 
-         <div className="bg-white rounded-2xl shadow-sm p-5  col-span-1 lg:col-span-2 lg:row-span-2">
+        {/* Attrition Rate */}
+        <div className="bg-white rounded-2xl shadow-sm p-5 col-span-1 lg:col-span-2 lg:row-span-2">
           <AttritionRateAnalytics />
         </div>
-
-        {/* <div className="bg-white rounded-2xl shadow-sm p-5 col-span-1 lg:col-span-2 lg:row-span-2">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Summary</h3>
-          <div className="text-gray-500">Contents here</div>
-
-          <img src={underConstructionImg} alt="under construction" className="grayscale" />
-        </div> */}
       </div>
+
+      {/* Error fallback message */}
+      {error && (
+        <div className="flex items-center justify-center text-sm italic text-muted-foreground mt-4">
+          Failed to load. Please try again later.
+        </div>
+      )}
     </div>
   );
 };

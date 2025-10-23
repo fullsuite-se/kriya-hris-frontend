@@ -122,6 +122,7 @@ export function FilterSection({
                     <Calendar
                       mode="single"
                       selected={values[0] ? new Date(values[0]) : undefined}
+                      defaultMonth={values[0] ? new Date(values[0]) : undefined}
                       captionLayout="dropdown"
                       onSelect={(selectedDate) => {
                         if (!values[1] || selectedDate <= new Date(values[1])) {
@@ -157,6 +158,7 @@ export function FilterSection({
                     <Calendar
                       mode="single"
                       selected={values[1] ? new Date(values[1]) : undefined}
+                      defaultMonth={values[1] ? new Date(values[1]) : undefined}
                       captionLayout="dropdown"
                       onSelect={(selectedDate) => {
                         if (!values[0] || selectedDate >= new Date(values[0])) {
@@ -164,7 +166,8 @@ export function FilterSection({
                         }
                       }}
                       disabled={(date) =>
-                        values[0] && date < new Date(values[0])
+                        date > new Date() ||
+                        (values[0] && date < new Date(values[0]))
                       }
                     />
                   </PopoverContent>

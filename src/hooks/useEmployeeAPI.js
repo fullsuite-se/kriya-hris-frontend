@@ -234,24 +234,33 @@ export const useEmployeeDropdownAPI = () => {
 
 //get employee counts
 export const useFetchEmployeeCountsAPI = () => {
-  const {
-    data: employeeCounts = [],
-    error,
-    isLoading,
-    refetch,
-  } = useQuery({
+  const query = useQuery({
     queryKey: ["employeeCounts"],
-    queryFn: fetchEmployeeCountsAPI,
-    staleTime: 10 * 60 * 1000,
+    queryFn: async () => {
+      const result = await fetchEmployeeCountsAPI();
+
+      if (!result) throw new Error("No response received from server");
+      if (!result.countsByStatus) throw new Error(result.message || "Invalid response");
+
+      return result;
+    },
+    staleTime: 1000 * 60 * 10,
+    cacheTime: 1000 * 60 * 30,
+    refetchOnWindowFocus: false,
+    retry: 1,
   });
 
   return {
-    employeeCounts,
-    error,
-    loading: isLoading,
-    refetch,
+    countsByStatus: query.data?.countsByStatus || [],
+    activeCount: query.data?.activeCount || 0,
+    loading: query.isLoading,
+    error: query.error?.message || null,
+    refetch: query.refetch,
   };
 };
+
+
+
 
 
 //details of loggedin user
@@ -312,7 +321,7 @@ export const useFetchLoggedInUserDetailsAPI = (userId) => {
         }
       } catch (error) {
         console.error(" Failed to fetch user details:", error);
-        hasFetchedRef.current = false; 
+        hasFetchedRef.current = false;
       } finally {
         setLoading(false);
       }

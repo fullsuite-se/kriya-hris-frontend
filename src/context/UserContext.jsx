@@ -98,7 +98,6 @@ export const UserProvider = ({ children }) => {
   ]);
 
   const clearUserCache = useCallback(() => {
-    console.log("🗑️ Clearing cache");
     sessionStorage.removeItem(CACHE_KEY);
     setUser(null);
     setPersonalInfo(null);

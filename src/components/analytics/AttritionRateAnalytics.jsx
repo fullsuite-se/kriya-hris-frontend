@@ -31,8 +31,8 @@ const AttritionRateAnalytics = () => {
         datasets: [
           {
             label: "Attrition Rate (%)",
-            data: attritionData.attritionRates,
-            backgroundColor: "#cc5500", // red
+            data: attritionData.data.map((item) => item.attritionRate),
+            backgroundColor: "#cc5500",
             borderRadius: 6,
             barThickness: 22,
           },
@@ -88,7 +88,14 @@ const AttritionRateAnalytics = () => {
                   padding: 10,
                   cornerRadius: 6,
                   callbacks: {
-                    label: (ctx) => `${ctx.raw}%`,
+                    label: (ctx) => {
+                      const monthData = attritionData.data[ctx.dataIndex];
+                      return [
+                        `Attrition Rate: ${monthData.attritionRate}%`,
+                        `Average Employees: ${monthData.avgEmployees}`,
+                        `Separations: ${monthData.separations}`,
+                      ];
+                    },
                   },
                 },
               },
