@@ -224,7 +224,7 @@ const Sidebar = () => {
           </div>
         ) : (
           <div
-            className={`flex items-center mb-10  ${
+            className={`group flex items-center mb-10  ${
               collapsed && "self-center"
             } cursor-pointer `}
             onClick={() =>
@@ -246,6 +246,7 @@ const Sidebar = () => {
         ? "bg-gray-300"
         : "bg-primary-color"
     }
+    transition-transform duration-300 ease-in-out transform group-hover:scale-110
   `}
             >
               {personalInfo?.user_pic ? (
@@ -264,7 +265,7 @@ const Sidebar = () => {
 
             {!collapsed && personalInfo && (
               <div className="overflow-hidden ml-3">
-                <h3 className="font-medium text-gray-900 truncate text-medium">
+                <h3 className="font-medium text-gray-900 truncate text-medium transition-transform duration-300 ease-in-out transform group-hover:text-[#008080]">
                   {personalInfo?.first_name} {personalInfo?.last_name}
                 </h3>
                 <p className="text-[#008080] truncate text-xs ">
