@@ -288,7 +288,7 @@ const Sidebar = () => {
             return (
               <div key={section.service} className="text-gray-500 !text-sm">
                 {/* Section service header - accordion */}
-                <div
+                {/* <div
                   className={`cursor-pointer py-2 flex items-center gap-2 ${
                     collapsed ? "justify-center" : "justify-between"
                   } w-full select-none`}
@@ -302,7 +302,7 @@ const Sidebar = () => {
                       <ArrowHeadDownIcon className={`text-gray-500`} />
                     )}
                   </span>
-                </div>
+                </div> */}
 
                 {/* content tabs by service */}
                 <div
