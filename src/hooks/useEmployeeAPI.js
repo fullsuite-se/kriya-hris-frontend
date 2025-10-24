@@ -298,111 +298,48 @@ export const useFetchLoggedInUserDetailsAPI = (userId) => {
     setGovernmentIds,
     setAddresses,
     setEmergencyContacts,
-    user,
-    isCacheLoaded,
     setIsCacheLoaded,
   } = useContext(UserContext);
 
-  const hasFetchedRef = useRef(false);
-  const isInitialMount = useRef(true);
+  const {
+    data,
+    isLoading,
+    refetch: refreshUserData,
+  } = useQuery({
+    queryKey: ["logged-in-user", userId],
+    queryFn: async () => {
+      if (!userId) return null;
+      const result = await fetchEmployeeDetailsAPI({ user_id: userId });
+      return result?.user || null;
+    },
+    enabled: !!userId,
+    staleTime: 1000 * 60 * 20,
+    cacheTime: 1000 * 60 * 30,
+    refetchOnWindowFocus: false,
+  });
 
   useEffect(() => {
-    const fetchUser = async () => {
-      if (!userId) {
-        return;
-      }
+    if (!data) return;
 
-      if (isCacheLoaded && user) {
-        return;
-      }
+    setUser(data);
+    setPersonalInfo(data.HrisUserInfo);
+    setDesignations(data.HrisUserDesignations?.[0] || {});
+    setEmploymentInfo(data.HrisUserEmploymentInfo);
+    setSalaryInfo(data.HrisUserSalary);
+    setHr201(data.HrisUserHr201);
+    setGovernmentIds(data.HrisUserGovernmentIds);
+    setAddresses(data.HrisUserAddresses);
+    setEmergencyContacts(data.HrisUserEmergencyContacts);
+    setIsCacheLoaded(true);
+  }, [data]);
 
-      if (hasFetchedRef.current) {
-        return;
-      }
-
-      hasFetchedRef.current = true;
-      setLoading(true);
-
-      try {
-        const data = await fetchEmployeeDetailsAPI({ user_id: userId });
-
-        if (data?.user) {
-          const userData = data.user;
-
-          setUser(userData);
-          setPersonalInfo(userData.HrisUserInfo);
-          setDesignations(userData.HrisUserDesignations?.[0] || {});
-          setEmploymentInfo(userData.HrisUserEmploymentInfo);
-          setSalaryInfo(userData.HrisUserSalary);
-          setHr201(userData.HrisUserHr201);
-          setGovernmentIds(userData.HrisUserGovernmentIds);
-          setAddresses(userData.HrisUserAddresses);
-          setEmergencyContacts(userData.HrisUserEmergencyContacts);
-
-          setIsCacheLoaded(true);
-        }
-      } catch (error) {
-        console.error(" Failed to fetch user details:", error);
-        hasFetchedRef.current = false;
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      fetchUser();
-    }
-  }, [userId]);
-
-  const refreshUserData = useCallback(async () => {
-    if (!userId) {
-      return;
-    }
-
-    hasFetchedRef.current = false;
-    setLoading(true);
-
-    try {
-      const data = await fetchEmployeeDetailsAPI({ user_id: userId });
-
-      if (data?.user) {
-        const userData = data.user;
-
-        setUser(userData);
-        setPersonalInfo(userData.HrisUserInfo);
-        setDesignations(userData.HrisUserDesignations?.[0] || {});
-        setEmploymentInfo(userData.HrisUserEmploymentInfo);
-        setSalaryInfo(userData.HrisUserSalary);
-        setHr201(userData.HrisUserHr201);
-        setGovernmentIds(userData.HrisUserGovernmentIds);
-        setAddresses(userData.HrisUserAddresses);
-        setEmergencyContacts(userData.HrisUserEmergencyContacts);
-
-        console.log("User data refreshed successfully");
-      }
-    } catch (error) {
-      console.error("Failed to refresh user details:", error);
-    } finally {
-      setLoading(false);
-      hasFetchedRef.current = true;
-    }
-  }, [
-    userId,
-    setUser,
-    setLoading,
-    setPersonalInfo,
-    setDesignations,
-    setEmploymentInfo,
-    setSalaryInfo,
-    setHr201,
-    setGovernmentIds,
-    setAddresses,
-    setEmergencyContacts,
-  ]);
+  useEffect(() => {
+    setLoading(isLoading);
+  }, [isLoading]);
 
   return { refreshUserData };
 };
+
 
 //single lang
 export const useFetchEmployeeDetailsAPI = (userId) => {
