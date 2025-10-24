@@ -71,3 +71,17 @@ export const fetchAgeDistributionAPI = async () => {
         };
     }
 };
+
+export const fetchTenureDistributionAPI = async () => {
+    try {
+        const response = await api.get(`/api/analytics/tenure-distribution`);
+        console.log("Tenure distribution fetched successfully:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Failed to fetch Tenure distribution:", error);
+        return {
+            success: false,
+            message: error.response?.data?.message || error.message || 'Failed to fetch Tenure distribution'
+        };
+    }
+};

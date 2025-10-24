@@ -5,6 +5,7 @@ import AttritionRateAnalytics from "@/components/analytics/AttritionRateAnalytic
 import SexDistributionAnalytics from "@/components/analytics/SexDistributionAnalytics";
 import AgeDistributionAnalytics from "@/components/analytics/AgeDistributionAnalytics";
 import EmploymentStatusAnalytics from "@/components/analytics/EmploymentStatusAnalytics";
+import TenureDistributionAnalytics from "@/components/analytics/TenureDistributionAnalytics";
 
 export default function AnalyticsPage() {
   const { setHeaderConfig } = useHeader();
@@ -53,6 +54,9 @@ export default function AnalyticsPage() {
         </div>
         <div className="bg-white rounded-2xl shadow-sm p-5 ">
           <EmploymentStatusAnalytics />
+        </div>
+        <div className="bg-white rounded-2xl shadow-sm p-5 ">
+          <TenureDistributionAnalytics />
         </div>
       </div>
     </div>

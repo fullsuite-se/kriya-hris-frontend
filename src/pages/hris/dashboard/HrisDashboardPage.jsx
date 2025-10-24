@@ -13,6 +13,7 @@ import { useFetchEmployeeCountsAPI } from "@/hooks/useEmployeeAPI";
 import MonthlyTrendsHiresResigneesAnalytics from "@/components/analytics/MonthlyTrendsHiresResigneesAnalytics";
 import AttritionRateAnalytics from "@/components/analytics/AttritionRateAnalytics";
 import { useNavigate } from "react-router-dom";
+import TenureDistributionAnalytics from "@/components/analytics/TenureDistributionAnalytics";
 
 const statusIcons = {
   Regular: <CheckBadgeIcon width={20} className="text-[#008080]" />,
@@ -98,7 +99,6 @@ const HrisDashboardPage = () => {
             <p className="text-6xl font-bold text-white">{activeCount}</p>
           </div>
         </div>
-
         {statusWithNew.map((status) => (
           <div key={status.employment_status_id} className="col-span-1">
             <div
@@ -122,9 +122,15 @@ const HrisDashboardPage = () => {
             </div>
           </div>
         ))}
+        <div className="bg-white rounded-2xl shadow-sm p-5 col-span-1 lg:col-span-4 lg:row-span-1">
+          <MonthlyTrendsHiresResigneesAnalytics />
+        </div>
+        <div className="bg-white rounded-2xl shadow-sm p-5 col-span-1 lg:col-span-2 lg:row-span-2">
+          <TenureDistributionAnalytics />
+        </div>
 
         <div className="bg-white rounded-2xl shadow-sm p-5 col-span-1 lg:col-span-2 lg:row-span-2">
-          <MonthlyTrendsHiresResigneesAnalytics />
+          <AttritionRateAnalytics />
         </div>
 
         {/* <div className="bg-white rounded-2xl shadow-sm p-5 col-span-1 lg:col-span-2 lg:row-span-4">
@@ -136,10 +142,6 @@ const HrisDashboardPage = () => {
             </li>
           </ul>
         </div> */}
-
-        <div className="bg-white rounded-2xl shadow-sm p-5 col-span-1 lg:col-span-2 lg:row-span-2">
-          <AttritionRateAnalytics />
-        </div>
       </div>
 
       {error && (
