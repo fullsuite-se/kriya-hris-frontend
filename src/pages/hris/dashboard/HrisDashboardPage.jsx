@@ -127,7 +127,7 @@ const HrisDashboardPage = () => {
           <MonthlyTrendsHiresResigneesAnalytics />
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm p-5 col-span-1 lg:col-span-2 lg:row-span-4">
+        {/* <div className="bg-white rounded-2xl shadow-sm p-5 col-span-1 lg:col-span-2 lg:row-span-4">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">Updates</h3>
           <ul className="space-y-3 text-sm text-gray-600">
             <li className="border-b pb-2 flex">
@@ -135,7 +135,7 @@ const HrisDashboardPage = () => {
               update here
             </li>
           </ul>
-        </div>
+        </div> */}
 
         <div className="bg-white rounded-2xl shadow-sm p-5 col-span-1 lg:col-span-2 lg:row-span-2">
           <AttritionRateAnalytics />
