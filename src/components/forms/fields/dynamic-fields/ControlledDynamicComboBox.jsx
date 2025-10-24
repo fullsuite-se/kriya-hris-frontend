@@ -64,30 +64,30 @@ export default function ControlledDynamicComboBox({
 
   const shouldRenderAvatar = (item) => {
     const userPic = getUserPic(item);
-    return userPic !== null && userPic !== undefined && userPic !== '';
+    return userPic !== null && userPic !== undefined && userPic !== "";
   };
 
   const getAvatarSrc = (item) => {
     const userPic = getUserPic(item);
-    if (userPic && !userPic.startsWith('initials:')) {
-      return userPic; 
+    if (userPic && !userPic.startsWith("initials:")) {
+      return userPic;
     }
     return undefined;
   };
 
   const getAvatarFallback = (item) => {
     const userPic = getUserPic(item);
-    if (userPic && userPic.startsWith('initials:')) {
-      return userPic.replace('initials:', '');
+    if (userPic && userPic.startsWith("initials:")) {
+      return userPic.replace("initials:", "");
     }
-    
-    if (typeof item === 'object') {
-      const firstName = item.fname || item.first_name || '';
-      const lastName = item.lname || item.last_name || '';
-      return `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase() || '??';
+
+    if (typeof item === "object") {
+      const firstName = item.fname || item.first_name || "";
+      const lastName = item.lname || item.last_name || "";
+      return `${firstName[0] || ""}${lastName[0] || ""}`.toUpperCase() || "??";
     }
-    
-    return '??';
+
+    return "??";
   };
 
   const handleSelect = (searchableValue) => {
@@ -130,8 +130,8 @@ export default function ControlledDynamicComboBox({
             <div className="flex items-center gap-2 truncate flex-1 text-left overflow-hidden">
               {selectedItem && shouldRenderAvatar(selectedItem) && (
                 <Avatar className="h-5 w-5 flex-shrink-0">
-                  <AvatarImage 
-                    src={getAvatarSrc(selectedItem)} 
+                  <AvatarImage
+                    src={getAvatarSrc(selectedItem)}
                     alt={getOptionLabel(selectedItem)}
                   />
                   <AvatarFallback className="bg-[#008080] text-white text-[8px]">
@@ -139,7 +139,11 @@ export default function ControlledDynamicComboBox({
                   </AvatarFallback>
                 </Avatar>
               )}
-              <span title={selectedItem ? getOptionLabel(selectedItem) : placeholder}>
+              <span
+                title={
+                  selectedItem ? getOptionLabel(selectedItem) : placeholder
+                }
+              >
                 {selectedItem ? getOptionLabel(selectedItem) : placeholder}
               </span>
             </div>
@@ -177,30 +181,34 @@ export default function ControlledDynamicComboBox({
                       <div className="flex items-center gap-2 min-w-0 flex-1">
                         {shouldShowAvatar && (
                           <Avatar className="h-8 w-8 flex-shrink-0">
-                            <AvatarImage 
-                              src={getAvatarSrc(item)} 
-                              alt={label}
-                            />
+                            <AvatarImage src={getAvatarSrc(item)} alt={label} />
                             <AvatarFallback className="bg-[#008080] text-white text-xs">
                               {getAvatarFallback(item)}
                             </AvatarFallback>
                           </Avatar>
                         )}
-                        <div className="flex flex-col min-w-0 flex-1" style={{
-                          marginLeft: shouldShowAvatar ? '0' : '0'
-                        }}>
+                        <div
+                          className="flex flex-col min-w-0 flex-1"
+                          style={{
+                            marginLeft: shouldShowAvatar ? "0" : "0",
+                          }}
+                        >
                           <span
                             className="text-sm font-medium truncate"
                             title={label}
                           >
-                            {label}
+                            {label.length > 50
+                              ? `${label.slice(0, 50)}…`
+                              : label}
                           </span>
                           {subLabel && (
                             <span
                               className="text-xs text-muted-foreground truncate"
                               title={subLabel}
                             >
-                              {subLabel}
+                              {subLabel.length > 50
+                                ? `${subLabel.slice(0, 50)}…`
+                                : subLabel}
                             </span>
                           )}
                         </div>
