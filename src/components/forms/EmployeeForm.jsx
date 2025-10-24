@@ -31,6 +31,10 @@ import {
 import EmployeeIdTextField from "./fields/EmployeeIdTextField";
 import GeneratePasswordButton from "./buttons/GeneratePassword";
 import WorkEmailTextField from "./fields/WorkEmailTextField";
+import {
+  useCheckEmailAvailabilitySuiteliferAPI,
+  useCheckIdAvailabilitySuiteliferAPI,
+} from "@/hooks/suitelifer/useUserSuiteliferAPI";
 
 const EmployeeForm = ({ onSubmit, onCancel }) => {
   const { allGovernmentRemittances, loading } =
@@ -172,11 +176,24 @@ const EmployeeForm = ({ onSubmit, onCancel }) => {
   const {
     formState: { isSubmitting },
   } = form;
+
   const {
     isEmpEmailAvailable,
     isEmpEmailAvailableLoading,
     checkEmailAvailability,
   } = useCheckEmployeeEmailAvailabilityAPI();
+
+  const {
+    checkIdAvailabilitySuitelifer,
+    isIdAvailableSuitelifer,
+    isIdAvailableSuiteliferLoading,
+  } = useCheckIdAvailabilitySuiteliferAPI();
+
+  const {
+    checkEmailAvailabilitySuitelifer,
+    isEmailAvailableSuitelifer,
+    isEmailAvailableSuiteliferLoading,
+  } = useCheckEmailAvailabilitySuiteliferAPI();
 
   const generateWorkEmail = (first = "", last = "") => {
     if (!first || !last) return "";
@@ -190,7 +207,8 @@ const EmployeeForm = ({ onSubmit, onCancel }) => {
   const employeeIdValue = form.watch("employeeId");
 
   useEffect(() => {
-      checkAvailability(employeeIdValue);
+    checkAvailability(employeeIdValue);
+    checkIdAvailabilitySuitelifer(employeeIdValue);
   }, [employeeIdValue]);
 
   useEffect(() => {
@@ -198,6 +216,7 @@ const EmployeeForm = ({ onSubmit, onCancel }) => {
       const email = generateWorkEmail(firstNameValue, lastNameValue);
       form.setValue("workEmail", email, { shouldValidate: true });
       checkEmailAvailability(email);
+      checkEmailAvailabilitySuitelifer(email);
     }
   }, [firstNameValue, lastNameValue]);
 
@@ -382,21 +401,27 @@ const EmployeeForm = ({ onSubmit, onCancel }) => {
             placeholder="Enter employee ID"
             required
             onAvailabilityCheck={(value) => {
-                checkAvailability(value);
+              checkAvailability(value);
+              checkIdAvailabilitySuitelifer(value);
             }}
             availabilityState={{
-              loading: isEmpIdAvailableLoading,
-              available: isEmpIdAvailable,
+              loading:
+                isEmpIdAvailableLoading || isIdAvailableSuiteliferLoading,
+              available: isEmpIdAvailable && isIdAvailableSuitelifer,
             }}
           />
           <WorkEmailTextField
             control={form.control}
             required
             availabilityState={{
-              loading: isEmpEmailAvailableLoading,
-              available: isEmpEmailAvailable,
+              loading:
+                isEmpEmailAvailableLoading || isEmailAvailableSuiteliferLoading,
+              available: isEmpEmailAvailable && isEmailAvailableSuitelifer,
             }}
-            onAvailabilityCheck={checkEmailAvailability}
+            onAvailabilityCheck={(value) => {
+              checkEmailAvailability(value);
+              checkEmailAvailabilitySuitelifer(value);
+            }}
           />
           <TextField
             name="companyIssuedPhoneNumber"
@@ -536,7 +561,6 @@ const EmployeeForm = ({ onSubmit, onCancel }) => {
           />
         </div>
       </div>
-
       <FormActions
         isLoading={isSubmitting}
         onCancel={onCancel}

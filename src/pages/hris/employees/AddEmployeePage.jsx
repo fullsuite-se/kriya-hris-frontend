@@ -3,8 +3,6 @@ import EmployeeForm from "@/components/forms/EmployeeForm";
 import { glassToast } from "@/components/ui/glass-toast";
 import { useHeader } from "@/context/HeaderContext";
 import { useAddEmployeeAPI } from "@/hooks/useEmployeeAPI";
-import { useFetchGovernmentRemittancesAPI } from "@/hooks/useGovernmentRemittancesAPI";
-import { extractDataForSaving } from "@/utils/parsers/extractData";
 import { sanitizeData } from "@/utils/parsers/sanitizeData";
 import {
   CheckCircleIcon,
@@ -19,6 +17,9 @@ const AddEmployeePage = () => {
   const { setHeaderConfig } = useHeader();
   const navigate = useNavigate();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [pendingFormData, setPendingFormData] = useState(null);
+  const [isConfirmLoading, setIsConfirmLoading] = useState(false);
 
   const { addEmployee, loading, error } = useAddEmployeeAPI();
   const { registerSuitelifer } = useRegisterSuiteliferAPI();
@@ -202,6 +203,20 @@ const AddEmployeePage = () => {
     }
   };
 
+  const handleOpenConfirmation = (formData) => {
+    setPendingFormData(formData);
+    setShowConfirmDialog(true);
+  };
+
+  const handleConfirmSave = async () => {
+    try {
+      setIsConfirmLoading(true);
+      await handleSubmit(pendingFormData);
+    } finally {
+      setIsConfirmLoading(false);
+    }
+  };
+
   const handleCancel = () => {
     setShowCancelDialog(true);
   };
@@ -223,7 +238,10 @@ const AddEmployeePage = () => {
   return (
     <>
       <div className="flex rounded-md bg-white p-5 w-full">
-        <EmployeeForm onSubmit={handleSubmit} onCancel={handleCancel} />
+        <EmployeeForm
+          onSubmit={handleOpenConfirmation}
+          onCancel={handleCancel}
+        />
       </div>
 
       {showCancelDialog && (
@@ -237,6 +255,21 @@ const AddEmployeePage = () => {
           onConfirm={confirmCancel}
           isShownCloseButton={false}
           allowOutsideInteraction={true}
+        />
+      )}
+
+      {showConfirmDialog && (
+        <CustomDialog
+          open={showConfirmDialog}
+          onOpenChange={setShowConfirmDialog}
+          title="Save New Employee?"
+          description="You're about to add a new employee. Make sure the information is correct before continuing."
+          confirmLabel={isConfirmLoading ? "Saving..." : "Yes, Save"}
+          cancelLabel="Go Back"
+          onConfirm={handleConfirmSave}
+          loading={isConfirmLoading}
+          isShownCloseButton={false}
+          allowOutsideInteraction={false}
         />
       )}
     </>

@@ -112,7 +112,7 @@ const CustomDialog = ({
             <DialogFooter className="mt-4 flex-shrink-0">
               {!hideCancel && (
                 <DialogClose asChild>
-                  <Button type="button" variant="outline" onClick={onCancel}>
+                  <Button type="button" variant="outline" onClick={onCancel} disabled={loading}>
                     {cancelLabel}
                   </Button>
                 </DialogClose>
