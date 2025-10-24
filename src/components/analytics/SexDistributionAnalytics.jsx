@@ -3,6 +3,7 @@ import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { useFetchSexDistributionAPI } from "@/hooks/useAnalyticsAPI";
 import PieDonutChartSkeleton from "./PieDonutChartSkeleton";
+import { ChartPieIcon } from "lucide-react";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -27,9 +28,13 @@ export default function SexDistributionAnalytics() {
 
   return (
     <>
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">
-        Sex Distribution
-      </h3>
+      <div className="flex flex-row items-center gap-2">
+        <ChartPieIcon className="w-5 h-5 text-primary-color" />
+        <h5 className=" font-semibold text-gray-800 mb-1">Sex Distribution</h5>
+      </div>
+      <p className="text-xs text-muted-foreground mb-4">
+        Percentage breakdown of male and female employees
+      </p>
 
       <div className="p-4 md:p-6 h-[380px] flex items-center justify-center">
         {loading ? (

@@ -3,6 +3,7 @@ import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import PieChartSkeleton from "./PieChartSkeleton";
 import { useFetchEmployeeCountsAPI } from "@/hooks/useEmployeeAPI";
+import { ChartPieIcon } from "lucide-react";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -18,7 +19,7 @@ export default function EmploymentStatusAnalytics() {
     datasets: [
       {
         data: countsByStatus.map((status) => status.count),
-        backgroundColor: [  "#59b3b3","#008080","#a5d6d6",], 
+        backgroundColor: ["#59b3b3", "#008080", "#a5d6d6"],
         borderWidth: 1,
       },
     ],
@@ -26,10 +27,13 @@ export default function EmploymentStatusAnalytics() {
 
   return (
     <>
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">
-        Employment Status
-      </h3>
-
+      <div className="flex flex-row items-center gap-2">
+        <ChartPieIcon className="w-5 h-5 text-primary-color" />
+        <h5 className=" font-semibold text-gray-800 mb-1">Employment Status</h5>
+      </div>
+      <p className="text-xs text-muted-foreground mb-4">
+        Percentage of employees by employment status
+      </p>
       <div className="p-4 md:p-6 h-[380px] flex items-center justify-center">
         {loading ? (
           <PieChartSkeleton />

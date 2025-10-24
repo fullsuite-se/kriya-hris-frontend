@@ -16,6 +16,7 @@ import {
   useFetchAvailableYearsAPI,
   useFetchMonthlyTrendsAPI,
 } from "@/hooks/useAnalyticsAPI";
+import { ChartSplineIcon } from "lucide-react";
 
 ChartJS.register(
   CategoryScale,
@@ -105,9 +106,16 @@ const MonthlyTrendsHiresResigneesAnalytics = ({ title = "Monthly Trends" }) => {
 
   return (
     <>
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
-
+      <div className="flex justify-between items-start mb-4">
+        <div className="flex flex-col">
+          <div className="flex flex-row items-center gap-2">
+            <ChartSplineIcon className="w-5 h-5 text-primary-color" />
+            <h5 className="font-semibold text-gray-800 mb-1">{title}</h5>
+          </div>
+          <p className="text-xs text-muted-foreground mb-4">
+            Monthly trend of new hires and resignations for the year
+          </p>
+        </div>
         {!yearsLoading && (
           <select
             value={selectedYear}

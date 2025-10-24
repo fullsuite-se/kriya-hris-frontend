@@ -10,6 +10,7 @@ import {
 } from "chart.js";
 import BarChartSkeleton from "./BarChartSkeleton";
 import { useFetchAgeDistributionAPI } from "@/hooks/useAnalyticsAPI";
+import { ChartColumnStackedIcon } from "lucide-react";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
@@ -40,10 +41,13 @@ export default function AgeDistributionAnalytics() {
 
   return (
     <>
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">
-        Age Distribution
-      </h3>
-
+      <div className="flex flex-row items-center gap-2">
+        <ChartColumnStackedIcon className="w-5 h-5 text-primary-color" />
+        <h5 className=" font-semibold text-gray-800 mb-1"> Age Distribution</h5>
+      </div>
+      <p className="text-xs text-muted-foreground mb-4">
+        Percentage of employees by age group, split by sex
+      </p>
       <div className="p-4 md:p-6 h-[450px]">
         {loading ? (
           <BarChartSkeleton />
