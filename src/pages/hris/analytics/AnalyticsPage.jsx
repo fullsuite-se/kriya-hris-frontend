@@ -41,22 +41,19 @@ export default function AnalyticsPage() {
           <MonthlyTrendsHiresResigneesAnalytics title="Monthly Trends" />
         </div>
         <div className="bg-white rounded-2xl shadow-sm p-5 ">
+          <TenureDistributionAnalytics />
+        </div>
+        <div className="bg-white rounded-2xl shadow-sm p-5 ">
           <AttritionRateAnalytics />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl shadow-sm p-5 ">
-          <SexDistributionAnalytics />
-        </div>
-        <div className="bg-white rounded-2xl shadow-sm p-5 ">
-          <AgeDistributionAnalytics />
         </div>
         <div className="bg-white rounded-2xl shadow-sm p-5 ">
           <EmploymentStatusAnalytics />
         </div>
         <div className="bg-white rounded-2xl shadow-sm p-5 ">
-          <TenureDistributionAnalytics />
+          <SexDistributionAnalytics />
+        </div>
+        <div className="bg-white rounded-2xl shadow-sm p-5 ">
+          <AgeDistributionAnalytics />
         </div>
       </div>
     </div>
