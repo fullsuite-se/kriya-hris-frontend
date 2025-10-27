@@ -182,13 +182,13 @@ const EmployeeDetailsPage = () => {
             );
           })()}
 
-          <EditEmploymentStatusDialog
+          {/* <EditEmploymentStatusDialog
             trigger={
               <p className="cursor-pointer select-none hover:underline text-xs mt-1 text-muted-foreground">
                 Change Status
               </p>
             }
-          />
+          /> */}
         </div>
       </div>
 

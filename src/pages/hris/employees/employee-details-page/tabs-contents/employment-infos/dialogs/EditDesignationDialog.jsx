@@ -279,12 +279,12 @@ const EditDesignationDialog = ({ trigger }) => {
             control={form.control}
             required
           />
-          <EmploymentStatusSearchComboBox
+          {/* <EmploymentStatusSearchComboBox
             name="employmentStatus"
             control={form.control}
             initialValue={employmentInfo?.employment_status_id}
             required
-          />
+          /> */}
           <JobLevelSearchComboBox
             name="jobLevel"
             control={form.control}
