@@ -243,8 +243,8 @@ const Sidebar = () => {
     ${
       employmentInfo?.HrisUserEmploymentStatus?.employment_status?.toLowerCase() ===
       "separated"
-        ? "bg-gray-300"
-        : "bg-primary-color"
+        ? "bg-secondary-color group-hover:border-[#cc5500]"
+        : "bg-primary-color group-hover:border-[#008080]"
     }
     transition-transform duration-300 ease-in-out transform group-hover:scale-110
   `}
