@@ -73,7 +73,9 @@ const AddEmployeePage = () => {
       company_issued_phone_number: toNullIfEmpty(
         cleanData.companyIssuedPhoneNumber
       ),
-      birthdate: toNullIfEmpty(toYMDLocal(formData.birthdate)),
+      birthdate: toNullIfEmpty(
+        toYMDLocal(formData.birthdate.toLocaleDateString())
+      ),
       nickname: toNullIfEmpty(cleanData.nickname),
       blood_type: toNullIfEmpty(cleanData.bloodType),
       civil_status: toNullIfEmpty(cleanData.civilStatus),
@@ -98,10 +100,18 @@ const AddEmployeePage = () => {
       hr201_url: toNullIfEmpty(cleanData.docuUrl),
 
       shift_template_id: toNullIfEmpty(cleanData.shift),
-      date_hired: toNullIfEmpty(toYMDLocal(formData.dateHired).toLocaleDateString()),
-      date_regularization: toNullIfEmpty(toYMDLocal(formData.dateRegularized).toLocaleDateString()),
-      date_offboarding: toNullIfEmpty(toYMDLocal(formData.dateOffboarded).toLocaleDateString()),
-      date_separated: toNullIfEmpty(toYMDLocal(formData.dateSeparated).toLocaleDateString()),
+      date_hired: toNullIfEmpty(
+        toYMDLocal(formData.dateHired.toLocaleDateString())
+      ),
+      date_regularization: toNullIfEmpty(
+        toYMDLocal(formData.dateRegularized.toLocaleDateString())
+      ),
+      date_offboarding: toNullIfEmpty(
+        toYMDLocal(formData.dateOffboarded.toLocaleDateString())
+      ),
+      date_separated: toNullIfEmpty(
+        toYMDLocal(formData.dateSeparated.toLocaleDateString())
+      ),
       employment_status_id: toNullIfEmpty(cleanData.employmentStatus),
       job_level_id: toNullIfEmpty(cleanData.jobLevel),
       employment_type_id: toNullIfEmpty(cleanData.employeeType),
