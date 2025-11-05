@@ -12,7 +12,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import { useRegisterSuiteliferAPI } from "@/hooks/suitelifer/useRegisterSuiteliferAPI";
-import { toYMDLocal } from "@/utils/formatters/dateFormatter";
 
 const AddEmployeePage = () => {
   const { setHeaderConfig } = useHeader();
@@ -73,9 +72,7 @@ const AddEmployeePage = () => {
       company_issued_phone_number: toNullIfEmpty(
         cleanData.companyIssuedPhoneNumber
       ),
-      birthdate: toNullIfEmpty(
-        toYMDLocal(formData.birthdate.toLocaleDateString())
-      ),
+      birthdate: toNullIfEmpty(formData.birthdate),
       nickname: toNullIfEmpty(cleanData.nickname),
       blood_type: toNullIfEmpty(cleanData.bloodType),
       civil_status: toNullIfEmpty(cleanData.civilStatus),
@@ -100,18 +97,10 @@ const AddEmployeePage = () => {
       hr201_url: toNullIfEmpty(cleanData.docuUrl),
 
       shift_template_id: toNullIfEmpty(cleanData.shift),
-      date_hired: toNullIfEmpty(
-        toYMDLocal(formData.dateHired.toLocaleDateString())
-      ),
-      date_regularization: toNullIfEmpty(
-        toYMDLocal(formData.dateRegularized.toLocaleDateString())
-      ),
-      date_offboarding: toNullIfEmpty(
-        toYMDLocal(formData.dateOffboarded.toLocaleDateString())
-      ),
-      date_separated: toNullIfEmpty(
-        toYMDLocal(formData.dateSeparated.toLocaleDateString())
-      ),
+      date_hired: toNullIfEmpty(formData.dateHired),
+      date_regularization: toNullIfEmpty(formData.dateRegularized),
+      date_offboarding: toNullIfEmpty(formData.dateOffboarded),
+      date_separated: toNullIfEmpty(formData.dateSeparated),
       employment_status_id: toNullIfEmpty(cleanData.employmentStatus),
       job_level_id: toNullIfEmpty(cleanData.jobLevel),
       employment_type_id: toNullIfEmpty(cleanData.employeeType),
