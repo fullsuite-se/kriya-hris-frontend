@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import { useRegisterSuiteliferAPI } from "@/hooks/suitelifer/useRegisterSuiteliferAPI";
+import { toYMDLocal } from "@/utils/formatters/dateFormatter";
 
 const AddEmployeePage = () => {
   const { setHeaderConfig } = useHeader();
@@ -72,7 +73,7 @@ const AddEmployeePage = () => {
       company_issued_phone_number: toNullIfEmpty(
         cleanData.companyIssuedPhoneNumber
       ),
-      birthdate: toNullIfEmpty(formData.birthdate),
+      birthdate: toYMDLocal(formData?.birthdate),
       nickname: toNullIfEmpty(cleanData.nickname),
       blood_type: toNullIfEmpty(cleanData.bloodType),
       civil_status: toNullIfEmpty(cleanData.civilStatus),
