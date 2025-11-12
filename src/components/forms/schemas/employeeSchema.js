@@ -64,28 +64,35 @@ export const employeeFormSchema = z.object({
   postalCodePermanent: z.string().trim().optional().nullable(),
   countryPermanent: z.string().trim().optional().nullable(),
   regionPermanent: z
-    .object({
-      code: z.string().trim(),
-      name: z.string().trim(),
-    }).optional().nullable(),
-
+    .union([
+      z.object({ code: z.string().trim(), name: z.string().trim() }).nullable(),
+      z.string().trim().nullable(),
+    ])
+    .transform((val) => {
+      if (!val) return null;
+      return typeof val === "string" ? { code: null, name: val } : val;
+    }),
   provincePermanent: z
-    .object({
-      code: z.string().trim(),
-      name: z.string().trim(),
-    }).optional().nullable(),
+    .union([
+      z.object({ code: z.string().trim(), name: z.string().trim() }).nullable(),
+      z.string().trim().nullable(),
+    ])
+    .transform((val) => (typeof val === "string" ? { code: null, name: val } : val)),
 
   cityPermanent: z
-    .object({
-      code: z.string().trim(),
-      name: z.string().trim(),
-    }).optional().nullable(),
+    .union([
+      z.object({ code: z.string().trim(), name: z.string().trim() }).nullable(),
+      z.string().trim().nullable(),
+    ])
+    .transform((val) => (typeof val === "string" ? { code: null, name: val } : val)),
 
   barangayPermanent: z
-    .object({
-      code: z.string().trim(),
-      name: z.string().trim(),
-    }).optional().nullable(),
+    .union([
+      z.object({ code: z.string().trim(), name: z.string().trim() }).nullable(),
+      z.string().trim().nullable(),
+    ])
+    .transform((val) => (typeof val === "string" ? { code: null, name: val } : val)),
+
 
   // Present Address
   buildingNumPresent: z.string().trim().optional().nullable(),
@@ -94,25 +101,41 @@ export const employeeFormSchema = z.object({
   countryPresent: z.string().trim().optional().nullable(),
 
   regionPresent: z
-    .object({
-      code: z.string().trim(),
-      name: z.string().trim(),
-    }).optional().nullable(),
+    .union([
+      z.object({ code: z.string().trim(), name: z.string().trim() }).nullable(),
+      z.string().trim().nullable(),
+    ])
+    .transform((val) => {
+      if (!val) return null;
+      return typeof val === "string" ? { code: null, name: val } : val;
+    }),
   provincePresent: z
-    .object({
-      code: z.string().trim(),
-      name: z.string().trim(),
-    }).optional().nullable(),
+    .union([
+      z.object({ code: z.string().trim(), name: z.string().trim() }).nullable(),
+      z.string().trim().nullable(),
+    ])
+    .transform((val) => {
+      if (!val) return null;
+      return typeof val === "string" ? { code: null, name: val } : val;
+    }),
   cityPresent: z
-    .object({
-      code: z.string().trim(),
-      name: z.string().trim(),
-    }).optional().nullable(),
+    .union([
+      z.object({ code: z.string().trim(), name: z.string().trim() }).nullable(),
+      z.string().trim().nullable(),
+    ])
+    .transform((val) => {
+      if (!val) return null;
+      return typeof val === "string" ? { code: null, name: val } : val;
+    }),
   barangayPresent: z
-    .object({
-      code: z.string().trim(),
-      name: z.string().trim(),
-    }).optional().nullable(),
+    .union([
+      z.object({ code: z.string().trim(), name: z.string().trim() }).nullable(),
+      z.string().trim().nullable(),
+    ])
+    .transform((val) => {
+      if (!val) return null;
+      return typeof val === "string" ? { code: null, name: val } : val;
+    }),
 
   //when address to be required - this
   /*
@@ -239,77 +262,88 @@ export const employeeEmergencyContactsFormSchema = z.object({
 });
 
 export const employeeAddressesFormSchema = z.object({
-  // Permanent Address
-  buildingNumPermanent: z.string().trim().optional(),
-  streetPermanent: z.string().trim().optional(),
-  postalCodePermanent: z.string().trim().min(1, "required"),
-  countryPermanent: z.string().trim().min(1, "required"),
-  regionPermanent: z
-    .object({
-      code: z.string().trim(),
-      name: z.string().trim(),
-    })
-    .catch({ code: "", name: "" })
-    .refine((val) => !!val?.code, { message: "required" }),
 
+  // Permanent Address
+  buildingNumPermanent: z.string().trim().optional().nullable(),
+  streetPermanent: z.string().trim().optional().nullable(),
+  postalCodePermanent: z.string().trim().optional().nullable(),
+  countryPermanent: z.string().trim().optional().nullable(),
+  regionPermanent: z
+    .union([
+      z.object({ code: z.string().trim(), name: z.string().trim() }).nullable(),
+      z.string().trim().nullable(),
+    ])
+    .transform((val) => {
+      if (!val) return null;
+      return typeof val === "string" ? { code: null, name: val } : val;
+    }),
   provincePermanent: z
-    .object({
-      code: z.string().trim(),
-      name: z.string().trim(),
-    })
-    .catch({ code: "", name: "" })
-    .refine((val) => !!val?.code, { message: "required" }),
+    .union([
+      z.object({ code: z.string().trim(), name: z.string().trim() }).nullable(),
+      z.string().trim().nullable(),
+    ])
+    .transform((val) => (typeof val === "string" ? { code: null, name: val } : val)),
 
   cityPermanent: z
-    .object({
-      code: z.string().trim(),
-      name: z.string().trim(),
-    })
-    .catch({ code: "", name: "" })
-    .refine((val) => !!val?.code, { message: "required" }),
+    .union([
+      z.object({ code: z.string().trim(), name: z.string().trim() }).nullable(),
+      z.string().trim().nullable(),
+    ])
+    .transform((val) => (typeof val === "string" ? { code: null, name: val } : val)),
 
   barangayPermanent: z
-    .object({
-      code: z.string().trim(),
-      name: z.string().trim(),
-    })
-    .catch({ code: "", name: "" })
-    .refine((val) => !!val?.code, { message: "required" }),
+    .union([
+      z.object({ code: z.string().trim(), name: z.string().trim() }).nullable(),
+      z.string().trim().nullable(),
+    ])
+    .transform((val) => (typeof val === "string" ? { code: null, name: val } : val)),
+
 
   // Present Address
-  buildingNumPresent: z.string().trim().optional(),
-  streetPresent: z.string().trim().optional(),
-  postalCodePresent: z.string().trim().min(1, "required"),
-  countryPresent: z.string().trim().min(1, "required"),
+  buildingNumPresent: z.string().trim().optional().nullable(),
+  streetPresent: z.string().trim().optional().nullable(),
+  postalCodePresent: z.string().trim().optional().nullable(),
+  countryPresent: z.string().trim().optional().nullable(),
 
   regionPresent: z
-    .object({
-      code: z.string().trim(),
-      name: z.string().trim(),
-    })
-    .catch({ code: "", name: "" })
-    .refine((val) => !!val?.code, { message: "required" }),
+    .union([
+      z.object({ code: z.string().trim(), name: z.string().trim() }).nullable(),
+      z.string().trim().nullable(),
+    ])
+    .transform((val) => {
+      if (!val) return null;
+      return typeof val === "string" ? { code: null, name: val } : val;
+    }),
   provincePresent: z
-    .object({
-      code: z.string().trim(),
-      name: z.string().trim(),
-    })
-    .catch({ code: "", name: "" })
-    .refine((val) => !!val?.code, { message: "required" }),
+    .union([
+      z.object({ code: z.string().trim(), name: z.string().trim() }).nullable(),
+      z.string().trim().nullable(),
+    ])
+    .transform((val) => {
+      if (!val) return null;
+      return typeof val === "string" ? { code: null, name: val } : val;
+    }),
   cityPresent: z
-    .object({
-      code: z.string().trim(),
-      name: z.string().trim(),
-    })
-    .catch({ code: "", name: "" })
-    .refine((val) => !!val?.code, { message: "required" }),
+    .union([
+      z.object({ code: z.string().trim(), name: z.string().trim() }).nullable(),
+      z.string().trim().nullable(),
+    ])
+    .transform((val) => {
+      if (!val) return null;
+      return typeof val === "string" ? { code: null, name: val } : val;
+    }),
   barangayPresent: z
-    .object({
-      code: z.string().trim(),
-      name: z.string().trim(),
-    })
-    .catch({ code: "", name: "" })
-    .refine((val) => !!val?.code, { message: "required" }),
+    .union([
+      z.object({ code: z.string().trim(), name: z.string().trim() }).nullable(),
+      z.string().trim().nullable(),
+    ])
+    .transform((val) => {
+      if (!val) return null;
+      return typeof val === "string" ? { code: null, name: val } : val;
+    }),
+
+
+
 });
 
 export const employeeDocuURLFormSchema = z.object({

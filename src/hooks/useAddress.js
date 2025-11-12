@@ -1,5 +1,5 @@
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 
 export function useAddress({ regionCode, provinceCode, cityCode }) {
   const [regions, setRegions] = useState([]);
@@ -104,6 +104,25 @@ export function useAddress({ regionCode, provinceCode, cityCode }) {
     fetchCities();
   }, [provinceCode]);
 
+
+  const fetchCitiesForNCR = useCallback(async (regionCode) => {
+    if (!regionCode) return;
+    setLoading((prev) => ({ ...prev, cities: true }));
+    try {
+      const res = await fetch(
+        `https://psgc.gitlab.io/api/regions/${regionCode}/cities-municipalities/`
+      );
+      const data = await res.json();
+      setCities(data);
+      setBarangays([]);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading((prev) => ({ ...prev, cities: false }));
+    }
+  }, []);
+
+
   // City changed - fetch barangays
   useEffect(() => {
     if (!cityCode) {
@@ -141,5 +160,6 @@ export function useAddress({ regionCode, provinceCode, cityCode }) {
     cities,
     barangays,
     loading,
+    fetchCitiesForNCR,
   };
 }
