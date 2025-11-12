@@ -35,7 +35,7 @@ export default function WorkEmailTextField({
       render={({ field, fieldState }) => (
         <div className="space-y-1">
           {label && (
-            <Label htmlFor={name} className="text-xs font-medium">
+            <Label htmlFor={name} className="text-xs font-medium gap-0">
               {label}
               {required && <span className="text-primary-color">*</span>}
             </Label>

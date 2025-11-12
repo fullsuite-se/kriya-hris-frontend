@@ -35,6 +35,7 @@ import {
   useCheckEmailAvailabilitySuiteliferAPI,
   useCheckIdAvailabilitySuiteliferAPI,
 } from "@/hooks/suitelifer/useUserSuiteliferAPI";
+import CompanyEmployerSearchComboBox from "./fields/dynamic-fields/CompanyEmployerSearchComboBox";
 
 const EmployeeForm = ({ onSubmit, onCancel }) => {
   const { allGovernmentRemittances, loading } =
@@ -107,6 +108,7 @@ const EmployeeForm = ({ onSubmit, onCancel }) => {
       // Employee Info
       employeeId: "",
       workEmail: "",
+      company_employer: "",
       office: "",
       division: "",
       department: "",
@@ -219,6 +221,21 @@ const EmployeeForm = ({ onSubmit, onCancel }) => {
       checkEmailAvailabilitySuitelifer(email);
     }
   }, [firstNameValue, lastNameValue]);
+
+  useEffect(() => {
+    const dateHired = form.watch("dateHired");
+
+    if (dateHired) {
+      const hiredDate = new Date(dateHired);
+      const regularizedDate = new Date(hiredDate);
+      regularizedDate.setDate(hiredDate.getDate() + 180);
+
+      form.setValue("dateRegularized", regularizedDate, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    }
+  }, [form.watch("dateHired")]);
 
   return (
     <FormLayout form={form} onSubmit={onSubmit}>
@@ -429,6 +446,10 @@ const EmployeeForm = ({ onSubmit, onCancel }) => {
             control={form.control}
             type="tel"
             placeholder="09XXXXXXXXX"
+          />
+          <CompanyEmployerSearchComboBox
+            name="company_employer"
+            control={form.control}
           />
           <OfficeSearchComboBox name="office" control={form.control} />
           <DivisionSearchComboBox name="division" control={form.control} />

@@ -87,6 +87,7 @@ const AddEmployeePage = () => {
       division_id: toNullIfEmpty(cleanData.division),
       upline_id: toNullIfEmpty(cleanData.supervisor),
       office_id: toNullIfEmpty(cleanData.office),
+      company_employer_id: toNullIfEmpty(cleanData.company_employer),
       team_id: toNullIfEmpty(cleanData.team),
 
       base_pay: toNullIfEmpty(cleanData.salaryBasePay),

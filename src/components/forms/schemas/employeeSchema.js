@@ -183,6 +183,7 @@ export const employeeFormSchema = z.object({
       }
     ),
 
+  company_employer: z.string().trim().optional().nullable(),
   office: z.string().trim().optional().nullable(),
   division: z.string().trim().optional().nullable(),
   department: z.string().trim().optional().nullable(),
