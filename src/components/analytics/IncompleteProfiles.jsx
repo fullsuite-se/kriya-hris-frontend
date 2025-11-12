@@ -87,7 +87,8 @@ export default function IncompleteProfiles() {
             </div>
           ))
         ) : error ? (
-          <div className="flex items-center justify-center h-full text-muted-foreground italic">
+          <div className="flex flex-col items-center justify-center h-full text-xs text-muted-foreground italic gap-1">
+            <ExclamationTriangleIcon className="w-6 h-6 text-muted-foreground" />
             Failed to load data: {error}
           </div>
         ) : filteredData.length ? (
