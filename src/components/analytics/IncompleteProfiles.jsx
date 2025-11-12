@@ -87,9 +87,9 @@ export default function IncompleteProfiles() {
             </div>
           ))
         ) : error ? (
-          <div className="flex flex-col items-center justify-center h-full text-xs text-muted-foreground italic gap-1">
+          <div className="flex flex-col items-center justify-center h-full text-xs text-muted-foreground italic gap-1 text-center">
             <ExclamationTriangleIcon className="w-6 h-6 text-muted-foreground" />
-            Failed to load data: {error}
+          {error}
           </div>
         ) : filteredData.length ? (
           filteredData.map((user) => (
@@ -127,7 +127,7 @@ export default function IncompleteProfiles() {
             </div>
           ))
         ) : (
-          <div className="flex flex-col items-center justify-center h-full text-xs text-muted-foreground italic gap-1">
+          <div className="flex flex-col items-center justify-center h-full text-xs text-muted-foreground italic gap-1 text-center">
             <ExclamationTriangleIcon className="w-6 h-6 text-muted-foreground" />
             No matching profiles found
           </div>

@@ -117,9 +117,15 @@ const HrisDashboardPage = () => {
               <p className="text-3xl font-bold text-[#008080]">
                 {status.count}
               </p>
-              <span className="text-sm text-gray-500 mt-2">
-                +{status.newThisMonth} this month
-              </span>
+              {status.newThisMonth > 0 ? (
+                <span className="text-sm text-gray-500 mt-2">
+                  +{status.newThisMonth} this month
+                </span>
+              ) : (
+                <span className="text-sm text-gray-500 mt-2">
+                  ---
+                </span>
+              )}
             </div>
           </div>
         ))}
