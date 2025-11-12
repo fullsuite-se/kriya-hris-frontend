@@ -20,6 +20,7 @@ import {
   InformationCircleIcon,
 } from "@heroicons/react/24/solid";
 import { glassToast } from "@/components/ui/glass-toast";
+import { useEditEmployeePersonalDetailsSuiteliferAPI } from "@/hooks/suitelifer/useEditEmployeePersonalDetailsSuiteliferAPI";
 
 const EditContactInfoDialog = ({ trigger }) => {
   const [open, setOpen] = useState(false);
@@ -28,6 +29,9 @@ const EditContactInfoDialog = ({ trigger }) => {
   const [confirmSubmitOpen, setConfirmSubmitOpen] = useState(false);
   const { editEmployeeContactInfo, loading, error } =
     useEditEmployeeContactInfoAPI();
+
+  const { editEmployeePersonalDetailsSuitelifer } =
+    useEditEmployeePersonalDetailsSuiteliferAPI();
 
   const form = useForm({
     resolver: zodResolver(employeeContactInfoFormSchema),
@@ -117,7 +121,7 @@ const EditContactInfoDialog = ({ trigger }) => {
         user_id,
         changedFields
       );
-
+      await editEmployeePersonalDetailsSuitelifer(user_id, changedFields);
       console.log("Updated Contact Info:", updatedUserInfo);
       setOpen(false);
       setConfirmSubmitOpen(false);
