@@ -1,4 +1,4 @@
-import { fetchMonthlyTrendsAPI, fetchAvailableYearsAPI, fetchAttritionRateAPI, fetchSexDistributionAPI, fetchAgeDistributionAPI, fetchTenureDistributionAPI } from '@/services/analyticsAPI';
+import { fetchMonthlyTrendsAPI, fetchAvailableYearsAPI, fetchAttritionRateAPI, fetchSexDistributionAPI, fetchAgeDistributionAPI, fetchTenureDistributionAPI, fetchIncompleteProfilesAPI } from '@/services/analyticsAPI';
 import { useQuery } from "@tanstack/react-query";
 
 export const useFetchMonthlyTrendsAPI = (year = null) => {
@@ -143,6 +143,33 @@ export const useFetchTenureDistributionAPI = () => {
       if (!result.success) throw new Error(result.message);
 
       return result.data;
+    },
+    staleTime: 1000 * 60 * 20,
+    cacheTime: 1000 * 60 * 30,
+    refetchOnWindowFocus: false,
+    retry: 1,
+  });
+
+  return {
+    data: query.data || null,
+    loading: query.isLoading,
+    error: query.error?.message || null,
+  };
+};
+
+
+
+
+export const useFetchIncompleteProfilesAPI = () => {
+  const query = useQuery({
+    queryKey: ["incomplete-profiles"],
+    queryFn: async () => {
+      const result = await fetchIncompleteProfilesAPI();
+
+      if (!result) throw new Error("No response received from server");
+      if (!result.success) throw new Error(result.message);
+
+      return result;
     },
     staleTime: 1000 * 60 * 20,
     cacheTime: 1000 * 60 * 30,

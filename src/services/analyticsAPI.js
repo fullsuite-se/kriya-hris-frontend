@@ -85,3 +85,20 @@ export const fetchTenureDistributionAPI = async () => {
         };
     }
 };
+
+
+
+
+export const fetchIncompleteProfilesAPI = async () => {
+    try {
+        const response = await api.get(`/api/analytics/employees/incomplete`);
+        console.log("Incomplete profiles fetched successfully:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Failed to fetch Incomplete profiles:", error);
+        return {
+            success: false,
+            message: error.response?.data?.message || error.message || 'Failed to fetch Incomplete profiles'
+        };
+    }
+};

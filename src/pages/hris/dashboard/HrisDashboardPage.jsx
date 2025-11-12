@@ -14,6 +14,7 @@ import MonthlyTrendsHiresResigneesAnalytics from "@/components/analytics/Monthly
 import AttritionRateAnalytics from "@/components/analytics/AttritionRateAnalytics";
 import { useNavigate } from "react-router-dom";
 import TenureDistributionAnalytics from "@/components/analytics/TenureDistributionAnalytics";
+import IncompleteProfiles from "@/components/analytics/IncompleteProfiles";
 
 const statusIcons = {
   Regular: <CheckBadgeIcon width={20} className="text-[#008080]" />,
@@ -122,9 +123,13 @@ const HrisDashboardPage = () => {
             </div>
           </div>
         ))}
-        <div className="bg-white rounded-2xl shadow-sm p-5 col-span-1 lg:col-span-4 lg:row-span-1">
+        <div className="bg-white rounded-2xl shadow-sm p-5 col-span-1 lg:col-span-3 lg:row-span-1">
           <MonthlyTrendsHiresResigneesAnalytics />
         </div>
+        <div className="bg-white rounded-2xl shadow-sm p-5 col-span-1 lg:col-span-1 lg:row-span-1 h-[560px] flex flex-col">
+          <IncompleteProfiles />
+        </div>
+
         <div className="bg-white rounded-2xl shadow-sm p-5 col-span-1 lg:col-span-2 lg:row-span-2">
           <TenureDistributionAnalytics />
         </div>
