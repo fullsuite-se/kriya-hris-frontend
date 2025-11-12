@@ -114,7 +114,7 @@ export default function IncompleteProfiles() {
                 <div className="text-[10px]  font-medium text-muted-foreground truncate">
                   {user.user_id}
                 </div>
-                <div className="text-sm text-gray-700 group-hover:text-[#008080] truncate">
+                <div className="text-sm text-gray-700 group-hover:text-[#008080]">
                   {`${user.last_name}, ${user.first_name}${
                     user.middle_name ? " " + user.middle_name[0] + "." : ""
                   }`}
