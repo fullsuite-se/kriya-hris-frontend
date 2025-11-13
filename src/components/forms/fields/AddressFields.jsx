@@ -57,7 +57,7 @@ const AddressFields = ({
     if (!currentValue) {
       setValue(countryField, "Philippines", { shouldValidate: true });
     }
-  }, []); 
+  }, []);
 
   useEffect(() => {
     if (!enableCopyFrom || !isCopyEnabled) return;
@@ -133,7 +133,7 @@ const AddressFields = ({
               />
               <label
                 htmlFor={`copy-${prefix}`}
-                className="!text-xs text-muted-foreground italic font-light"
+                className="cursor-pointer !text-xs text-muted-foreground italic font-light"
               >
                 Same as {copyFromPrefix}
               </label>
@@ -218,7 +218,11 @@ const AddressFields = ({
 
             <label
               htmlFor={`outsidePH-${prefix}`}
-              className="!text-xs text-muted-foreground italic font-light"
+              className={`${
+                isCopyEnabled && enableCopyFrom
+                  ? "cursor-not-allowed"
+                  : "cursor-pointer"
+              }  !text-xs text-muted-foreground italic font-light`}
             >
               Outside PH
             </label>
