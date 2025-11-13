@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/tooltip";
 import EditDocuUrlDialog from "./dialogs/EditDocuUrlDialog";
 
-export const EmployeeDocumentsTab = () => {
+export const EmployeeDocumentsTab = ({refetch}) => {
 
   const [isListViewOptionClicked, setIsListViewOptionClicked] = useState(true);
   const [isGridViewOptionClicked, setIsGridViewOptionClicked] = useState(false);
@@ -82,6 +82,7 @@ export const EmployeeDocumentsTab = () => {
               </span>
             </Button>
           }
+          refetch={refetch}
         />
       </div>
 

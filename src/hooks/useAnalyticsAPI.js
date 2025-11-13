@@ -158,13 +158,11 @@ export const useFetchTenureDistributionAPI = () => {
 };
 
 
-
-
-export const useFetchIncompleteProfilesAPI = () => {
+export const useFetchIncompleteProfilesAPI = (userId) => {
   const query = useQuery({
-    queryKey: ["incomplete-profiles"],
+    queryKey: ["incomplete-profiles", userId],
     queryFn: async () => {
-      const result = await fetchIncompleteProfilesAPI();
+      const result = await fetchIncompleteProfilesAPI(userId);
 
       if (!result) throw new Error("No response received from server");
       if (!result.success) throw new Error(result.message);
@@ -181,6 +179,8 @@ export const useFetchIncompleteProfilesAPI = () => {
     data: query.data || null,
     loading: query.isLoading,
     error: query.error?.message || null,
+    refetch: query.refetch,
   };
 };
+
 

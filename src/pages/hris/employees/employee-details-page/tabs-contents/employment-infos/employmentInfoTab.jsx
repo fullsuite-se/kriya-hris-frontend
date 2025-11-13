@@ -25,7 +25,7 @@ import {
   parseISO,
   startOfDay,
 } from "date-fns";
-export const EmploymentInfoTab = () => {
+export const EmploymentInfoTab = ({ refetch }) => {
   const { designations, employmentInfo, salaryInfo } = useContext(
     EmployeeDetailsContext
   );
@@ -58,7 +58,7 @@ export const EmploymentInfoTab = () => {
       return `(${hoursDiff} hour${hoursDiff > 1 ? "s" : ""} left)`;
     }
 
-    return ""; 
+    return "";
   };
 
   return (
@@ -81,6 +81,7 @@ export const EmploymentInfoTab = () => {
                 <span className="hidden sm:inline text-xs">Edit</span>
               </Button>
             }
+            refetch={refetch}
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -187,6 +188,7 @@ export const EmploymentInfoTab = () => {
                 <span className="hidden sm:inline text-xs">Edit</span>
               </Button>
             }
+            refetch={refetch}
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -226,6 +228,7 @@ export const EmploymentInfoTab = () => {
                 <span className="hidden sm:inline text-xs">Edit</span>
               </Button>
             }
+            refetch={refetch}
           />
         </div>
         <div className="flex flex-col gap-1">

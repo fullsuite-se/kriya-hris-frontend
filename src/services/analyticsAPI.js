@@ -88,10 +88,10 @@ export const fetchTenureDistributionAPI = async () => {
 
 
 
-
-export const fetchIncompleteProfilesAPI = async () => {
+export const fetchIncompleteProfilesAPI = async (userId) => {
     try {
-        const response = await api.get(`/api/analytics/employees/incomplete`);
+        const query = userId ? `?userId=${userId}` : '';
+        const response = await api.get(`/api/analytics/employees/incomplete${query}`);
         console.log("Incomplete profiles fetched successfully:", response.data);
         return response.data;
     } catch (error) {

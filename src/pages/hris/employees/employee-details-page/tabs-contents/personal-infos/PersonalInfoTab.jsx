@@ -25,7 +25,7 @@ import EditContactInfoDialog from "./dialogs/EditContactInfoDialog";
 import EditGovernmentRemittancesDialog from "./dialogs/EditGovermentRemittancesDialog";
 import EditEmergencyContactsDialog from "./dialogs/EditEmergencyContactsDialog";
 
-export const PersonalInfoTab = () => {
+export const PersonalInfoTab = ({refetch}) => {
  
   const {
     personalInfo,
@@ -187,6 +187,7 @@ export const PersonalInfoTab = () => {
                 <span className="hidden sm:inline text-xs">Edit</span>
               </Button>
             }
+             refetch={refetch}
           />
         </div>
         {["PERMANENT", "CURRENT"].map((type) => {
@@ -238,6 +239,7 @@ export const PersonalInfoTab = () => {
                 <span className="hidden sm:inline text-xs">Edit</span>
               </Button>
             }
+             refetch={refetch}
           />
         </div>
 
@@ -320,7 +322,9 @@ export const PersonalInfoTab = () => {
                 <PencilIcon className="h-3 w-3" />
                 <span className="hidden sm:inline text-xs">Edit</span>
               </Button>
+
             }
+            refetch={refetch}
           />
         </div>
 
@@ -388,6 +392,7 @@ export const PersonalInfoTab = () => {
                 <span className="hidden sm:inline text-xs">Edit</span>
               </Button>
             }
+            refetch={refetch}
           />
         </div>
 

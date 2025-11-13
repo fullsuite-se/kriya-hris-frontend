@@ -33,7 +33,7 @@ import ShiftTemplateSearchComboBox from "@/components/forms/fields/dynamic-field
 import EmployeeSearchComboBox from "@/components/forms/fields/dynamic-fields/EmployeeSearchComboBox";
 import SalaryTypeSearchComboBox from "@/components/forms/fields/dynamic-fields/SalaryTypeSearchComboBox";
 
-const EditSalaryDialog = ({ trigger }) => {
+const EditSalaryDialog = ({ trigger, refetch }) => {
   const [open, setOpen] = useState(false);
   const { designations, user, salaryInfo, employmentInfo } = useContext(
     EmployeeDetailsContext
@@ -142,7 +142,9 @@ const EditSalaryDialog = ({ trigger }) => {
       );
 
       console.log("Updated Salary Details:", updatedSalary);
-
+      if (refetch) {
+        await refetch();
+      }
       glassToast({
         message: (
           <>

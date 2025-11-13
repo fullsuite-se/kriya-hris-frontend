@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useFetchIncompleteProfilesAPI } from "@/hooks/useAnalyticsAPI";
 import { Input } from "../ui/input";
 import { X, Search } from "lucide-react";
+import { CompletionCircle } from "@/pages/hris/employees/employee-details-page/EmployeeDetailsPage-CompletionDonut";
 
 export default function IncompleteProfiles() {
   const { data, loading, error } = useFetchIncompleteProfilesAPI();
@@ -83,13 +84,39 @@ export default function IncompleteProfiles() {
                 <div className="h-3 w-15 bg-gray-200 mb-1 rounded"></div>
                 <div className="h-4 w-30 bg-gray-300 rounded"></div>
               </div>
-              <div className="w-6 h-6 rounded-full aspect-square bg-gray-300" />
+              <div className="relative w-9 h-9 flex items-center justify-center animate-pulse">
+                <svg className="w-full h-full -rotate-90">
+                  <circle
+                    cx="50%"
+                    cy="50%"
+                    r="16"
+                    stroke="#e0e0e0"
+                    strokeWidth="4"
+                    fill="none"
+                  />
+                  <circle
+                    cx="50%"
+                    cy="50%"
+                    r="16"
+                    stroke="#c0c0c0"
+                    strokeWidth="4"
+                    fill="none"
+                    strokeDasharray="100"
+                    strokeDashoffset={50}
+                    strokeLinecap="round"
+                  />
+                </svg>
+
+                <span className="absolute text-[7.5px] font-semibold text-gray-400">
+                  %
+                </span>
+              </div>
             </div>
           ))
         ) : error ? (
           <div className="flex flex-col items-center justify-center h-full text-xs text-muted-foreground italic gap-1 text-center">
             <ExclamationTriangleIcon className="w-6 h-6 text-muted-foreground" />
-          {error}
+            {error}
           </div>
         ) : filteredData.length ? (
           filteredData.map((user) => (
@@ -121,9 +148,7 @@ export default function IncompleteProfiles() {
                 </div>
               </div>
 
-              <div className="w-6 h-6 rounded-full bg-secondary-color text-white flex items-center justify-center text-xs font-semibold">
-                {user.missingFields.length}
-              </div>
+              <CompletionCircle user={user} size={40} />
             </div>
           ))
         ) : (

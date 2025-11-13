@@ -13,7 +13,7 @@ import {
 import { glassToast } from "@/components/ui/glass-toast";
 import { employeeGovernmentRemittancesFormSchema } from "@/components/forms/schemas/employeeSchema";
 
-const EditGovernmentRemittancesDialog = ({ trigger }) => {
+const EditGovernmentRemittancesDialog = ({ trigger, refetch }) => {
   const [open, setOpen] = useState(false);
   const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
   const [confirmSubmitOpen, setConfirmSubmitOpen] = useState(false);
@@ -106,6 +106,9 @@ const EditGovernmentRemittancesDialog = ({ trigger }) => {
 
       setOpen(false);
       setConfirmSubmitOpen(false);
+      if (refetch) {
+        await refetch();
+      }
       glassToast({
         message: (
           <>

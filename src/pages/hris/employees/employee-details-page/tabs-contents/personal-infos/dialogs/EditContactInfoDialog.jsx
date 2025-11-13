@@ -22,7 +22,7 @@ import {
 import { glassToast } from "@/components/ui/glass-toast";
 import { useEditEmployeePersonalDetailsSuiteliferAPI } from "@/hooks/suitelifer/useEditEmployeePersonalDetailsSuiteliferAPI";
 
-const EditContactInfoDialog = ({ trigger }) => {
+const EditContactInfoDialog = ({ trigger, refetch }) => {
   const [open, setOpen] = useState(false);
   const { personalInfo, user } = useContext(EmployeeDetailsContext);
   const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
@@ -125,6 +125,9 @@ const EditContactInfoDialog = ({ trigger }) => {
       console.log("Updated Contact Info:", updatedUserInfo);
       setOpen(false);
       setConfirmSubmitOpen(false);
+      if (refetch) {
+        await refetch();
+      }
       glassToast({
         message: (
           <>

@@ -21,7 +21,7 @@ import {
 } from "@heroicons/react/24/solid";
 import { glassToast } from "@/components/ui/glass-toast";
 
-const EditAddressesDialog = ({ trigger }) => {
+const EditAddressesDialog = ({ trigger, refetch }) => {
   const [open, setOpen] = useState(false);
   const { user, addresses } = useContext(EmployeeDetailsContext);
   const [copy, setCopy] = useState(false);
@@ -188,6 +188,11 @@ const EditAddressesDialog = ({ trigger }) => {
 
       setOpen(false);
       setConfirmSubmitOpen(false);
+
+      if (refetch) {
+        await refetch();
+      }
+
       glassToast({
         message: (
           <>
@@ -211,7 +216,7 @@ const EditAddressesDialog = ({ trigger }) => {
   const confirmCancel = () => {
     setConfirmCancelOpen(false);
     setOpen(false);
-    form.reset({addresses});
+    form.reset({ addresses });
   };
 
   return (

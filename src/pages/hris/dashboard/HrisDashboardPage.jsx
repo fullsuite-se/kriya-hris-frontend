@@ -82,9 +82,12 @@ const HrisDashboardPage = () => {
         status.employment_status.toLowerCase() === "probationary"
     )
     .map((status) => status.employment_status_id);
+
+  if (loading) {
+    return <LoadingAnimation />;
+  }
   return (
     <div className="flex flex-col min-h-screen gap-5">
-      {loading && <LoadingAnimation />}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 auto-rows-[minmax(100px,auto)]">
         <div className="col-span-1">
           <div
@@ -122,9 +125,7 @@ const HrisDashboardPage = () => {
                   +{status.newThisMonth} this month
                 </span>
               ) : (
-                <span className="text-sm text-gray-500 mt-2">
-                  ---
-                </span>
+                <span className="text-sm text-gray-500 mt-2">---</span>
               )}
             </div>
           </div>

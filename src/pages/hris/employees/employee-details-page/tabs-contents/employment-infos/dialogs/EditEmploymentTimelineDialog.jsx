@@ -16,7 +16,7 @@ import {
 import { sanitizeData } from "@/utils/parsers/sanitizeData";
 import { toYMDLocal } from "@/utils/formatters/dateFormatter";
 
-const EditEmploymentTimelineDialog = ({ trigger }) => {
+const EditEmploymentTimelineDialog = ({ trigger, refetch }) => {
   const [open, setOpen] = useState(false);
   const { user, employmentInfo } = useContext(EmployeeDetailsContext);
 
@@ -121,6 +121,9 @@ const EditEmploymentTimelineDialog = ({ trigger }) => {
       console.log("Updated Employment Timeline:", updatedEmploymentTimeline);
       setOpen(false);
       setConfirmSubmitOpen(false);
+      if (refetch) {
+        await refetch();
+      }
       glassToast({
         message: (
           <>

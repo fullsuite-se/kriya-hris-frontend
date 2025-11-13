@@ -18,7 +18,7 @@ import {
 } from "@heroicons/react/24/solid";
 import { glassToast } from "@/components/ui/glass-toast";
 
-const EditDocuUrlDialog = ({ trigger, isNew }) => {
+const EditDocuUrlDialog = ({ trigger, isNew, refetch }) => {
   const [open, setOpen] = useState(false);
   const { personalInfo, user, hr201 } = useContext(EmployeeDetailsContext);
   const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
@@ -103,6 +103,9 @@ const EditDocuUrlDialog = ({ trigger, isNew }) => {
       console.log("Updated HR201 URL:", updatedHr201);
       setOpen(false);
       setConfirmSubmitOpen(false);
+      if (refetch) {
+        await refetch();
+      }
       glassToast({
         message: (
           <>

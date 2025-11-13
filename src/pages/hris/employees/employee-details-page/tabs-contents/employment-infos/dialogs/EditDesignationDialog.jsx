@@ -23,7 +23,7 @@ import ShiftTemplateSearchComboBox from "@/components/forms/fields/dynamic-field
 import EmployeeSearchComboBox from "@/components/forms/fields/dynamic-fields/EmployeeSearchComboBox";
 import CompanyEmployerSearchComboBox from "@/components/forms/fields/dynamic-fields/CompanyEmployerSearchComboBox";
 
-const EditDesignationDialog = ({ trigger }) => {
+const EditDesignationDialog = ({ trigger, refetch }) => {
   const [open, setOpen] = useState(false);
   const { designations, user, employmentInfo } = useContext(
     EmployeeDetailsContext
@@ -202,7 +202,9 @@ const EditDesignationDialog = ({ trigger }) => {
 
       setOpen(false);
       setConfirmSubmitOpen(false);
-
+      if (refetch) {
+        await refetch();
+      }
       glassToast({
         message: (
           <>
@@ -265,15 +267,9 @@ const EditDesignationDialog = ({ trigger }) => {
             control={form.control}
           />
           <OfficeSearchComboBox name="office" control={form.control} />
-          <DivisionSearchComboBox
-            name="division"
-            control={form.control}
-          />
+          <DivisionSearchComboBox name="division" control={form.control} />
           <DepartmentSearchComboBox name="department" control={form.control} />
-          <TeamSearchComboBox
-            name="team"
-            control={form.control}
-          />
+          <TeamSearchComboBox name="team" control={form.control} />
           <JobPositionSearchComboBox
             name="jobTitle"
             control={form.control}

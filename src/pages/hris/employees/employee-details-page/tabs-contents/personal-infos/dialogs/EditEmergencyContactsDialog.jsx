@@ -35,7 +35,7 @@ const hasContactsChanged = (currentList, initialList) => {
   return false;
 };
 
-const EditEmergencyContactsDialog = ({ trigger }) => {
+const EditEmergencyContactsDialog = ({ trigger, refetch }) => {
   const [open, setOpen] = useState(false);
   const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
   const [confirmSubmitOpen, setConfirmSubmitOpen] = useState(false);
@@ -117,6 +117,9 @@ const EditEmergencyContactsDialog = ({ trigger }) => {
       console.log("responseeee: ", response);
       setOpen(false);
       setConfirmSubmitOpen(false);
+       if (refetch) {
+        await refetch();
+      }
       glassToast({
         message: (
           <>
