@@ -283,6 +283,8 @@ const EditPersonalDetailsDialog = ({ trigger }) => {
             label="Gender"
             control={form.control}
             options={[
+              "Man",
+              "Woman",
               "Cisgender",
               "Transgender",
               "Non-binary",
@@ -293,6 +295,7 @@ const EditPersonalDetailsDialog = ({ trigger }) => {
               "Bigender",
               "Pangender",
               "Gender non-conforming",
+              "Prefer not to say",
             ]}
           />
           <DropdownField

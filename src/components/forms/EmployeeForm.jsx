@@ -277,6 +277,8 @@ const EmployeeForm = ({ onSubmit, onCancel }) => {
             label="Gender"
             control={form.control}
             options={[
+              "Man",
+              "Woman",
               "Cisgender",
               "Transgender",
               "Non-binary",
@@ -287,6 +289,7 @@ const EmployeeForm = ({ onSubmit, onCancel }) => {
               "Bigender",
               "Pangender",
               "Gender non-conforming",
+              "Prefer not to say",
             ]}
           />
           <DropdownField
