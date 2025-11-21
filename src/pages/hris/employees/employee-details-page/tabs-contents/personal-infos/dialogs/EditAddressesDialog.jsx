@@ -228,7 +228,7 @@ const EditAddressesDialog = ({ trigger, refetch }) => {
           else setOpen(true);
         }}
         trigger={trigger}
-        title="Update Government Remittances"
+        title="Update Addresses"
         width="xl"
         height="full"
         confirmLabel="Save Changes"
