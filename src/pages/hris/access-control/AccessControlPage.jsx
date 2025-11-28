@@ -21,6 +21,7 @@ export default function AccessControlPage() {
       atsCount: [import.meta.env.VITE_ATS_ID],
       hrisCount: [import.meta.env.VITE_HRIS_ID],
       payrollCount: [import.meta.env.VITE_PAYROLL_ID],
+      fuCount: [import.meta.env.VITE_FU_ID],
     }),
     []
   );
@@ -163,7 +164,7 @@ export default function AccessControlPage() {
   return (
     <div>
       {/* Cards Grid */}
-      <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 mb-5">
+      <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 mb-5">
         {cardsData.map(({ key, count, title, isSelected }) => (
           <div
             key={key}

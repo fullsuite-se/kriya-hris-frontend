@@ -5,8 +5,8 @@ export default function AccessControlSkeleton() {
   return (
     <div>
       {/* Cards Grid Skeleton */}
-      <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 mb-5">
-        {[...Array(5)].map((_, index) => (
+      <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 mb-5">
+        {[...Array(6)].map((_, index) => (
           <Card
             key={index}
             className="rounded-2xl !shadow-none !border-none p-5"

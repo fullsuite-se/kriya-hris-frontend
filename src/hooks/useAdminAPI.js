@@ -87,7 +87,7 @@ export const useFetchAllUsersWithPermissionsAPI = (initialFilters = {}) => {
   const queryClient = useQueryClient();
   const [filters, setFilters] = useState(initialFilters);
   const [searchInput, setSearchInput] = useState("");
-  const [isSearching, setIsSearching] = useState(false); 
+  const [isSearching, setIsSearching] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -113,6 +113,7 @@ export const useFetchAllUsersWithPermissionsAPI = (initialFilters = {}) => {
       hrisCount: data?.hrisCount || 0,
       atsCount: data?.atsCount || 0,
       payrollCount: data?.payrollCount || 0,
+      fuCount: data?.fuCount || 0,
     }),
   });
 
@@ -149,6 +150,7 @@ export const useFetchAllUsersWithPermissionsAPI = (initialFilters = {}) => {
     hrisCount: 0,
     atsCount: 0,
     payrollCount: 0,
+    fuCount: 0,
   };
 
   const updateFilters = useCallback((newFilters) => {
@@ -175,7 +177,7 @@ export const useFetchAllUsersWithPermissionsAPI = (initialFilters = {}) => {
   const handleSearch = useCallback(
     (searchTerm) => {
       const term = searchTerm || searchInput;
-      setIsSearching(true); 
+      setIsSearching(true);
       debouncedSearchRef.current(term, filters, updateFilters);
       setPage(1);
     },
@@ -212,7 +214,7 @@ export const useFetchAllUsersWithPermissionsAPI = (initialFilters = {}) => {
     pageSize,
     error,
     loading,
-    tableLoading, 
+    tableLoading,
     filters,
     searchInput,
     searchFilter: filters.search || "",
